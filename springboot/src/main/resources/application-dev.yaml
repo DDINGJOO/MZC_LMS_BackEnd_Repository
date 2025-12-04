@@ -24,6 +24,23 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    default-encoding: UTF-8
+
   sql:
     init:
       mode: never
@@ -44,6 +61,10 @@ security:
 logging:
   level:
     root: debug
+
+email:
+  from: ${MAIL_FROM:${MAIL_USERNAME}}
+  from-name: ${MAIL_FROM_NAME:LMS System}
 
 
 
