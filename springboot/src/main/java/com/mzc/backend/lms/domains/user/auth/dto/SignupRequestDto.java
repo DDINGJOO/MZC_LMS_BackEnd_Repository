@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.user.auth.dto;
 
+import com.mzc.backend.lms.domains.user.auth.validation.ValidGrade;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -7,6 +8,7 @@ import lombok.Data;
  * 회원가입 요청 DTO
  */
 @Data
+@ValidGrade  // 커스텀 학년 검증
 public class SignupRequestDto {
 
     @NotBlank(message = "이메일은 필수입니다")
@@ -35,10 +37,9 @@ public class SignupRequestDto {
     @NotNull(message = "학과 정보는 필수입니다")
     private Long departmentId;
 
-    // 학생인 경우
-    @Min(value = 1, message = "학년은 1 이상이어야 합니다")
-    @Max(value = 6, message = "학년은 6 이하여야 합니다")
-    private Integer grade = 1;  // 기본값 1학년
+    // 학생인 경우에만 필수 (커스텀 벨리데이터가 처리)
+    // 교수인 경우 무시됨
+    private Integer grade;  // 학년 (1~4)
 
     // 교수인 경우
     private String professorNumber;  // 교번 (교수만 입력)
