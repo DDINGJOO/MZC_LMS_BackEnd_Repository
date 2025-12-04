@@ -29,6 +29,12 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     List<RefreshToken> findByUser(User user);
 
     /**
+     * 사용자 ID로 모든 RefreshToken 조회
+     */
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.user.id = :userId")
+    List<RefreshToken> findAllByUserId(@Param("userId") Long userId);
+
+    /**
      * 사용자의 유효한 RefreshToken 조회
      */
     @Query("SELECT rt FROM RefreshToken rt WHERE rt.user = :user AND rt.isRevoked = false AND rt.expiresAt > :now")
