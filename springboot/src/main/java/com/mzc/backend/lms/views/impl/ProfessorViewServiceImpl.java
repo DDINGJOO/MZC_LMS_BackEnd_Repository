@@ -5,7 +5,7 @@ import com.mzc.backend.lms.domains.user.organization.repository.DepartmentReposi
 import com.mzc.backend.lms.domains.user.professor.entity.Professor;
 import com.mzc.backend.lms.domains.user.professor.repository.ProfessorDepartmentRepository;
 import com.mzc.backend.lms.domains.user.professor.repository.ProfessorRepository;
-import com.mzc.backend.lms.domains.user.profile.repository.UserContactRepository;
+import com.mzc.backend.lms.domains.user.profile.repository.UserPrimaryContactRepository;
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileImageRepository;
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileRepository;
 import com.mzc.backend.lms.domains.user.user.exceptions.UserException;
@@ -31,7 +31,7 @@ public class ProfessorViewServiceImpl implements ProfessorViewService {
     private final ProfessorRepository professorRepository;
     private final ProfessorDepartmentRepository professorDepartmentRepository;
     private final UserProfileRepository userProfileRepository;
-    private final UserContactRepository userContactRepository;
+    private final UserPrimaryContactRepository userPrimaryContactRepository;
     private final UserProfileImageRepository userProfileImageRepository;
     private final DepartmentRepository departmentRepository;
     private final EncryptionService encryptionService;
