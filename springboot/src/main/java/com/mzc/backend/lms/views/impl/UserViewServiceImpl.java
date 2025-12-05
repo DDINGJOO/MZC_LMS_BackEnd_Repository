@@ -4,7 +4,7 @@ import com.mzc.backend.lms.domains.user.auth.encryption.service.EncryptionServic
 import com.mzc.backend.lms.domains.user.professor.repository.ProfessorRepository;
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfileImage;
-import com.mzc.backend.lms.domains.user.profile.repository.UserContactRepository;
+import com.mzc.backend.lms.domains.user.profile.repository.UserPrimaryContactRepository;
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileImageRepository;
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileRepository;
 import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;
@@ -29,7 +29,7 @@ public class UserViewServiceImpl implements UserViewService {
 
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
-    private final UserContactRepository userContactRepository;
+    private final UserPrimaryContactRepository userPrimaryContactRepository;
     private final UserProfileImageRepository userProfileImageRepository;
     private final StudentRepository studentRepository;
     private final ProfessorRepository professorRepository;
@@ -97,7 +97,7 @@ public class UserViewServiceImpl implements UserViewService {
         log.debug("Getting profile image URL for userId: {}", userId);
 
         Optional<UserProfileImage> imageOpt = userProfileImageRepository
-            .findTopByUserIdAndIsCurrentTrueOrderByUploadedAtDesc(userId);
+            .findByUserId(userId);
 
         return imageOpt.map(UserProfileImage::getImageUrl).orElse(null);
     }
