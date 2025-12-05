@@ -24,8 +24,8 @@ import java.time.LocalDateTime;
 public class Student {
 
     @Id
-    @Column(name = "student_id", length = 20)
-    private String studentId;  // 학번 (예: 20240101001) - PK이자 User.id와 동일
+    @Column(name = "student_id")
+    private Long studentId;  // 학번 (예: 20240101001) - PK이자 User.id와 동일
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
@@ -42,8 +42,11 @@ public class Student {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @OneToOne(mappedBy = "student", fetch = FetchType.LAZY)
+    private StudentDepartment studentDepartment;  // 학과 관계 (1:1)
+
     @Builder
-    private Student(String studentId, User user, Integer admissionYear, Integer grade) {
+    private Student(Long studentId, User user, Integer admissionYear, Integer grade) {
         this.studentId = studentId;
         this.user = user;
         this.admissionYear = admissionYear;
@@ -53,7 +56,7 @@ public class Student {
     /**
      * 학생 생성
      */
-    public static Student create(String studentId, User user, Integer admissionYear, Integer grade) {
+    public static Student create(Long studentId, User user, Integer admissionYear, Integer grade) {
         return Student.builder()
                 .studentId(studentId)
                 .user(user)
@@ -75,7 +78,7 @@ public class Student {
     /**
      * 학번 getter (기존 코드 호환용)
      */
-    public String getStudentNumber() {
+    public Long getStudentNumber() {
         return this.studentId;
     }
 }
