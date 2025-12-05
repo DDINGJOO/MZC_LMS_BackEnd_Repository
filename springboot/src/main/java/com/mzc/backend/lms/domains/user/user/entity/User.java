@@ -1,5 +1,8 @@
 package com.mzc.backend.lms.domains.user.user.entity;
 
+import com.mzc.backend.lms.domains.user.profile.entity.UserPrimaryContact;
+import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
+import com.mzc.backend.lms.domains.user.profile.entity.UserProfileImage;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -47,7 +50,15 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // 연관관계는 각 엔티티에서 정의
+    // 1:1 연관관계 - 양방향 매핑
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserProfile userProfile;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserPrimaryContact primaryContact;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserProfileImage profileImage;
 
     @Builder
     private User(String email, String password) {
