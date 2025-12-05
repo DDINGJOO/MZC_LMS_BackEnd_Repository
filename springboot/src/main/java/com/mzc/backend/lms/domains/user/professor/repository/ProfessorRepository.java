@@ -14,12 +14,12 @@ import java.util.Optional;
  * 교수 Repository
  */
 @Repository
-public interface ProfessorRepository extends JpaRepository<Professor, String> {
+public interface ProfessorRepository extends JpaRepository<Professor, Long> {
 
     /**
      * 교번 존재 여부 확인
      */
-    boolean existsById(String professorId);
+    boolean existsById(Long professorId);
 
     /**
      * 임용일자 범위로 교수 목록 조회
@@ -38,7 +38,7 @@ public interface ProfessorRepository extends JpaRepository<Professor, String> {
         JOIN FETCH p.user u
         WHERE p.professorId = :professorId
         """)
-    Optional<Professor> findByIdWithUser(@Param("professorId") String professorId);
+    Optional<Professor> findByIdWithUser(@Param("professorId") Long professorId);
 
     /**
      * 여러 교번으로 교수 정보 일괄 조회
@@ -48,7 +48,7 @@ public interface ProfessorRepository extends JpaRepository<Professor, String> {
         JOIN FETCH p.user u
         WHERE p.professorId IN :professorIds
         """)
-    List<Professor> findByIdsWithUser(@Param("professorIds") List<String> professorIds);
+    List<Professor> findByIdsWithUser(@Param("professorIds") List<Long> professorIds);
 
     /**
      * 교수 전체 정보 조회를 위한 Native Query
@@ -73,7 +73,7 @@ public interface ProfessorRepository extends JpaRepository<Professor, String> {
         LEFT JOIN user_profile_images img ON u.id = img.user_id
         WHERE p.professor_id = :professorId
         """, nativeQuery = true)
-    Object[] findProfessorFullInfoById(@Param("professorId") String professorId);
+    Object[] findProfessorFullInfoById(@Param("professorId") Long professorId);
 
     /**
      * 여러 교수의 전체 정보 조회를 위한 Native Query
@@ -98,5 +98,5 @@ public interface ProfessorRepository extends JpaRepository<Professor, String> {
         LEFT JOIN user_profile_images img ON u.id = img.user_id
         WHERE p.professor_id IN :professorIds
         """, nativeQuery = true)
-    List<Object[]> findProfessorsFullInfoByIds(@Param("professorIds") List<String> professorIds);
+    List<Object[]> findProfessorsFullInfoByIds(@Param("professorIds") List<Long> professorIds);
 }
