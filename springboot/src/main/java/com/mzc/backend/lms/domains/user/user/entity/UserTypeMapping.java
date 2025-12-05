@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 public class UserTypeMapping {
 
     @Id
-    @Column(name = "user_id", length = 20)
-    private String userId;
+    @Column(name = "user_id")
+    private Long userId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
