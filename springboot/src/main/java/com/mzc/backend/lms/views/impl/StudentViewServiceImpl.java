@@ -48,14 +48,20 @@ public class StudentViewServiceImpl implements StudentViewService {
     public Optional<StudentView> findStudent(String studentNumber) {
         log.debug("Finding student by studentNumber: {}", studentNumber);
 
-        // Native Query로 전체 정보 조회
-        Object[] result = studentRepository.findStudentFullInfoById(studentNumber);
+        try {
+            Long studentId = Long.parseLong(studentNumber);
+            // Native Query로 전체 정보 조회
+            Object[] result = studentRepository.findStudentFullInfoById(studentId);
 
-        if (result == null) {
+            if (result == null) {
+                return Optional.empty();
+            }
+
+            return Optional.of(mapToStudentView(result));
+        } catch (NumberFormatException e) {
+            log.debug("Invalid student number format: {}", studentNumber);
             return Optional.empty();
         }
-
-        return Optional.of(mapToStudentView(result));
     }
 
     @Override
@@ -67,8 +73,25 @@ public class StudentViewServiceImpl implements StudentViewService {
 
         log.debug("Finding {} students by numbers", studentNumbers.size());
 
+        // String을 Long으로 변환
+        List<Long> studentIds = studentNumbers.stream()
+            .map(num -> {
+                try {
+                    return Long.parseLong(num);
+                } catch (NumberFormatException e) {
+                    log.debug("Invalid student number format: {}", num);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        if (studentIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         // Native Query로 여러 학생 정보 조회
-        List<Object[]> results = studentRepository.findStudentsFullInfoByIds(studentNumbers);
+        List<Object[]> results = studentRepository.findStudentsFullInfoByIds(studentIds);
 
         return results.stream()
             .map(this::mapToStudentView)
@@ -80,7 +103,12 @@ public class StudentViewServiceImpl implements StudentViewService {
 
     @Transactional(readOnly = true)
     public boolean existsByStudentNumber(String studentNumber) {
-        return studentRepository.existsById(studentNumber);
+        try {
+            Long studentId = Long.parseLong(studentNumber);
+            return studentRepository.existsById(studentId);
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     /**
