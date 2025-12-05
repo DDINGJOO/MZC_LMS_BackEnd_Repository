@@ -2,7 +2,7 @@ package com.mzc.backend.lms.views.impl;
 
 import com.mzc.backend.lms.domains.user.auth.encryption.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.organization.repository.DepartmentRepository;
-import com.mzc.backend.lms.domains.user.profile.repository.UserContactRepository;
+import com.mzc.backend.lms.domains.user.profile.repository.UserPrimaryContactRepository;
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileImageRepository;
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileRepository;
 import com.mzc.backend.lms.domains.user.student.entity.Student;
@@ -31,7 +31,7 @@ public class StudentViewServiceImpl implements StudentViewService {
     private final StudentRepository studentRepository;
     private final StudentDepartmentRepository studentDepartmentRepository;
     private final UserProfileRepository userProfileRepository;
-    private final UserContactRepository userContactRepository;
+    private final UserPrimaryContactRepository userPrimaryContactRepository;
     private final UserProfileImageRepository userProfileImageRepository;
     private final DepartmentRepository departmentRepository;
     private final EncryptionService encryptionService;
