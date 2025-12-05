@@ -92,7 +92,7 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
 
     private UserTypeInfo getUserTypeInfo(User user) {
         String userType = null;
-        String userNumber = user.getId();  // User의 ID가 곧 학번/교번
+        Long userNumber = user.getId();  // User의 ID가 곧 학번/교번
 
         // Student 테이블에서 찾기
         var student = studentRepository.findById(userNumber);
@@ -127,9 +127,9 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
 
     private static class UserTypeInfo {
         final String userType;
-        final String userNumber;
+        final Long userNumber;
 
-        UserTypeInfo(String userType, String userNumber) {
+        UserTypeInfo(String userType, Long userNumber) {
             this.userType = userType;
             this.userNumber = userNumber;
         }
