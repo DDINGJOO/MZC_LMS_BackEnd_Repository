@@ -52,7 +52,7 @@ public class LoginUseCaseImpl implements LoginUseCase {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        UserInfo userInfo = getUserInfo(user);
+        UserInfo userInfo = getUserInfo(user, dto.getUsername());
 
         String accessToken = jwtTokenService.generateAccessToken(
             user, userInfo.userType, userInfo.userNumber
@@ -94,13 +94,13 @@ public class LoginUseCaseImpl implements LoginUseCase {
         }
 
         // 학번으로 조회
-        Optional<Student> student = studentRepository.findByStudentNumber(username);
+        Optional<Student> student = studentRepository.findById(username);
         if (student.isPresent()) {
             return student.get().getUser();
         }
 
-        // 교번으로 조회
-        Optional<Professor> professor = professorRepository.findByProfessorNumber(username);
+        // 교번으로 조회 (교번은 1로 시작)
+        Optional<Professor> professor = professorRepository.findById(username);
         if (professor.isPresent()) {
             return professor.get().getUser();
         }
@@ -108,26 +108,33 @@ public class LoginUseCaseImpl implements LoginUseCase {
         return null;
     }
 
-    private UserInfo getUserInfo(User user) {
-        String userType = null;
+    private UserInfo getUserInfo(User user, String username) {
+        String userType = "USER";
         String userNumber = null;
         String name = null;
 
-        Optional<Student> student = studentRepository.findByUserId(user.getId());
-        if (student.isPresent()) {
-            userType = "STUDENT";
-            userNumber = student.get().getStudentNumber();
-        } else {
-            Optional<Professor> professor = professorRepository.findByUserId(user.getId());
-            if (professor.isPresent()) {
-                userType = "PROFESSOR";
-                userNumber = professor.get().getProfessorNumber();
+        // username이 이메일이 아닌 경우 학번/교번으로 처리
+        if (!username.contains("@")) {
+            // 학번으로 조회 시도
+            Optional<Student> student = studentRepository.findById(username);
+            if (student.isPresent()) {
+                userType = "STUDENT";
+                userNumber = username;  // username이 곧 학번
+            } else {
+                // 교번으로 조회 시도
+                Optional<Professor> professor = professorRepository.findById(username);
+                if (professor.isPresent()) {
+                    userType = "PROFESSOR";
+                    userNumber = username;  // username이 곧 교번
+                }
             }
         }
 
+        // 프로필에서 이름 가져오기
         Optional<UserProfile> profile = userProfileRepository.findByUserId(user.getId());
         if (profile.isPresent()) {
-            name = profile.get().getName();
+            // 이름 복호화
+            name = encryptionService.decryptName(profile.get().getName());
         }
 
         return new UserInfo(userType, userNumber, name);

@@ -47,24 +47,42 @@ public class SignupUseCaseImpl implements SignupUseCase {
     private final DepartmentRepository departmentRepository;
     private final EncryptionService encryptionService;
     private final EmailVerificationService emailVerificationService;
+    private final com.mzc.backend.lms.domains.user.student.service.StudentNumberGenerator studentNumberGenerator;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long execute(SignupRequestDto dto) {
+    public String execute(SignupRequestDto dto) {
         try {
             validateSignupRequest(dto);
 
             Department department = departmentRepository.findById(dto.getDepartmentId())
                     .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 학과입니다."));
 
-            User user = createUser(dto);
+            // 학번/교번 먼저 생성
+            String userNumber;
+            if (dto.isStudent()) {
+                userNumber = studentNumberGenerator.generateStudentNumber(
+                    department.getCollege().getId(),
+                    department.getId()
+                );
+            } else if (dto.isProfessor()) {
+                userNumber = studentNumberGenerator.generateProfessorNumber(
+                    department.getCollege().getId(),
+                    department.getId()
+                );
+            } else {
+                throw new IllegalArgumentException("유효하지 않은 사용자 타입입니다.");
+            }
+
+            // User 생성 (ID로 학번/교번 사용)
+            User user = createUser(userNumber, dto);
             createUserProfile(user, dto);
             createUserContact(user, dto);
 
             if (dto.isStudent()) {
                 createStudent(user, department, dto.getGrade());
             } else if (dto.isProfessor()) {
-                createProfessor(user, department, dto.getProfessorNumber());
+                createProfessor(user, department);
             }
 
             emailVerificationService.clearVerification(dto.getEmail());
@@ -101,8 +119,9 @@ public class SignupUseCaseImpl implements SignupUseCase {
         }
     }
 
-    private User createUser(SignupRequestDto dto) {
+    private User createUser(String id, SignupRequestDto dto) {
         User user = User.create(
+            id,
             encryptionService.encryptEmail(dto.getEmail()),
             encryptionService.encryptPassword(dto.getPassword())
         );
@@ -110,7 +129,9 @@ public class SignupUseCaseImpl implements SignupUseCase {
     }
 
     private void createUserProfile(User user, SignupRequestDto dto) {
-        UserProfile profile = UserProfile.create(user, dto.getName());
+        // 이름 암호화하여 저장
+        String encryptedName = encryptionService.encryptName(dto.getName());
+        UserProfile profile = UserProfile.create(user, encryptedName);
         userProfileRepository.save(profile);
     }
 
@@ -127,63 +148,36 @@ public class SignupUseCaseImpl implements SignupUseCase {
             grade = 1;
         }
 
-        String studentNumber = generateStudentNumber();
-        Student student = Student.create(user, studentNumber, Year.now().getValue(), grade);
+        // User의 ID가 이미 학번임
+        String studentId = user.getId();
+
+        // 학생 엔티티 생성 (새로운 PK 구조)
+        Student student = Student.create(studentId, user, Year.now().getValue(), grade);
         studentRepository.save(student);
 
+        // 학생-학과 관계 설정
         StudentDepartment studentDept = StudentDepartment.create(
             student, department, true, LocalDate.now()
         );
         studentDepartmentRepository.save(studentDept);
 
-        log.info("학생 생성: studentNumber={}, grade={}", studentNumber, grade);
+        log.info("학생 생성: studentId={}, grade={}", studentId, grade);
     }
 
-    private void createProfessor(User user, Department department, String professorNumber) {
-        if (professorNumber == null || professorNumber.trim().isEmpty()) {
-            professorNumber = generateProfessorNumber();
-        }
+    private void createProfessor(User user, Department department) {
+        // User의 ID가 이미 교번임
+        String professorId = user.getId();
 
-        Professor professor = Professor.create(user, professorNumber, LocalDate.now());
+        // 교수 엔티티 생성 (새로운 PK 구조)
+        Professor professor = Professor.create(professorId, user, LocalDate.now());
         professorRepository.save(professor);
 
+        // 교수-학과 관계 설정
         ProfessorDepartment professorDept = ProfessorDepartment.create(
             professor, department, true, LocalDate.now()
         );
         professorDepartmentRepository.save(professorDept);
 
-        log.info("교수 생성: professorNumber={}", professorNumber);
-    }
-
-    private String generateStudentNumber() {
-        int year = Year.now().getValue();
-        String prefix = String.valueOf(year);
-
-        Optional<Student> lastStudent = studentRepository
-                .findTopByStudentNumberStartingWithOrderByStudentNumberDesc(prefix);
-
-        int sequence = 1;
-        if (lastStudent.isPresent()) {
-            String lastNumber = lastStudent.get().getStudentNumber();
-            sequence = Integer.parseInt(lastNumber.substring(4)) + 1;
-        }
-
-        return String.format("%s%06d", prefix, sequence);
-    }
-
-    private String generateProfessorNumber() {
-        int year = Year.now().getValue();
-        String prefix = "P" + year;
-
-        Optional<Professor> lastProfessor = professorRepository
-                .findTopByProfessorNumberStartingWithOrderByProfessorNumberDesc(prefix);
-
-        int sequence = 1;
-        if (lastProfessor.isPresent()) {
-            String lastNumber = lastProfessor.get().getProfessorNumber();
-            sequence = Integer.parseInt(lastNumber.substring(5)) + 1;
-        }
-
-        return String.format("%s%03d", prefix, sequence);
+        log.info("교수 생성: professorId={}", professorId);
     }
 }
