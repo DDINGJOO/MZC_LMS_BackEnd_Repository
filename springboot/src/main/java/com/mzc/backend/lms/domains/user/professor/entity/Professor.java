@@ -24,13 +24,16 @@ import java.time.LocalDateTime;
 public class Professor {
 
     @Id
-    @Column(name = "professor_id", length = 20)
-    private String professorId;  // 교번 (예: 20240101001) - PK이자 User.id와 동일
+    @Column(name = "professor_id")
+    private Long professorId;  // 교번 (예: 20240101001) - PK이자 User.id와 동일
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "professor_id")
     private User user;
+
+    @OneToOne(mappedBy = "professor", fetch = FetchType.LAZY)
+    private ProfessorDepartment professorDepartment;  // 학과 관계 (1:1)
 
     @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;  // 임용일자
@@ -40,7 +43,7 @@ public class Professor {
     private LocalDateTime createdAt;
 
     @Builder
-    private Professor(String professorId, User user, LocalDate appointmentDate) {
+    private Professor(Long professorId, User user, LocalDate appointmentDate) {
         this.professorId = professorId;
         this.user = user;
         this.appointmentDate = appointmentDate;
@@ -49,7 +52,7 @@ public class Professor {
     /**
      * 교수 생성
      */
-    public static Professor create(String professorId, User user, LocalDate appointmentDate) {
+    public static Professor create(Long professorId, User user, LocalDate appointmentDate) {
         return Professor.builder()
                 .professorId(professorId)
                 .user(user)
@@ -60,7 +63,7 @@ public class Professor {
     /**
      * 교번 getter (기존 코드 호환용)
      */
-    public String getProfessorNumber() {
+    public Long getProfessorNumber() {
         return this.professorId;
     }
 }
