@@ -10,10 +10,10 @@ import com.mzc.backend.lms.domains.user.professor.entity.Professor;
 import com.mzc.backend.lms.domains.user.professor.entity.ProfessorDepartment;
 import com.mzc.backend.lms.domains.user.professor.repository.ProfessorDepartmentRepository;
 import com.mzc.backend.lms.domains.user.professor.repository.ProfessorRepository;
-import com.mzc.backend.lms.domains.user.profile.entity.UserContact;
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
-import com.mzc.backend.lms.domains.user.profile.repository.UserContactRepository;
+import com.mzc.backend.lms.domains.user.profile.entity.UserPrimaryContact;
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileRepository;
+import com.mzc.backend.lms.domains.user.profile.repository.UserPrimaryContactRepository;
 import com.mzc.backend.lms.domains.user.student.entity.Student;
 import com.mzc.backend.lms.domains.user.student.entity.StudentDepartment;
 import com.mzc.backend.lms.domains.user.student.repository.StudentDepartmentRepository;
@@ -41,7 +41,7 @@ public class SignupUseCaseImpl implements SignupUseCase {
     private final StudentRepository studentRepository;
     private final ProfessorRepository professorRepository;
     private final UserProfileRepository userProfileRepository;
-    private final UserContactRepository userContactRepository;
+    private final UserPrimaryContactRepository userPrimaryContactRepository;
     private final StudentDepartmentRepository studentDepartmentRepository;
     private final ProfessorDepartmentRepository professorDepartmentRepository;
     private final DepartmentRepository departmentRepository;
@@ -115,13 +115,11 @@ public class SignupUseCaseImpl implements SignupUseCase {
     }
 
     private void createUserContact(User user, SignupRequestDto dto) {
-        UserContact contact = UserContact.create(
+        UserPrimaryContact contact = UserPrimaryContact.create(
             user,
-            UserContact.ContactType.MOBILE,
-            encryptionService.encryptPhoneNumber(dto.getPhoneNumber()),
-            true
+            encryptionService.encryptPhoneNumber(dto.getPhoneNumber())
         );
-        userContactRepository.save(contact);
+        userPrimaryContactRepository.save(contact);
     }
 
     private void createStudent(User user, Department department, Integer grade) {
