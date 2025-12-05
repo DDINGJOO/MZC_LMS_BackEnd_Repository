@@ -40,14 +40,20 @@ public class UserViewServiceImpl implements UserViewService {
     public String getUserType(String userId) {
         log.debug("Getting user type for userId: {}", userId);
 
-        // 학생인지 확인
-        if (studentRepository.findById(userId).isPresent()) {
-            return "STUDENT";
-        }
+        try {
+            Long id = Long.parseLong(userId);
 
-        // 교수인지 확인
-        if (professorRepository.findById(userId).isPresent()) {
-            return "PROFESSOR";
+            // 학생인지 확인
+            if (studentRepository.findById(id).isPresent()) {
+                return "STUDENT";
+            }
+
+            // 교수인지 확인
+            if (professorRepository.findById(id).isPresent()) {
+                return "PROFESSOR";
+            }
+        } catch (NumberFormatException e) {
+            log.debug("Invalid user id format: {}", userId);
         }
 
         return null;
@@ -58,14 +64,20 @@ public class UserViewServiceImpl implements UserViewService {
     public String getUserName(String userId) {
         log.debug("Getting user name for userId: {}", userId);
 
-        Optional<UserProfile> profileOpt = userProfileRepository.findByUserId(userId);
+        try {
+            Long id = Long.parseLong(userId);
+            Optional<UserProfile> profileOpt = userProfileRepository.findByUserId(id);
 
-        if (profileOpt.isEmpty()) {
+            if (profileOpt.isEmpty()) {
+                return null;
+            }
+
+            String encryptedName = profileOpt.get().getName();
+            return decryptName(encryptedName);
+        } catch (NumberFormatException e) {
+            log.debug("Invalid user id format: {}", userId);
             return null;
         }
-
-        String encryptedName = profileOpt.get().getName();
-        return decryptName(encryptedName);
     }
 
     @Override
@@ -77,15 +89,32 @@ public class UserViewServiceImpl implements UserViewService {
 
         log.debug("Getting names for {} users", userIds.size());
 
+        // String을 Long으로 변환
+        List<Long> longIds = userIds.stream()
+            .map(id -> {
+                try {
+                    return Long.parseLong(id);
+                } catch (NumberFormatException e) {
+                    log.debug("Invalid user id format: {}", id);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        if (longIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         // 프로젝션 쿼리로 userId와 name만 조회
-        List<Object[]> results = userProfileRepository.findNamesByUserIds(userIds);
+        List<Object[]> results = userProfileRepository.findNamesByUserIds(longIds);
 
         Map<String, String> nameMap = new HashMap<>();
         for (Object[] result : results) {
-            String userId = (String) result[0];
+            Long longUserId = (Long) result[0];
             String encryptedName = (String) result[1];
             String decryptedName = decryptName(encryptedName);
-            nameMap.put(userId, decryptedName);
+            nameMap.put(longUserId.toString(), decryptedName);
         }
 
         return nameMap;
@@ -96,16 +125,27 @@ public class UserViewServiceImpl implements UserViewService {
     public String getUserProfileImageUrl(String userId) {
         log.debug("Getting profile image URL for userId: {}", userId);
 
-        Optional<UserProfileImage> imageOpt = userProfileImageRepository
-            .findByUserId(userId);
+        try {
+            Long id = Long.parseLong(userId);
+            Optional<UserProfileImage> imageOpt = userProfileImageRepository
+                .findByUserId(id);
 
-        return imageOpt.map(UserProfileImage::getImageUrl).orElse(null);
+            return imageOpt.map(UserProfileImage::getImageUrl).orElse(null);
+        } catch (NumberFormatException e) {
+            log.debug("Invalid user id format: {}", userId);
+            return null;
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByUserId(String userId) {
-        return userRepository.existsById(userId);
+        try {
+            Long id = Long.parseLong(userId);
+            return userRepository.existsById(id);
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     /**
