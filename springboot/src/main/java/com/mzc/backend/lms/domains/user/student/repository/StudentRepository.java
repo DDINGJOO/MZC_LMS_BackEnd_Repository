@@ -13,12 +13,12 @@ import java.util.Optional;
  * 학생 Repository
  */
 @Repository
-public interface StudentRepository extends JpaRepository<Student, String> {
+public interface StudentRepository extends JpaRepository<Student, Long> {
 
     /**
      * 학번 존재 여부 확인
      */
-    boolean existsById(String studentId);
+    boolean existsById(Long studentId);
 
     /**
      * 입학년도로 학생 목록 조회
@@ -28,7 +28,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
     /**
      * 학번 패턴으로 학생 검색
      */
-    @Query("SELECT s FROM Student s WHERE s.studentId LIKE :pattern")
+    @Query("SELECT s FROM Student s WHERE CAST(s.studentId AS string) LIKE :pattern")
     List<Student> findByStudentIdPattern(@Param("pattern") String pattern);
 
     // ==================== View Service용 조인 쿼리 ====================
@@ -41,7 +41,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
         JOIN FETCH s.user u
         WHERE s.studentId = :studentId
         """)
-    Optional<Student> findByIdWithUser(@Param("studentId") String studentId);
+    Optional<Student> findByIdWithUser(@Param("studentId") Long studentId);
 
     /**
      * 여러 학번으로 학생 정보 일괄 조회
@@ -51,7 +51,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
         JOIN FETCH s.user u
         WHERE s.studentId IN :studentIds
         """)
-    List<Student> findByIdsWithUser(@Param("studentIds") List<String> studentIds);
+    List<Student> findByIdsWithUser(@Param("studentIds") List<Long> studentIds);
 
     /**
      * 학생 전체 정보 조회를 위한 Native Query
@@ -75,7 +75,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
         LEFT JOIN user_profile_images img ON u.id = img.user_id
         WHERE s.student_id = :studentId
         """, nativeQuery = true)
-    Object[] findStudentFullInfoById(@Param("studentId") String studentId);
+    Object[] findStudentFullInfoById(@Param("studentId") Long studentId);
 
     /**
      * 여러 학생의 전체 정보 조회를 위한 Native Query
@@ -99,5 +99,5 @@ public interface StudentRepository extends JpaRepository<Student, String> {
         LEFT JOIN user_profile_images img ON u.id = img.user_id
         WHERE s.student_id IN :studentIds
         """, nativeQuery = true)
-    List<Object[]> findStudentsFullInfoByIds(@Param("studentIds") List<String> studentIds);
+    List<Object[]> findStudentsFullInfoByIds(@Param("studentIds") List<Long> studentIds);
 }
