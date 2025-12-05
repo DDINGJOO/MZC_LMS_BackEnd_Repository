@@ -74,7 +74,7 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
 
     @Override
     @Transactional
-    public int revokeAllUserTokens(Long userId) {
+    public int revokeAllUserTokens(String userId) {
         List<RefreshToken> tokens = refreshTokenRepository.findAllByUserId(userId);
         int count = 0;
 
@@ -92,17 +92,17 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
 
     private UserTypeInfo getUserTypeInfo(User user) {
         String userType = null;
-        String userNumber = null;
+        Long userNumber = user.getId();  // User의 ID가 곧 학번/교번
 
-        var student = studentRepository.findByUserId(user.getId());
+        // Student 테이블에서 찾기
+        var student = studentRepository.findById(userNumber);
         if (student.isPresent()) {
             userType = "STUDENT";
-            userNumber = student.get().getStudentNumber();
         } else {
-            var professor = professorRepository.findByUserId(user.getId());
+            // Professor 테이블에서 찾기
+            var professor = professorRepository.findById(userNumber);
             if (professor.isPresent()) {
                 userType = "PROFESSOR";
-                userNumber = professor.get().getProfessorNumber();
             }
         }
 
@@ -127,9 +127,9 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
 
     private static class UserTypeInfo {
         final String userType;
-        final String userNumber;
+        final Long userNumber;
 
-        UserTypeInfo(String userType, String userNumber) {
+        UserTypeInfo(String userType, Long userNumber) {
             this.userType = userType;
             this.userNumber = userNumber;
         }

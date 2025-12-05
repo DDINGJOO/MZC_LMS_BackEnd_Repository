@@ -17,30 +17,6 @@ import java.util.Optional;
 @Repository
 public interface StudentDepartmentRepository extends JpaRepository<StudentDepartment, Long> {
 
-    /**
-     * 학생으로 학과 정보 조회
-     */
-    Optional<StudentDepartment> findByStudent(Student student);
 
-    /**
-     * 학과별 학생 목록 조회
-     */
-    List<StudentDepartment> findByDepartment(Department department);
 
-    /**
-     * 학과와 학년으로 학생 조회
-     */
-    List<StudentDepartment> findByDepartmentAndGrade(Department department, Integer grade);
-
-    /**
-     * 학생 ID로 학과 정보 조회
-     */
-    @Query("SELECT sd FROM StudentDepartment sd WHERE sd.student.userId = :userId")
-    Optional<StudentDepartment> findByStudentUserId(@Param("userId") Long userId);
-
-    /**
-     * 활성 상태인 학생-학과 관계 조회
-     */
-    @Query("SELECT sd FROM StudentDepartment sd WHERE sd.student = :student AND sd.endDate IS NULL")
-    Optional<StudentDepartment> findActiveByStudent(@Param("student") Student student);
 }

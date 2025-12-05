@@ -46,6 +46,20 @@ public class EncryptionService {
     }
 
     /**
+     * 이름 암호화 (AES-256)
+     */
+    public String encryptName(String name) {
+        return aes256Strategy.encrypt(name);
+    }
+
+    /**
+     * 이름 복호화 (AES-256)
+     */
+    public String decryptName(String encryptedName) {
+        return aes256Strategy.decrypt(encryptedName);
+    }
+
+    /**
      * 비밀번호 암호화 (BCrypt)
      */
     public String encryptPassword(String password) {

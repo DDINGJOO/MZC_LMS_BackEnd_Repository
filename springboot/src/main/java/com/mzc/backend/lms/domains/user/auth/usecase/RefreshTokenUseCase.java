@@ -36,8 +36,8 @@ public interface RefreshTokenUseCase {
      * 특정 사용자의 모든 Refresh Token 폐기
      * 보안 이슈 발생 시 사용
      *
-     * @param userId 사용자 ID
+     * @param userId 사용자 ID (학번 또는 교번)
      * @return 폐기된 토큰 수
      */
-    int revokeAllUserTokens(Long userId);
+    int revokeAllUserTokens(String userId);
 }

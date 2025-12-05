@@ -52,7 +52,7 @@ public class LoginUseCaseImpl implements LoginUseCase {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        UserInfo userInfo = getUserInfo(user);
+        UserInfo userInfo = getUserInfo(user, dto.getUsername());
 
         String accessToken = jwtTokenService.generateAccessToken(
             user, userInfo.userType, userInfo.userNumber
@@ -69,10 +69,10 @@ public class LoginUseCaseImpl implements LoginUseCase {
             accessToken,
             refreshToken,
             userInfo.userType,
-            userInfo.userNumber,
+            userInfo.userNumber != null ? userInfo.userNumber.toString() : null,
             userInfo.name,
             decryptedEmail,
-            user.getId()
+            user.getId().toString()
         );
     }
 
@@ -93,41 +93,62 @@ public class LoginUseCaseImpl implements LoginUseCase {
             return userRepository.findByEmail(encryptedEmail).orElse(null);
         }
 
-        // 학번으로 조회
-        Optional<Student> student = studentRepository.findByStudentNumber(username);
-        if (student.isPresent()) {
-            return student.get().getUser();
-        }
+        // 학번/교번인 경우 (숫자로만 구성)
+        try {
+            Long userNumber = Long.parseLong(username);
 
-        // 교번으로 조회
-        Optional<Professor> professor = professorRepository.findByProfessorNumber(username);
-        if (professor.isPresent()) {
-            return professor.get().getUser();
+            // 학번으로 조회
+            Optional<Student> student = studentRepository.findById(userNumber);
+            if (student.isPresent()) {
+                return student.get().getUser();
+            }
+
+            // 교번으로 조회
+            Optional<Professor> professor = professorRepository.findById(userNumber);
+            if (professor.isPresent()) {
+                return professor.get().getUser();
+            }
+        } catch (NumberFormatException e) {
+            // 숫자가 아닌 경우 null 반환
+            log.debug("Invalid user number format: {}", username);
         }
 
         return null;
     }
 
-    private UserInfo getUserInfo(User user) {
-        String userType = null;
-        String userNumber = null;
+    private UserInfo getUserInfo(User user, String username) {
+        String userType = "USER";
+        Long userNumber = null;
         String name = null;
 
-        Optional<Student> student = studentRepository.findByUserId(user.getId());
-        if (student.isPresent()) {
-            userType = "STUDENT";
-            userNumber = student.get().getStudentNumber();
-        } else {
-            Optional<Professor> professor = professorRepository.findByUserId(user.getId());
-            if (professor.isPresent()) {
-                userType = "PROFESSOR";
-                userNumber = professor.get().getProfessorNumber();
+        // username이 이메일이 아닌 경우 학번/교번으로 처리
+        if (!username.contains("@")) {
+            try {
+                Long parsedNumber = Long.parseLong(username);
+
+                // 학번으로 조회 시도
+                Optional<Student> student = studentRepository.findById(parsedNumber);
+                if (student.isPresent()) {
+                    userType = "STUDENT";
+                    userNumber = parsedNumber;  // username이 곧 학번
+                } else {
+                    // 교번으로 조회 시도
+                    Optional<Professor> professor = professorRepository.findById(parsedNumber);
+                    if (professor.isPresent()) {
+                        userType = "PROFESSOR";
+                        userNumber = parsedNumber;  // username이 곧 교번
+                    }
+                }
+            } catch (NumberFormatException e) {
+                log.debug("Invalid user number format in getUserInfo: {}", username);
             }
         }
 
+        // 프로필에서 이름 가져오기
         Optional<UserProfile> profile = userProfileRepository.findByUserId(user.getId());
         if (profile.isPresent()) {
-            name = profile.get().getName();
+            // 이름 복호화
+            name = encryptionService.decryptName(profile.get().getName());
         }
 
         return new UserInfo(userType, userNumber, name);
@@ -147,10 +168,10 @@ public class LoginUseCaseImpl implements LoginUseCase {
 
     private static class UserInfo {
         final String userType;
-        final String userNumber;
+        final Long userNumber;
         final String name;
 
-        UserInfo(String userType, String userNumber, String name) {
+        UserInfo(String userType, Long userNumber, String name) {
             this.userType = userType;
             this.userNumber = userNumber;
             this.name = name;

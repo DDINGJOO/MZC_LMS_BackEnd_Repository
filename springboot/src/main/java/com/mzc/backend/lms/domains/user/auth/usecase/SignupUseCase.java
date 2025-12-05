@@ -17,11 +17,11 @@ public interface SignupUseCase {
      * 회원가입 처리
      *
      * @param dto 회원가입 요청 정보
-     * @return 생성된 사용자 ID
+     * @return 생성된 사용자 ID (학번 또는 교번)
      * @throws IllegalArgumentException 유효성 검증 실패 시
      * @throws RuntimeException 회원가입 처리 중 오류 발생 시
      */
-    Long execute(SignupRequestDto dto);
+    String execute(SignupRequestDto dto);
 
     /**
      * 이메일 사용 가능 여부 확인
