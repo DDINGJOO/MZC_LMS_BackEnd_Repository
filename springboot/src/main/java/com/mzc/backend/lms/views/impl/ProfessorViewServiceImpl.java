@@ -48,14 +48,20 @@ public class ProfessorViewServiceImpl implements ProfessorViewService {
     public Optional<ProfessorView> findProfessor(String professorNumber) {
         log.debug("Finding professor by professorNumber: {}", professorNumber);
 
-        // Native Query로 전체 정보 조회
-        Object[] result = professorRepository.findProfessorFullInfoById(professorNumber);
+        try {
+            Long professorId = Long.parseLong(professorNumber);
+            // Native Query로 전체 정보 조회
+            Object[] result = professorRepository.findProfessorFullInfoById(professorId);
 
-        if (result == null) {
+            if (result == null) {
+                return Optional.empty();
+            }
+
+            return Optional.of(mapToProfessorView(result));
+        } catch (NumberFormatException e) {
+            log.debug("Invalid professor number format: {}", professorNumber);
             return Optional.empty();
         }
-
-        return Optional.of(mapToProfessorView(result));
     }
 
 
@@ -70,8 +76,25 @@ public class ProfessorViewServiceImpl implements ProfessorViewService {
 
         log.debug("Finding {} professors by numbers", professorNumbers.size());
 
+        // String을 Long으로 변환
+        List<Long> professorIds = professorNumbers.stream()
+            .map(num -> {
+                try {
+                    return Long.parseLong(num);
+                } catch (NumberFormatException e) {
+                    log.debug("Invalid professor number format: {}", num);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        if (professorIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         // Native Query로 여러 교수 정보 조회
-        List<Object[]> results = professorRepository.findProfessorsFullInfoByIds(professorNumbers);
+        List<Object[]> results = professorRepository.findProfessorsFullInfoByIds(professorIds);
 
         return results.stream()
             .map(this::mapToProfessorView)
@@ -86,7 +109,12 @@ public class ProfessorViewServiceImpl implements ProfessorViewService {
     @Override
     @Transactional(readOnly = true)
     public boolean existsByProfessorNumber(String professorNumber) {
-        return professorRepository.existsById(professorNumber);
+        try {
+            Long professorId = Long.parseLong(professorNumber);
+            return professorRepository.existsById(professorId);
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     /**
