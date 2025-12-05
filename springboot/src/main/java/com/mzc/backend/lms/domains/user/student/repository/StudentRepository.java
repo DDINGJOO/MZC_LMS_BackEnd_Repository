@@ -98,7 +98,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
         SELECT s.user_id, s.student_number, s.grade, s.admission_year,
                u.email,
                p.name as profile_name,
-               c.contact_value as phone_number,
+               pc.mobile_number as phone_number,
                d.id as department_id, d.name as department_name,
                col.id as college_id, col.name as college_name,
                sd.enrollment_date, sd.is_active as dept_active,
@@ -106,11 +106,11 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
         FROM students s
         INNER JOIN users u ON s.user_id = u.id
         LEFT JOIN user_profiles p ON u.id = p.user_id
-        LEFT JOIN user_contacts c ON u.id = c.user_id AND c.contact_type = 'MOBILE' AND c.is_primary = true
+        LEFT JOIN user_primary_contacts pc ON u.id = pc.user_id
         LEFT JOIN student_departments sd ON s.user_id = sd.student_id AND sd.is_active = true
         LEFT JOIN departments d ON sd.department_id = d.id
         LEFT JOIN colleges col ON d.college_id = col.id
-        LEFT JOIN user_profile_images img ON u.id = img.user_id AND img.is_current = true
+        LEFT JOIN user_profile_images img ON u.id = img.user_id
         WHERE s.student_number = :studentNumber
         """, nativeQuery = true)
     Object[] findStudentFullInfoByStudentNumber(@Param("studentNumber") String studentNumber);
