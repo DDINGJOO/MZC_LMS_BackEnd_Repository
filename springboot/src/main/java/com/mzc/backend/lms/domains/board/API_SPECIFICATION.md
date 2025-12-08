@@ -292,9 +292,10 @@ Content-Type: application/json
 - 관리자는 모든 게시글 삭제 가능
 
 #### 삭제 방식
-- **Soft Delete**: 실제로 삭제하지 않고 `deleted_at` 필드만 업데이트
-- 삭제된 게시글은 일반 조회에서 제외
+- **Soft Delete**: `is_deleted = true` + `deleted_at` 시간 기록 (하이브리드 방식)
+- 삭제된 게시글은 일반 조회에서 제외 (`is_deleted = false` 조건)
 - 관리자는 삭제된 게시글 복구 가능
+- **성능 최적화**: `is_deleted` boolean으로 빠른 필터링
 
 #### 요청 예시
 ```http
@@ -309,6 +310,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "message": "게시글이 성공적으로 삭제되었습니다",
   "data": {
     "id": 123,
+    "isDeleted": true,
     "deletedAt": "2024-12-04T12:00:00"
   }
 }
@@ -524,9 +526,10 @@ Content-Type: application/json
 | commentId | Long | ✅ | 댓글 ID |
 
 #### 삭제 정책
-- **Soft Delete**: `deleted_at` 필드만 업데이트
+- **Soft Delete**: `is_deleted = true` + `deleted_at` 시간 기록 (하이브리드 방식)
 - **대댓글이 있는 댓글**: "삭제된 댓글입니다" 표시, 구조 유지
 - **대댓글이 없는 댓글**: 완전히 숨김 처리
+- **성능 최적화**: `is_deleted` boolean으로 빠른 필터링
 
 #### 권한
 - 댓글 작성자 본인만 삭제 가능
@@ -545,6 +548,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
   "message": "댓글이 성공적으로 삭제되었습니다",
   "data": {
     "id": 456,
+    "isDeleted": true,
     "deletedAt": "2024-12-04T12:00:00"
   }
 }
@@ -823,14 +827,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 ---
 
-## 🚀 다음 단계
+## 📚 관련 API 명세서
 
-이제 댓글과 첨부파일 시스템이 완성되었습니다! 다음으로 추가할 기능들:
+### 완성된 API 섹션
+1. **📝 게시글 기본 CRUD API** (이 파일)
+2. **💬 댓글 시스템 API** (이 파일)  
+3. **📎 첨부파일 시스템 API** (이 파일)
+4. **✅ 고급 기능 통합 API** → [API_SPECIFICATION_ADVANCED_FEATURES.md](./API_SPECIFICATION_ADVANCED_FEATURES.md) 🚀
 
-1. **좋아요/북마크 API** ❤️
-2. **과제 시스템 API** (과제 등록, 제출, 채점) 📚
-3. **시험 시스템 API** 🎓
-4. **스터디모집 API** 👥
-5. **해시태그 API** #️⃣
+### 🎯 완성된 LMS 게시판 시스템
 
-어떤 기능을 다음에 추가하고 싶으신지 알려주세요! 🎯
+**모든 핵심 기능이 완성되었습니다!** 🎉
+
+통합된 고급 기능:
+- ✅ **좋아요/북마크 시스템** (8 APIs)
+- ✅ **과제/시험 관리** (13 APIs)  
+- ✅ **스터디 모집** (7 APIs)
+- ✅ **해시태그 시스템** (7 APIs)
+- ✅ **통합 분석** (2 APIs)
+
+**총 51개 API**로 구성된 완전한 교육용 소셜 플랫폼
+
+각 기능별로 별도 파일로 관리하여 1000줄 제한을 준수합니다! 🎯
