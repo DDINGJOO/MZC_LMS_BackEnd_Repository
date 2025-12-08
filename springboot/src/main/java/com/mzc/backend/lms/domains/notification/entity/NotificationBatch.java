@@ -60,6 +60,9 @@ public class NotificationBatch {
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
 
+    @Column(name = "error_message", length = 500)
+    private String errorMessage;
+
     @Builder
     private NotificationBatch(NotificationType notificationType, User sender, Long courseId,
                               String title, String message, Integer totalRecipients) {
@@ -109,6 +112,16 @@ public class NotificationBatch {
     public void fail() {
         this.status = BatchStatus.FAILED;
         this.processedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 배치 처리 실패 (사유 포함)
+     */
+    public void fail(String reason) {
+        this.status = BatchStatus.FAILED;
+        this.processedAt = LocalDateTime.now();
+        this.errorMessage = reason != null && reason.length() > 500 ?
+                reason.substring(0, 500) : reason;
     }
 
     /**
