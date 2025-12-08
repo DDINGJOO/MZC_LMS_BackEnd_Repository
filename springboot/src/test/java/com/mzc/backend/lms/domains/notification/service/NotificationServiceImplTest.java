@@ -301,6 +301,53 @@ class NotificationServiceImplTest {
         assertThat(response.getNextCursor()).isNull();
     }
 
+    @Test
+    @DisplayName("읽은 알림 일괄 삭제")
+    void deleteReadNotifications() {
+        // given
+        Long userId = 100L;
+
+        when(notificationRepository.deleteReadByRecipientId(userId)).thenReturn(3);
+
+        // when
+        int deletedCount = notificationService.deleteReadNotifications(userId);
+
+        // then
+        assertThat(deletedCount).isEqualTo(3);
+        verify(notificationRepository).deleteReadByRecipientId(userId);
+    }
+
+    @Test
+    @DisplayName("모든 알림 삭제")
+    void deleteAllNotifications() {
+        // given
+        Long userId = 100L;
+
+        when(notificationRepository.deleteAllByRecipientId(userId)).thenReturn(10);
+
+        // when
+        int deletedCount = notificationService.deleteAllNotifications(userId);
+
+        // then
+        assertThat(deletedCount).isEqualTo(10);
+        verify(notificationRepository).deleteAllByRecipientId(userId);
+    }
+
+    @Test
+    @DisplayName("읽은 알림이 없는 경우 삭제")
+    void deleteReadNotificationsEmpty() {
+        // given
+        Long userId = 100L;
+
+        when(notificationRepository.deleteReadByRecipientId(userId)).thenReturn(0);
+
+        // when
+        int deletedCount = notificationService.deleteReadNotifications(userId);
+
+        // then
+        assertThat(deletedCount).isEqualTo(0);
+    }
+
     /**
      * 테스트용 알림 목록 생성
      */
