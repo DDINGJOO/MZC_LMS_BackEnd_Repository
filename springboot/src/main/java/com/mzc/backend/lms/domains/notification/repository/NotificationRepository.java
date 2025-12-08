@@ -97,4 +97,20 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             @Param("recipientId") Long recipientId,
             @Param("cursor") Long cursor,
             Pageable pageable);
+
+    // ========== 벌크 삭제 ==========
+
+    /**
+     * 읽은 알림 일괄 삭제 (벌크 삭제)
+     */
+    @Modifying
+    @Query("DELETE FROM Notification n WHERE n.recipient.id = :recipientId AND n.isRead = true")
+    int deleteReadByRecipientId(@Param("recipientId") Long recipientId);
+
+    /**
+     * 모든 알림 삭제 (벌크 삭제)
+     */
+    @Modifying
+    @Query("DELETE FROM Notification n WHERE n.recipient.id = :recipientId")
+    int deleteAllByRecipientId(@Param("recipientId") Long recipientId);
 }
