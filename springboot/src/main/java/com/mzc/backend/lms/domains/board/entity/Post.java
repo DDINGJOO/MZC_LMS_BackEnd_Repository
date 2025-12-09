@@ -2,6 +2,8 @@ package com.mzc.backend.lms.domains.board.entity;
 
 import com.mzc.backend.lms.domains.board.enums.PostType;
 import jakarta.persistence.*;
+import java.util.*;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,12 +51,11 @@ public class Post extends AuditableEntity {
     @ColumnDefault("0")
     private int likeCount = 0;
 
-    // TODO: Comment, Attachment 엔터티 생성 후 주석 해제 및 연관관계 매핑
-    // @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    // private List<Comment> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
 
-    // @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    // private List<Attachment> attachments = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Attachment> attachments = new ArrayList<>();
 
     @Builder
     public Post(BoardCategory category, String title, String content, PostType postType, boolean isAnonymous) {

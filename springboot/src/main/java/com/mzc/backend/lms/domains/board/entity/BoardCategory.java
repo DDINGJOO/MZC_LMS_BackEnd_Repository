@@ -21,28 +21,16 @@ public class BoardCategory extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    /**
-     * 게시판 유형 (Unique)
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "board_type", nullable = false, unique = true, length = 30)
     private BoardType boardType;
 
-    /**
-     * 댓글 허용 여부
-     */
     @Column(name = "allow_comments", nullable = false)
     private boolean allowComments;
 
-    /**
-     * 첨부파일 허용 여부
-     */
     @Column(name = "allow_attachments", nullable = false)
     private boolean allowAttachments;
 
-    /**
-     * 익명 작성 허용 여부
-     */
     @Column(name = "allow_anonymous", nullable = false)
     private boolean allowAnonymous;
 
@@ -56,9 +44,6 @@ public class BoardCategory extends BaseEntity {
 
     // 비즈니스 로직
     
-    /**
-     * 게시판 설정 업데이트
-     */
     public void updateSettings(boolean allowComments, boolean allowAttachments, boolean allowAnonymous) {
         this.allowComments = allowComments;
         this.allowAttachments = allowAttachments;
