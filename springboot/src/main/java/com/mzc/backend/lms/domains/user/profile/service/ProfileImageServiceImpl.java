@@ -98,21 +98,14 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveProfileImage(Long userId, String imageUrl, String thumbnailUrl) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-
         Optional<UserProfileImage> existingImage = userProfileImageRepository.findByUserId(userId);
 
         if (existingImage.isPresent()) {
             // 기존 이미지 업데이트 - 더티 체킹으로 자동 저장 (save 호출 불필요)
             existingImage.get().updateImage(imageUrl, thumbnailUrl);
         } else {
-            // 새 이미지 생성
-            UserProfileImage profileImage = UserProfileImage.builder()
-                    .user(user)
-                    .imageUrl(imageUrl)
-                    .thumbnailUrl(thumbnailUrl)
-                    .build();
+            // 새 이미지 생성 - userId만 사용 (cascade 문제 방지)
+            UserProfileImage profileImage = UserProfileImage.createWithUserId(userId, imageUrl, thumbnailUrl);
             userProfileImageRepository.save(profileImage);
         }
     }
@@ -123,10 +116,11 @@ public class ProfileImageServiceImpl implements ProfileImageService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
+        // 파일 삭제
         deleteExistingImageFiles(userId);
 
-        userProfileImageRepository.findByUserId(userId)
-                .ifPresent(userProfileImageRepository::delete);
+        // DB 삭제 (JPQL 직접 삭제)
+        userProfileImageRepository.deleteByUserIdQuery(userId);
 
         log.info("프로필 이미지 삭제 완료: userId={}", userId);
     }
