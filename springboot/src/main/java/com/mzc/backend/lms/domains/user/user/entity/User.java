@@ -1,5 +1,8 @@
 package com.mzc.backend.lms.domains.user.user.entity;
 
+import com.mzc.backend.lms.domains.user.profile.entity.UserPrimaryContact;
+import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
+import com.mzc.backend.lms.domains.user.profile.entity.UserProfileImage;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,9 +29,8 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Long id;  // 학번 또는 교번
 
     @Column(name = "email", length = 100, unique = true, nullable = false)
     private String email;
@@ -47,10 +49,19 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // 연관관계는 각 엔티티에서 정의
+    // 1:1 연관관계 - 양방향 매핑
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserProfile userProfile;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserPrimaryContact primaryContact;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private UserProfileImage profileImage;
 
     @Builder
-    private User(String email, String password) {
+    private User(Long id, String email, String password) {
+        this.id = id;
         this.email = email;
         this.password = password;
     }
@@ -58,8 +69,9 @@ public class User {
     /**
      * 사용자 생성 팩토리 메소드
      */
-    public static User create(String email, String password) {
+    public static User create(Long id, String email, String password) {
         return User.builder()
+                .id(id)
                 .email(email)
                 .password(password)
                 .build();
