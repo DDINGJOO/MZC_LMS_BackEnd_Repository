@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.user.profile.service;
 
 import com.mzc.backend.lms.domains.user.profile.dto.ProfileResponseDto;
+import com.mzc.backend.lms.domains.user.profile.dto.ProfileUpdateRequestDto;
 
 /**
  * 프로필 서비스 인터페이스
@@ -13,4 +14,11 @@ public interface ProfileService {
      * @return 프로필 정보
      */
     ProfileResponseDto getMyProfile(Long userId);
+
+    /**
+     * 프로필 수정
+     * @param userId 사용자 ID
+     * @param request 수정 요청 DTO
+     */
+    void updateProfile(Long userId, ProfileUpdateRequestDto request);
 }
