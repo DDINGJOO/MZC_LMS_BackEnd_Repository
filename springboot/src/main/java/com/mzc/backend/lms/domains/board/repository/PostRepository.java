@@ -19,5 +19,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     /**
      * 특정 카테고리의 게시글 목록 조회 (페이징)
      */
-    Page<Post> search(BoardCategory category, Pageable pageable);
+    Page<Post> findByCategory(BoardCategory category, Pageable pageable);
 }

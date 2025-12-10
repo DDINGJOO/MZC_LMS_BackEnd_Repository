@@ -91,7 +91,7 @@ public class PostService {
             // 특정 카테고리의 게시글 조회
             BoardCategory category = boardCategoryRepository.findById(categoryId)
                     .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_CATEGORY_NOT_FOUND));
-            posts = postRepository.search(category, pageable);
+            posts = postRepository.findByCategory(category, pageable);
         } else {
             // 전체 게시글 조회
             posts = postRepository.findAll(pageable);
