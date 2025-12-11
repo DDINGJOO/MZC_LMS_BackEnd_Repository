@@ -41,7 +41,7 @@ public class CourseService {
     public CourseResponseDto searchCourses(CourseSearchRequestDto request) {
         // 페이징 설정
         int page = request.getPage() != null ? request.getPage() : 0;
-        int size = request.getSize() != null ? request.getSize() : 20;
+        int size = request.getSize() != null ? request.getSize() : 10;
         
         // 정렬 설정
         Sort sort = parseSort(request.getSort());
