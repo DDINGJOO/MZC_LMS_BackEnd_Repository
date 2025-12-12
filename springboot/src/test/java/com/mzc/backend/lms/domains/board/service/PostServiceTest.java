@@ -10,7 +10,10 @@ import com.mzc.backend.lms.domains.board.enums.BoardType;
 import com.mzc.backend.lms.domains.board.enums.PostType;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.board.repository.BoardCategoryRepository;
+import com.mzc.backend.lms.domains.board.repository.PostLikeRepository;
 import com.mzc.backend.lms.domains.board.repository.PostRepository;
+import com.mzc.backend.lms.domains.user.user.entity.User;
+import com.mzc.backend.lms.domains.user.user.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +46,14 @@ class PostServiceTest {
     @Autowired
     private BoardCategoryRepository boardCategoryRepository;
 
+    @Autowired
+    private PostLikeRepository postLikeRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     private BoardCategory testCategory;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
@@ -52,6 +62,13 @@ class PostServiceTest {
                 .orElseGet(() -> {
                     BoardCategory category = new BoardCategory(BoardType.NOTICE, true, true, true);
                     return boardCategoryRepository.save(category);
+                });
+        
+        // 테스트 유저 생성 (이미 존재하면 조회)
+        testUser = userRepository.findById(20250101003L)
+                .orElseGet(() -> {
+                    User user = User.create(20250101003L, "test@test.com", "password");
+                    return userRepository.save(user);
                 });
     }
 
@@ -182,35 +199,66 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("좋아요 증가")
-    void increaseLikeCount_Success() {
+    @DisplayName("좋아요 토글 - 추가")
+    void toggleLike_Add_Success() {
         // given
         Post post = new Post(testCategory, "게시글", "내용", PostType.NORMAL, false);
         post = postRepository.save(post);
         Long postId = post.getId();
+        Long userId = testUser.getId();
 
         // when
-        postService.increaseLikeCount(postId);
+        boolean isLiked = postService.toggleLike(postId, userId);
 
         // then
+        assertThat(isLiked).isTrue();
         Post updatedPost = postRepository.findById(postId).orElseThrow();
         assertThat(updatedPost.getLikeCount()).isEqualTo(1);
+        assertThat(postLikeRepository.existsByUserIdAndPostId(userId, postId)).isTrue();
     }
 
     @Test
-    @DisplayName("좋아요 감소")
-    void decreaseLikeCount_Success() {
+    @DisplayName("좋아요 토글 - 취소")
+    void toggleLike_Remove_Success() {
         // given
         Post post = new Post(testCategory, "게시글", "내용", PostType.NORMAL, false);
         post = postRepository.save(post);
-        postService.increaseLikeCount(post.getId()); // 좋아요 1개
         Long postId = post.getId();
+        Long userId = testUser.getId();
+        
+        // 먼저 좋아요 추가
+        postService.toggleLike(postId, userId);
 
-        // when
-        postService.decreaseLikeCount(postId);
+        // when - 다시 토글 (취소)
+        boolean isLiked = postService.toggleLike(postId, userId);
 
         // then
+        assertThat(isLiked).isFalse();
         Post updatedPost = postRepository.findById(postId).orElseThrow();
         assertThat(updatedPost.getLikeCount()).isEqualTo(0);
+        assertThat(postLikeRepository.existsByUserIdAndPostId(userId, postId)).isFalse();
+    }
+
+    @Test
+    @DisplayName("좋아요 여부 조회")
+    void isLikedByUser_Success() {
+        // given
+        Post post = new Post(testCategory, "게시글", "내용", PostType.NORMAL, false);
+        post = postRepository.save(post);
+        Long postId = post.getId();
+        Long userId = testUser.getId();
+
+        // when - 좋아요 전
+        boolean beforeLike = postService.isLikedByUser(postId, userId);
+        
+        // 좋아요 추가
+        postService.toggleLike(postId, userId);
+        
+        // when - 좋아요 후
+        boolean afterLike = postService.isLikedByUser(postId, userId);
+
+        // then
+        assertThat(beforeLike).isFalse();
+        assertThat(afterLike).isTrue();
     }
 }

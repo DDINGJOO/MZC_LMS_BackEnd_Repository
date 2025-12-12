@@ -6,11 +6,15 @@ import com.mzc.backend.lms.domains.board.dto.response.PostListResponseDto;
 import com.mzc.backend.lms.domains.board.dto.response.PostResponseDto;
 import com.mzc.backend.lms.domains.board.entity.BoardCategory;
 import com.mzc.backend.lms.domains.board.entity.Post;
+import com.mzc.backend.lms.domains.board.entity.PostLike;
 import com.mzc.backend.lms.domains.board.enums.BoardType;
 import com.mzc.backend.lms.domains.board.exception.BoardErrorCode;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.board.repository.BoardCategoryRepository;
+import com.mzc.backend.lms.domains.board.repository.PostLikeRepository;
 import com.mzc.backend.lms.domains.board.repository.PostRepository;
+import com.mzc.backend.lms.domains.user.user.entity.User;
+import com.mzc.backend.lms.domains.user.user.repository.UserRepository;
 import com.mzc.backend.lms.util.file.FileUploadUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +37,8 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final BoardCategoryRepository boardCategoryRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final UserRepository userRepository;
     private final FileUploadUtils fileStorageService;
 
     /**
@@ -40,9 +46,6 @@ public class PostService {
      */
     @Transactional
     public PostResponseDto createPost(String boardTypeStr, PostCreateRequestDto request, List<MultipartFile> files) {
-        log.info("게시글 생성 요청: boardType={}, title={}, fileCount={}", 
-                boardTypeStr, request.getTitle(), files != null ? files.size() : 0);
-
         // 1. BoardType 변환
         BoardType boardType;
         try {
@@ -85,8 +88,6 @@ public class PostService {
      * 게시글 목록 조회 (boardType 기반)
      */
     public Page<PostListResponseDto> getPostListByBoardType(String boardTypeStr, String search, Pageable pageable) {
-        log.info("게시글 목록 조회: boardType={}, search={}, page={}", boardTypeStr, search, pageable.getPageNumber());
-
         // 1. BoardType 변환
         BoardType boardType;
         try {
@@ -115,8 +116,6 @@ public class PostService {
      */
     @Transactional
     public PostResponseDto getPost(Long postId) {
-        log.info("게시글 조회: postId={}", postId);
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
@@ -135,8 +134,6 @@ public class PostService {
      * 게시글 목록 조회 (페이징 + 검색)
      */
     public Page<PostListResponseDto> getPostList(Long categoryId, String keyword, Pageable pageable) {
-        log.info("게시글 목록 조회: categoryId={}, keyword={}, page={}", categoryId, keyword, pageable.getPageNumber());
-
         Page<Post> posts;
         if (categoryId != null) {
             // 특정 카테고리의 게시글 조회
@@ -165,8 +162,6 @@ public class PostService {
      */
     @Transactional
     public PostResponseDto updatePost(Long postId, PostUpdateRequestDto request, List<MultipartFile> files) {
-        log.info("게시글 수정: postId={}, fileCount={}", postId, files != null ? files.size() : 0);
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
@@ -197,8 +192,6 @@ public class PostService {
      */
     @Transactional
     public void deletePost(Long postId) {
-        log.info("게시글 삭제: postId={}", postId);
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
@@ -213,29 +206,45 @@ public class PostService {
     }
 
     /**
-     * 게시글 좋아요 증가
+     * 게시글 좋아요 토글 (중복 방지)
+     * 이미 좋아요한 경우 → 취소
+     * 좋아요하지 않은 경우 → 추가
      */
     @Transactional
-    public void increaseLikeCount(Long postId) {
-        log.info("게시글 좋아요 증가: postId={}", postId);
+    public boolean toggleLike(Long postId, Long userId) {
+        log.info("게시글 좋아요 토글: postId={}, userId={}", postId, userId);
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
-        post.increaseLikeCount();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 이미 좋아요한 경우
+        return postLikeRepository.findByUserIdAndPostId(userId, postId)
+                .map(existingLike -> {
+                    // 좋아요 취소
+                    postLikeRepository.delete(existingLike);
+                    post.decreaseLikeCount();
+                    log.info("좋아요 취소: postId={}, userId={}", postId, userId);
+                    return false; // 좋아요 취소됨
+                })
+                .orElseGet(() -> {
+                    // 새로운 좋아요
+                    PostLike newLike = PostLike.create(user, post);
+                    postLikeRepository.save(newLike);
+                    post.increaseLikeCount();
+                    log.info("좋아요 추가: postId={}, userId={}", postId, userId);
+                    return true; // 좋아요 추가됨
+                });
     }
 
     /**
-     * 게시글 좋아요 감소
+     * 사용자의 게시글 좋아요 여부 조회
      */
-    @Transactional
-    public void decreaseLikeCount(Long postId) {
-        log.info("게시글 좋아요 감소: postId={}", postId);
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
-
-        post.decreaseLikeCount();
+    @Transactional(readOnly = true)
+    public boolean isLikedByUser(Long postId, Long userId) {
+        return postLikeRepository.existsByUserIdAndPostId(userId, postId);
     }
 
     /**

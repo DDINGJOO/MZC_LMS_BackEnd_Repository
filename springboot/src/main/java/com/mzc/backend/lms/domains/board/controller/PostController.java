@@ -2,6 +2,8 @@ package com.mzc.backend.lms.domains.board.controller;
 
 import com.mzc.backend.lms.domains.board.dto.request.PostCreateRequestDto;
 import com.mzc.backend.lms.domains.board.dto.request.PostUpdateRequestDto;
+import com.mzc.backend.lms.domains.board.dto.response.LikeCheckResponseDto;
+import com.mzc.backend.lms.domains.board.dto.response.LikeToggleResponseDto;
 import com.mzc.backend.lms.domains.board.dto.response.PostListResponseDto;
 import com.mzc.backend.lms.domains.board.dto.response.PostResponseDto;
 import com.mzc.backend.lms.domains.board.service.PostService;
@@ -86,18 +88,29 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    // 게시글 좋아요
+    // 게시글 좋아요 토글 (중복 방지)
     @PostMapping("/posts/{id}/like")
-    public ResponseEntity<Void> increaseLikeCount(@PathVariable Long id) {
-        log.info("게시글 좋아요 API 호출: postId={}", id);
-        postService.increaseLikeCount(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<LikeToggleResponseDto> toggleLike(
+            @PathVariable Long id,
+            @RequestParam Long userId) {
+        log.info("게시글 좋아요 토글 API 호출: postId={}, userId={}", id, userId);
+        boolean isLiked = postService.toggleLike(id, userId);
+        
+        LikeToggleResponseDto response = LikeToggleResponseDto.of(isLiked);
+        
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/posts/{id}/like")
-    public ResponseEntity<Void> decreaseLikeCount(@PathVariable Long id) {
-        log.info("게시글 좋아요 취소 API 호출: postId={}", id);
-        postService.decreaseLikeCount(id);
-        return ResponseEntity.ok().build();
+    // 게시글 좋아요 여부 조회
+    @GetMapping("/posts/{id}/liked")
+    public ResponseEntity<LikeCheckResponseDto> checkLiked(
+            @PathVariable Long id,
+            @RequestParam Long userId) {
+        log.info("게시글 좋아요 여부 조회 API 호출: postId={}, userId={}", id, userId);
+        boolean isLiked = postService.isLikedByUser(id, userId);
+        
+        LikeCheckResponseDto response = LikeCheckResponseDto.of(isLiked);
+        
+        return ResponseEntity.ok(response);
     }
 }
