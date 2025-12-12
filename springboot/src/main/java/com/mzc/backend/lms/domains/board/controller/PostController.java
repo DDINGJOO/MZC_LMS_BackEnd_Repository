@@ -74,8 +74,8 @@ public class PostController {
             @PathVariable Long id,
             @Valid @RequestPart("request") PostUpdateRequestDto request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        log.info("게시글 수정 API 호출: postId={}, title={}, fileCount={}", 
-                id, request.getTitle(), files != null ? files.size() : 0);
+        log.info("게시글 수정 API 호출: postId={}, title={}, fileCount={}, deleteAttachmentIds={}", 
+                id, request.getTitle(), files != null ? files.size() : 0, request.getDeleteAttachmentIds());
         PostResponseDto response = postService.updatePost(id, request, files);
         return ResponseEntity.ok(response);
     }

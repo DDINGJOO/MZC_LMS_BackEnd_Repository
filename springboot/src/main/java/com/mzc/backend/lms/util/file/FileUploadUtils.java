@@ -198,12 +198,20 @@ public class FileUploadUtils {
         }
 
         for (Long attachmentId : attachmentIds) {
-            attachmentRepository.findById(attachmentId).ifPresent(attachment -> {
-                deleteFile(attachment.getFilePath());
-                attachmentRepository.delete(attachment);
-                log.info("첨부파일 삭제 완료: attachmentId={}, fileName={}", 
-                        attachmentId, attachment.getOriginalName());
-            });
+            Attachment attachment = attachmentRepository.findById(attachmentId).orElse(null);
+            if (attachment == null) {
+                log.warn("첨부파일을 찾을 수 없음: attachmentId={}", attachmentId);
+                continue;
+            }
+            
+            // 엔티티를 직접 삭제
+            attachmentRepository.delete(attachment);
+            attachmentRepository.flush(); // 즉시 DELETE SQL 실행
+            
+            deleteFile(attachment.getFilePath());
+            
+            log.info("첨부파일 삭제 완료: attachmentId={}, fileName={}", 
+                    attachmentId, attachment.getOriginalName());
         }
     }
 }

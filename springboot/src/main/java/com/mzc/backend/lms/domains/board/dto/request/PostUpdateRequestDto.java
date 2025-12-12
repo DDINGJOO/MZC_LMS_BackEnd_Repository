@@ -15,8 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostUpdateRequestDto {
+    private Long categoryId;
     private String title;
     private String content;
+    private String postType;
+    private Boolean isAnonymous;
     private List<Long> deleteAttachmentIds;
 
 }

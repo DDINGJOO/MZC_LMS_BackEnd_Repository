@@ -183,6 +183,25 @@ class PostServiceTest {
     }
 
     @Test
+    @DisplayName("게시글 수정 시 첨부파일 삭제 성공")
+    void updatePost_WithDeleteAttachments_Success() {
+        // given
+        Post post = new Post(testCategory, "원본 제목", "원본 내용", PostType.NORMAL, false);
+        Post savedPost = postRepository.save(post);
+        
+        // 첨부파일은 실제 파일 업로드가 필요하므로, deleteAttachmentIds만 테스트
+        PostUpdateRequestDto request = PostUpdateRequestDto.builder()
+                .title("수정된 제목")
+                .content("수정된 내용")
+                .deleteAttachmentIds(java.util.List.of(999L)) // 존재하지 않는 ID (실패하지 않아야 함)
+                .build();
+
+        // when & then - 예외 발생하지 않아야 함
+        assertThatCode(() -> postService.updatePost(savedPost.getId(), request, null))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
     @DisplayName("게시글 삭제 성공 - Soft Delete")
     void deletePost_Success() {
         // given
