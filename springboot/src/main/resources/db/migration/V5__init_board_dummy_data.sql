@@ -61,3 +61,40 @@ INSERT INTO posts (category_id, author_id, title, content, post_type, is_anonymo
 (@notice_category_id, 20241001, '[중요] 해외 교환학생 프로그램 안내', '2025학년도 해외 교환학생 프로그램 신청을 받습니다.\n\n신청자격: 3학년, 평점 3.5 이상\n파견국가: 미국, 일본, 독일 등\n신청기간: 2025년 2월 1일 ~ 2월 28일\n\n국제교류팀으로 문의하세요.', 'URGENT', false, 367, 25, false, NOW() - INTERVAL 18 DAY, NOW() - INTERVAL 18 DAY, 20241001, 20241001),
 
 (@notice_category_id, 20241001, '[공지] 취업특강 개최 안내', '취업 준비를 위한 특강을 개최합니다.\n\n주제: 이력서 작성법 및 면접 노하우\n일시: 2025년 1월 23일 14:00\n장소: 대강당\n강사: 현직 인사담당자\n\n참석을 원하시는 분은 사전 신청해 주세요.', 'NORMAL', false, 289, 17, false, NOW() - INTERVAL 19 DAY, NOW() - INTERVAL 19 DAY, 20241001, 20241001);
+
+-- 댓글 더미 데이터 (첫 번째 공지사항에 대한 댓글)
+SET @first_post_id = (SELECT id FROM posts WHERE title = '[중요] 2025학년도 1학기 수강신청 일정 안내' LIMIT 1);
+SET @second_post_id = (SELECT id FROM posts WHERE title = '[공지] 2024학년도 2학기 기말고사 시험 일정' LIMIT 1);
+SET @third_post_id = (SELECT id FROM posts WHERE title = '[중요] 학생 건강검진 실시 안내' LIMIT 1);
+
+-- 첫 번째 게시글의 댓글 (5개)
+INSERT INTO comments (post_id, author_id, content, depth, is_anonymous, is_deleted, created_at, updated_at, created_by, updated_by) VALUES
+(@first_post_id, 20241001, '수강신청 일정 공지 감사합니다. 꼭 확인하겠습니다!', 0, false, false, NOW() - INTERVAL 4 DAY, NOW() - INTERVAL 4 DAY, 20241001, 20241001),
+(@first_post_id, 20241001, '1차 수강신청에서 정정이 가능한가요?', 0, false, false, NOW() - INTERVAL 4 DAY, NOW() - INTERVAL 4 DAY, 20241001, 20241001),
+(@first_post_id, 20241001, '유의사항도 자세히 안내해주셔서 감사합니다.', 0, false, false, NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY, 20241001, 20241001),
+(@first_post_id, 20241001, '시간표 짜는 것부터 어려운데 잘 준비해야겠어요.', 0, false, false, NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY, 20241001, 20241001),
+(@first_post_id, 20241001, '2차 수강신청 일정도 놓치지 않도록 주의해야겠네요!', 0, false, false, NOW() - INTERVAL 2 DAY, NOW() - INTERVAL 2 DAY, 20241001, 20241001);
+
+-- 대댓글 추가 (첫 번째 게시글의 두 번째 댓글에 대한 답변)
+SET @parent_comment_id = (SELECT id FROM comments WHERE content = '1차 수강신청에서 정정이 가능한가요?' LIMIT 1);
+INSERT INTO comments (post_id, author_id, parent_comment_id, content, depth, is_anonymous, is_deleted, created_at, updated_at, created_by, updated_by, is_deleted_by_admin) VALUES
+(@first_post_id, 20241001, @parent_comment_id, '1차 수강신청 기간 내에는 자유롭게 정정 가능합니다.', 1, false, false, NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY, 20241001, 20241001, false),
+(@first_post_id, 20241001, @parent_comment_id, '다만 정정 마감 시간을 꼭 확인하시기 바랍니다.', 1, false, false, NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY, 20241001, 20241001, false);
+
+-- 두 번째 게시글의 댓글 (3개)
+INSERT INTO comments (post_id, author_id, content, depth, is_anonymous, is_deleted, created_at, updated_at, created_by, updated_by) VALUES
+(@second_post_id, 20241001, '기말고사 일정 확인했습니다. 열심히 준비하겠습니다!', 0, false, false, NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 9 DAY, 20241001, 20241001),
+(@second_post_id, 20241001, '성적 공개는 12월 27일이군요. 기다려집니다.', 0, false, false, NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 8 DAY, 20241001, 20241001),
+(@second_post_id, 20241001, '시험 기간 동안 도서관 운영시간도 연장되나요?', 0, false, false, NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 7 DAY, 20241001, 20241001);
+
+-- 세 번째 게시글의 댓글 (4개)
+INSERT INTO comments (post_id, author_id, content, depth, is_anonymous, is_deleted, created_at, updated_at, created_by, updated_by) VALUES
+(@third_post_id, 20241001, '건강검진 꼭 받아야 하나요?', 0, false, false, NOW() - INTERVAL 2 DAY, NOW() - INTERVAL 2 DAY, 20241001, 20241001),
+(@third_post_id, 20241001, '대상 학년이 아니라 안타깝네요. 건강 챙기세요!', 0, false, false, NOW() - INTERVAL 2 DAY, NOW() - INTERVAL 2 DAY, 20241001, 20241001),
+(@third_post_id, 20241001, '보건소 위치가 어디인가요?', 0, false, false, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 20241001, 20241001),
+(@third_post_id, 20241001, '건강검진 결과는 언제 나오나요?', 0, false, false, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 20241001, 20241001);
+
+-- 대댓글 추가 (세 번째 게시글의 첫 번째 댓글에 대한 답변)
+SET @health_comment_id = (SELECT id FROM comments WHERE content = '건강검진 꼭 받아야 하나요?' LIMIT 1);
+INSERT INTO comments (post_id, author_id, parent_comment_id, content, depth, is_anonymous, is_deleted, created_at, updated_at, created_by, updated_by, is_deleted_by_admin) VALUES
+(@third_post_id, 20241001, @health_comment_id, '네, 필수로 받으셔야 합니다. 미이수 시 졸업에 영향을 줄 수 있습니다.', 1, false, false, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 20241001, 20241001, false);
