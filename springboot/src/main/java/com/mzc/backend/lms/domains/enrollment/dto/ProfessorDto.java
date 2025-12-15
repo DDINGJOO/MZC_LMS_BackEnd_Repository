@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.enrollment.dto;
 
+import com.mzc.backend.lms.domains.user.auth.encryption.annotation.Encrypted;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,5 +11,7 @@ import lombok.Getter;
 @Builder
 public class ProfessorDto {
     private Long id;
+
+    @Encrypted
     private String name;
 }
