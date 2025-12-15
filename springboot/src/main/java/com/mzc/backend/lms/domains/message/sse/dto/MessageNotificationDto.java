@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.message.sse.dto;
 
+import com.mzc.backend.lms.domains.user.auth.encryption.annotation.Encrypted;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public class MessageNotificationDto {
 
     private Long senderId;
 
+    @Encrypted
     private String senderName;
 
     private String content;

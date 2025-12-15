@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.message.conversation.dto;
 
 import com.mzc.backend.lms.domains.message.conversation.entity.Conversation;
+import com.mzc.backend.lms.domains.user.auth.encryption.annotation.Encrypted;
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfileImage;
 import com.mzc.backend.lms.domains.user.user.entity.User;
@@ -20,6 +21,7 @@ public class ConversationListResponseDto {
 
     private Long otherUserId;
 
+    @Encrypted
     private String otherUserName;
 
     private String otherUserThumbnailUrl;

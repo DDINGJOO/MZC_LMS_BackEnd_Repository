@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.user.search.dto;
 
+import com.mzc.backend.lms.domains.user.auth.encryption.annotation.Encrypted;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,7 @@ public class UserSearchResponseDto {
 
     private Long userId;
 
+    @Encrypted
     private String name;
 
     private String email;
