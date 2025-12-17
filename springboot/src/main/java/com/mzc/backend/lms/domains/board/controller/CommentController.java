@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +24,15 @@ public class CommentController {
 
     // 댓글 생성
     @PostMapping("/comments")
-    public ResponseEntity<CommentResponseDto> createComment(@Valid @RequestBody CommentCreateRequestDto request) {
-        log.info("댓글 생성 API 호출: postId={}, parentCommentId={}", request.getPostId(), request.getParentCommentId());
+    public ResponseEntity<CommentResponseDto> createComment(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody CommentCreateRequestDto request) {
+        log.info("댓글 생성 API 호출: userId={}, postId={}, parentCommentId={}",
+                userId, request.getPostId(), request.getParentCommentId());
+
+        // 인증된 사용자 ID를 작성자로 설정
+        request.setAuthorIdFromAuth(userId);
+
         CommentResponseDto response = commentService.createComment(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
