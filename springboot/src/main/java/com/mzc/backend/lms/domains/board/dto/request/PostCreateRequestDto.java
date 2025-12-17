@@ -19,8 +19,6 @@ public class PostCreateRequestDto {
 
     private Long categoryId;
 
-    private Long authorId;
-
     private String title;
 
     private String content;
@@ -30,4 +28,6 @@ public class PostCreateRequestDto {
     private Boolean isAnonymous;
 
     private List<Long> attachmentIds;
+
+    private List<String> hashtags;
 }

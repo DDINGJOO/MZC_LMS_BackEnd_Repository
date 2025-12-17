@@ -61,6 +61,13 @@ spring:
 app:
   file:
     upload-dir: ${user.dir}/uploads
+  image:
+    storage:
+      local:
+        base-path: ${user.dir}/uploads
+        url-prefix: /static/profile
+  server:
+    url: ${APP_SERVER_URL:http://localhost}
 
 file:
   upload:
@@ -79,12 +86,14 @@ security:
     refresh-token-expire-time: ${JWT_REFRESH_TOKEN_EXPIRATION_TIME}
   aes:
     encryption-key: ${ENCRYPTION_KEY}
+    iv: ${ENCRYPTION_IV:defaultIvParam456}
 
 logging:
   level:
     root: INFO
     com.mzc.backend.lms.domains.enrollment: DEBUG
     com.mzc.backend.lms.domains.course.course: DEBUG
+    com.mzc.backend.lms.domains.notification: DEBUG
 
 email:
   from: ${MAIL_FROM:${MAIL_USERNAME}}
