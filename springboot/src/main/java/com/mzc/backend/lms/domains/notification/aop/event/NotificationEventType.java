@@ -31,12 +31,12 @@ public enum NotificationEventType {
     /**
      * 수강신청 완료
      */
-    ENROLLMENT_CREATED("ENROLLMENT_CREATED", "수강신청", "수강신청이 완료되었습니다."),
+    ENROLLMENT_CREATED("COURSE_ENROLLED", "수강신청", "수강신청이 완료되었습니다."),
 
     /**
      * 수강취소 완료
      */
-    ENROLLMENT_CANCELLED("ENROLLMENT_CANCELLED", "수강신청", "수강이 취소되었습니다."),
+    ENROLLMENT_CANCELLED("COURSE_DROPPED", "수강신청", "수강이 취소되었습니다."),
 
     // ========== 과제 관련 ==========
     /**
