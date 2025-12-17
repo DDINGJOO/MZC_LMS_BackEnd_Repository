@@ -2,10 +2,13 @@ package com.mzc.backend.lms.domains.user.user.repository;
 
 import com.mzc.backend.lms.domains.user.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,4 +47,27 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "FROM User u " +
            "WHERE CAST(u.id AS string) LIKE CONCAT(:prefix, '%')")
     Optional<Integer> findMaxSequenceByPrefix(@Param("prefix") String prefix);
+
+    /**
+     * 탈퇴 후 지정 기간 경과한 사용자 ID 목록 조회 (스케줄러용)
+     * Native Query로 @Where 절 우회
+     *
+     * @param threshold 기준 시간 (이 시간 이전에 삭제된 사용자 조회)
+     * @return 하드 딜리트 대상 사용자 ID 목록
+     */
+    @Query(value = "SELECT id FROM users WHERE deleted_at IS NOT NULL AND deleted_at < :threshold",
+           nativeQuery = true)
+    List<Long> findUserIdsDeletedBefore(@Param("threshold") LocalDateTime threshold);
+
+    /**
+     * 탈퇴 후 지정 기간 경과한 사용자 하드 딜리트 (스케줄러용)
+     * Native Query로 @Where 절 우회
+     *
+     * @param threshold 기준 시간
+     * @return 삭제된 사용자 수
+     */
+    @Modifying
+    @Query(value = "DELETE FROM users WHERE deleted_at IS NOT NULL AND deleted_at < :threshold",
+           nativeQuery = true)
+    int hardDeleteUsersDeletedBefore(@Param("threshold") LocalDateTime threshold);
 }
