@@ -27,6 +27,17 @@ public enum NotificationEventType {
      */
     COURSE_ENROLLMENT_REJECTED("COURSE_ENROLLMENT_REJECTED", "강의", "수강 신청이 거절되었습니다."),
 
+    // ========== 수강신청 관련 ==========
+    /**
+     * 수강신청 완료
+     */
+    ENROLLMENT_CREATED("ENROLLMENT_CREATED", "수강신청", "수강신청이 완료되었습니다."),
+
+    /**
+     * 수강취소 완료
+     */
+    ENROLLMENT_CANCELLED("ENROLLMENT_CANCELLED", "수강신청", "수강이 취소되었습니다."),
+
     // ========== 과제 관련 ==========
     /**
      * 새 과제 등록
