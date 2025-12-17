@@ -55,6 +55,16 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     void deleteExpiredTokens(@Param("now") LocalDateTime now);
 
     /**
+     * 만료되었거나 폐기된 토큰 삭제 (스케줄러용)
+     *
+     * @param now 현재 시간
+     * @return 삭제된 토큰 수
+     */
+    @Modifying
+    @Query("DELETE FROM RefreshToken rt WHERE rt.expiresAt < :now OR rt.isRevoked = true")
+    int deleteExpiredOrRevokedTokens(@Param("now") LocalDateTime now);
+
+    /**
      * 디바이스별 토큰 조회
      */
     @Query("SELECT rt FROM RefreshToken rt WHERE rt.user = :user AND rt.deviceInfo = :deviceInfo AND rt.isRevoked = false")
