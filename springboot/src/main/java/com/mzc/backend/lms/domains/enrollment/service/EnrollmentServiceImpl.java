@@ -12,6 +12,8 @@ import com.mzc.backend.lms.domains.course.subject.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.course.subject.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.dto.*;
 import com.mzc.backend.lms.domains.enrollment.entity.Enrollment;
+import com.mzc.backend.lms.domains.enrollment.event.EnrollmentCancelledEvent;
+import com.mzc.backend.lms.domains.enrollment.event.EnrollmentCreatedEvent;
 import com.mzc.backend.lms.domains.enrollment.repository.CourseCartRepository;
 import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.user.student.entity.Student;
@@ -19,6 +21,7 @@ import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;
 import com.mzc.backend.lms.views.UserViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +48,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final SubjectPrerequisitesRepository subjectPrerequisitesRepository;
     private final StudentRepository studentRepository;
     private final UserViewService userViewService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int MAX_CREDITS_PER_TERM = 21; // 학기당 최대 학점
 
@@ -136,6 +140,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 // 장바구니에서 제거 (있는 경우)
                 courseCartRepository.findByStudentIdAndCourseId(studentIdLong, courseId)
                         .ifPresent(courseCartRepository::delete);
+
+                // 수강신청 완료 이벤트 발행
+                eventPublisher.publishEvent(new EnrollmentCreatedEvent(
+                        studentIdLong,
+                        course.getId(),
+                        course.getSubject().getSubjectName(),
+                        course.getSectionNumber()
+                ));
 
                 // 성공 처리
                 EnrollmentBulkResponseDto.SucceededEnrollmentDto succeededDto = 
@@ -550,6 +562,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
                 // 수강신청 삭제
                 enrollmentRepository.delete(enrollment);
+
+                // 수강취소 완료 이벤트 발행
+                eventPublisher.publishEvent(new EnrollmentCancelledEvent(
+                        studentIdLong,
+                        course.getId(),
+                        course.getSubject().getSubjectName(),
+                        course.getSectionNumber()
+                ));
 
                 // 성공 처리
                 EnrollmentBulkCancelResponseDto.CancelledEnrollmentDto cancelledDto = 

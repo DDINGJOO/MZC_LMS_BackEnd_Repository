@@ -103,18 +103,9 @@ public class UserInfoCacheServiceImpl implements UserInfoCacheService {
         // DTO 생성
         for (Long userId : userIds) {
             String encryptedName = encryptedNames.get(userId);
-            String decryptedName = null;
-            
-            if (encryptedName != null) {
-                try {
-                    // 암호화된 데이터 복호화 시도
-                    decryptedName = encryptionService.decryptName(encryptedName);
-                } catch (Exception e) {
-                    // 복호화 실패 시 평문으로 간주 (개발 환경 또는 테스트 데이터)
-                    log.warn("이름 복호화 실패, 평문으로 사용: userId={}, name={}", userId, encryptedName);
-                    decryptedName = encryptedName;
-                }
-            }
+            String decryptedName = encryptedName != null
+                    ? encryptionService.decryptName(encryptedName)
+                    : null;
 
             UserBasicInfoDto dto;
             if (studentIds.contains(userId)) {
