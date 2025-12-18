@@ -35,11 +35,11 @@ spring:
       lettuce:
         pool:
           enabled: true
-          max-active: 8
-          max-idle: 8
-          min-idle: 2
+          max-active: 16
+          max-idle: 16
+          min-idle: 4
         shutdown-timeout: 100ms
-      timeout: 2000ms
+      timeout: 10000ms
 
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
