@@ -54,9 +54,11 @@ public class PostController {
     @GetMapping("/{boardType}/posts/{id}")
     public ResponseEntity<PostResponseDto> getPost(
             @PathVariable String boardType,
-            @PathVariable Long id) {
-        log.info("게시글 상세조회 API 호출: boardType={}, postId={}", boardType, id);
-        PostResponseDto response = postService.getPost(boardType, id);
+            @PathVariable Long id,
+            Authentication authentication) {
+        Long currentUserId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        log.info("게시글 상세조회 API 호출: boardType={}, postId={}, userId={}", boardType, id, currentUserId);
+        PostResponseDto response = postService.getPost(boardType, id, currentUserId);
         return ResponseEntity.ok(response);
     }
     
@@ -66,10 +68,12 @@ public class PostController {
             @PathVariable String boardType,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String hashtag,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        log.info("게시글 목록 조회 API 호출: boardType={}, search={}, hashtag={}, page={}", 
-                boardType, search, hashtag, pageable.getPageNumber());
-        Page<PostListResponseDto> response = postService.getPostListByBoardType(boardType, search, hashtag, pageable);
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            Authentication authentication) {
+        Long currentUserId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        log.info("게시글 목록 조회 API 호출: boardType={}, search={}, hashtag={}, page={}, userId={}", 
+                boardType, search, hashtag, pageable.getPageNumber(), currentUserId);
+        Page<PostListResponseDto> response = postService.getPostListByBoardType(boardType, search, hashtag, pageable, currentUserId);
         return ResponseEntity.ok(response);
     }
 

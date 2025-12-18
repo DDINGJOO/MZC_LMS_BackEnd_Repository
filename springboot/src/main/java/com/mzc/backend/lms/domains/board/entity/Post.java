@@ -64,8 +64,14 @@ public class Post extends AuditableEntity {
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
+    @Column(name = "department_id")
+    private Long departmentId;
+
+    @Column(name = "course_id")
+    private Long courseId;
+
     @Builder
-    public Post(BoardCategory category, String title, String content, PostType postType, boolean isAnonymous, Long authorId) {
+    public Post(BoardCategory category, String title, String content, PostType postType, boolean isAnonymous, Long authorId, Long departmentId, Long courseId) {
         super(authorId); // AuditableEntity의 생성자 호출
         this.authorId = authorId;
         this.category = category;
@@ -73,6 +79,8 @@ public class Post extends AuditableEntity {
         this.content = content;
         this.postType = postType;
         this.isAnonymous = isAnonymous;
+        this.departmentId = departmentId;
+        this.courseId = courseId;
     }
 
     // --- 비즈니스 로직 ---

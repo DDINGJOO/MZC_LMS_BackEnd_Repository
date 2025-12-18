@@ -54,6 +54,7 @@ public class PostService {
     private final AttachmentRepository attachmentRepository;
     private final HashtagService hashtagService;
     private final EntityManager entityManager;
+    private final com.mzc.backend.lms.domains.user.student.repository.StudentDepartmentRepository studentDepartmentRepository;
 
     /**
      * 게시글 생성 (boardType 기반, 2단계 업로드)
@@ -83,6 +84,17 @@ public class PostService {
         // 3. 카테고리 정책 검증
         validateCategoryPolicy(category, request.getIsAnonymous());
 
+        // 3-1. DEPARTMENT 게시판인 경우 사용자 학과 ID 설정
+        Long departmentId = null;
+        if (boardType == BoardType.DEPARTMENT) {
+            departmentId = getUserDepartmentId(authorId);
+            if (departmentId == null) {
+                log.warn("학과 정보 없는 사용자가 학과 게시판에 글 작성 시도: userId={}", authorId);
+                throw new BoardException(BoardErrorCode.UNAUTHORIZED_ACTION);
+            }
+            log.info("학과 게시글 생성: userId={}, departmentId={}", authorId, departmentId);
+        }
+
         // 4. 게시글 생성
         Post post = Post.builder()
                 .category(category)
@@ -91,6 +103,7 @@ public class PostService {
                 .postType(request.getPostType())
                 .isAnonymous(request.getIsAnonymous())
                 .authorId(authorId)
+                .departmentId(departmentId)
                 .build();
 
         // 5. 저장
@@ -133,7 +146,7 @@ public class PostService {
     /**
      * 게시글 목록 조회 (boardType 기반, 해시태그 필터링 지원)
      */
-    public Page<PostListResponseDto> getPostListByBoardType(String boardTypeStr, String search, String hashtag, Pageable pageable) {
+    public Page<PostListResponseDto> getPostListByBoardType(String boardTypeStr, String search, String hashtag, Pageable pageable, Long currentUserId) {
         // 1. BoardType 변환
         BoardType boardType;
         try {
@@ -146,17 +159,36 @@ public class PostService {
         BoardCategory category = boardCategoryRepository.findByBoardType(boardType)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_CATEGORY_NOT_FOUND));
 
-        // 3. 해시태그 필터링 여부에 따라 분기
+        // 2-1. DEPARTMENT 게시판인 경우 사용자 학과로 자동 필터링
+        Long userDepartmentId = null;
+        if (boardType == BoardType.DEPARTMENT && currentUserId != null) {
+            userDepartmentId = getUserDepartmentId(currentUserId);
+            if (userDepartmentId != null) {
+                log.info("학과 게시판 자동 필터링: userId={}, departmentId={}", currentUserId, userDepartmentId);
+            }
+        }
+
+        // 3. 학과 ID 또는 해시태그 필터링 여부에 따라 분기
         Page<Post> posts;
         
-        if (hashtag != null && !hashtag.isBlank()) {
-            // 해시태그 + 검색어 조합
+        if (userDepartmentId != null) {
+            // 학과 ID로 필터링 (DEPARTMENT 게시판)
+            if (search != null && !search.isBlank()) {
+                posts = postRepository.findByCategoryAndDepartmentIdAndTitleContaining(category, userDepartmentId, search, pageable);
+                log.info("게시글 목록 조회 (학과+검색): boardType={}, departmentId={}, search={}, resultCount={}", 
+                        boardType, userDepartmentId, search, posts.getTotalElements());
+            } else {
+                posts = postRepository.findByCategoryAndDepartmentId(category, userDepartmentId, pageable);
+                log.info("게시글 목록 조회 (학과): boardType={}, departmentId={}, resultCount={}", 
+                        boardType, userDepartmentId, posts.getTotalElements());
+            }
+        } else if (hashtag != null && !hashtag.isBlank()) {
+            // 해시태그로 필터링 (다른 게시판)
             if (search != null && !search.isBlank()) {
                 posts = postRepository.findByCategoryAndTitleContainingAndHashtagName(category, search, hashtag, pageable);
                 log.info("게시글 목록 조회 (해시태그+검색): boardType={}, hashtag={}, search={}, resultCount={}", 
                         boardType, hashtag, search, posts.getTotalElements());
             } else {
-                // 해시태그만
                 posts = postRepository.findByCategoryAndHashtagName(category, hashtag, pageable);
                 log.info("게시글 목록 조회 (해시태그): boardType={}, hashtag={}, resultCount={}", 
                         boardType, hashtag, posts.getTotalElements());
@@ -206,10 +238,11 @@ public class PostService {
      * 
      * @param boardTypeStr 게시판 타입 문자열 (예: "PROFESSOR", "STUDENT")
      * @param postId 게시글 ID
+     * @param currentUserId 현재 로그인한 사용자 ID (학과 검증용)
      * @return 게시글 상세 정보
      */
     @Transactional
-    public PostResponseDto getPost(String boardTypeStr, Long postId) {
+    public PostResponseDto getPost(String boardTypeStr, Long postId, Long currentUserId) {
         Post post = postRepository.findByIdWithHashtags(postId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
@@ -229,6 +262,21 @@ public class PostService {
         // 게시글이 해당 게시판에 속하는지 확인
         if (post.getCategory().getBoardType() != boardType) {
             throw new BoardException(BoardErrorCode.POST_NOT_FOUND);
+        }
+
+        // DEPARTMENT 게시판인 경우 학과 권한 체크
+        if (boardType == BoardType.DEPARTMENT && currentUserId != null) {
+            Long userDepartmentId = getUserDepartmentId(currentUserId);
+            if (userDepartmentId != null && post.getDepartmentId() != null) {
+                // 게시글의 department_id와 사용자 학과 비교
+                boolean hasAccess = post.getDepartmentId().equals(userDepartmentId);
+                
+                if (!hasAccess) {
+                    log.warn("학과 게시글 접근 권한 없음: userId={}, postId={}, userDeptId={}, postDeptId={}", 
+                            currentUserId, postId, userDepartmentId, post.getDepartmentId());
+                    throw new BoardException(BoardErrorCode.UNAUTHORIZED_ACTION);
+                }
+            }
         }
 
         // 조회수 증가
@@ -507,6 +555,46 @@ public class PostService {
             }
         } else {
             log.warn("createdBy가 null입니다: postId={}", response.getId());
+        }
+    }
+
+    /**
+     * 사용자의 학과 ID 조회
+     * @param userId 사용자 ID (학번)
+     * @return 학과 ID (없으면 null)
+     */
+    private Long getUserDepartmentId(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        
+        try {
+            return studentDepartmentRepository.findByStudentId(userId)
+                    .map(sd -> sd.getDepartment().getId())
+                    .orElse(null);
+        } catch (Exception e) {
+            log.warn("학과 정보 조회 실패: userId={}", userId, e);
+            return null;
+        }
+    }
+
+    /**
+     * 사용자의 학과 이름 조회
+     * @param userId 사용자 ID (학번 또는 교번)
+     * @return 학과 이름 (없으면 null)
+     */
+    private String getUserDepartmentName(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        
+        try {
+            return studentDepartmentRepository.findByStudentId(userId)
+                    .map(sd -> sd.getDepartment().getDepartmentName())
+                    .orElse(null);
+        } catch (Exception e) {
+            log.warn("학과 정보 조회 실패: userId={}", userId, e);
+            return null;
         }
     }
 }
