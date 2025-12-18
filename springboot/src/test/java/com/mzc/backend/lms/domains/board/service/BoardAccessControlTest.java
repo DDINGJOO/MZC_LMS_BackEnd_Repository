@@ -367,8 +367,8 @@ class BoardAccessControlTest {
         postService.createPost("CONTEST", createPostRequest(studentUser.getId(), "공모전 게시글 1"), studentUser.getId());
 
         // when
-        Page<PostListResponseDto> freePosts = postService.getPostListByBoardType("FREE", null, null, PageRequest.of(0, 10));
-        Page<PostListResponseDto> contestPosts = postService.getPostListByBoardType("CONTEST", null, null, PageRequest.of(0, 10));
+        Page<PostListResponseDto> freePosts = postService.getPostListByBoardType("FREE", null, null, PageRequest.of(0, 10), studentUser.getId());
+        Page<PostListResponseDto> contestPosts = postService.getPostListByBoardType("CONTEST", null, null, PageRequest.of(0, 10), studentUser.getId());
 
         // then
         assertThat(freePosts.getContent()).hasSizeGreaterThanOrEqualTo(2);

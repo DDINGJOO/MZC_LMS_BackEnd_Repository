@@ -77,6 +77,29 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                                                 @Param("hashtagName") String hashtagName, 
                                                                 Pageable pageable);
 
+    // department_id 기반 조회 메서드
+    @Query("SELECT DISTINCT p FROM Post p " +
+           "LEFT JOIN FETCH p.postHashtags ph " +
+           "LEFT JOIN FETCH ph.hashtag h " +
+           "WHERE p.category = :category " +
+           "AND p.departmentId = :departmentId " +
+           "AND p.isDeleted = false")
+    Page<Post> findByCategoryAndDepartmentId(@Param("category") BoardCategory category, 
+                                              @Param("departmentId") Long departmentId, 
+                                              Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Post p " +
+           "LEFT JOIN FETCH p.postHashtags ph " +
+           "LEFT JOIN FETCH ph.hashtag h " +
+           "WHERE p.category = :category " +
+           "AND p.departmentId = :departmentId " +
+           "AND p.title LIKE %:title% " +
+           "AND p.isDeleted = false")
+    Page<Post> findByCategoryAndDepartmentIdAndTitleContaining(@Param("category") BoardCategory category, 
+                                                                 @Param("departmentId") Long departmentId, 
+                                                                 @Param("title") String title, 
+                                                                 Pageable pageable);
+
     /**
      * 게시글 상세 조회 (해시태그 포함, fetch join 사용)
      * attachments와 comments는 트랜잭션 내에서 자동 로드됨

@@ -9,22 +9,17 @@
 
 CREATE TABLE IF NOT EXISTS board_categories (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(50) UNIQUE NOT NULL COMMENT '카테고리 이름',
-    description VARCHAR(255) COMMENT '카테고리 설명',
-    board_type VARCHAR(30) NOT NULL COMMENT '게시판 유형 (NOTICE/FREE/QUESTION/DISCUSSION/PROFESSOR/STUDENT/DEPARTMENT/CONTEST/CAREER/ASSIGNMENT/EXAM/QUIZ/STUDY_RECRUITMENT)',
+    board_type ENUM('NOTICE', 'FREE', 'QUESTION', 'DISCUSSION', 'PROFESSOR', 'STUDENT', 'DEPARTMENT', 'CONTEST', 'CAREER', 'ASSIGNMENT', 'EXAM', 'QUIZ', 'STUDY_RECRUITMENT') NOT NULL UNIQUE COMMENT '게시판 유형',
     allow_comments BIT(1) DEFAULT b'1' COMMENT '댓글 허용 여부',
     allow_attachments BIT(1) DEFAULT b'1' COMMENT '첨부파일 허용 여부',
     allow_anonymous BIT(1) DEFAULT b'0' COMMENT '익명 작성 허용 여부',
-    display_order INT DEFAULT 0 COMMENT '표시 순서',
-    is_active BIT(1) DEFAULT b'1' COMMENT '활성화 여부',
     is_deleted BIT(1) DEFAULT b'0' COMMENT '삭제 여부',
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일시',
     updated_at DATETIME(6) DEFAULT NULL COMMENT '수정일시',
     deleted_at DATETIME(6) DEFAULT NULL COMMENT '삭제일시 (Soft Delete)',
     PRIMARY KEY (id),
-    KEY idx_board_type (board_type),
-    KEY idx_display_order (display_order),
-    KEY idx_is_active (is_active)
+    UNIQUE KEY uk_board_type (board_type),
+    KEY idx_is_deleted (is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게시판 카테고리';
 
 -- -----------------------------------------------------
