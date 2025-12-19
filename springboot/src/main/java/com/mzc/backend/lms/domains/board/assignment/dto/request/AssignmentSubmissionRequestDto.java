@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 public class AssignmentSubmissionRequestDto {
 
-    @NotBlank(message = "제출 내용은 필수입니다")
     private String content;
     
     /**
