@@ -7,6 +7,7 @@ import com.mzc.backend.lms.domains.course.course.entity.WeekContent;
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
 import com.mzc.backend.lms.domains.course.course.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.course.repository.WeekContentRepository;
+import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class CourseWeekContentService {
     private final CourseRepository courseRepository;
     private final CourseWeekRepository courseWeekRepository;
     private final WeekContentRepository weekContentRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     /**
      * 주차 생성
@@ -520,11 +522,11 @@ public class CourseWeekContentService {
     }
 
     /**
-     * 강의 주차 목록 조회 (교수용)
+     * 강의 주차 목록 조회 (교수/수강중 학생)
      */
     @Transactional(readOnly = true)
-    public List<WeekListResponseDto> getWeeks(Long courseId, Long professorId) {
-        log.info("강의 주차 목록 조회: courseId={}, professorId={}", courseId, professorId);
+    public List<WeekListResponseDto> getWeeks(Long courseId, Long requesterId) {
+        log.info("강의 주차 목록 조회: courseId={}, requesterId={}", courseId, requesterId);
 
         // 1. 강의 조회 및 권한 확인
         if (courseId == null) {
@@ -533,7 +535,11 @@ public class CourseWeekContentService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
 
-        if (!course.getProfessor().getProfessorId().equals(professorId)) {
+        // 교수이거나 수강 중인 학생인지 확인
+        boolean isProfessor = course.getProfessor().getProfessorId().equals(requesterId);
+        boolean isEnrolledStudent = enrollmentRepository.existsByStudentIdAndCourseId(requesterId, courseId);
+
+        if (!isProfessor && !isEnrolledStudent) {
             throw new IllegalArgumentException("주차 조회 권한이 없습니다.");
         }
 
