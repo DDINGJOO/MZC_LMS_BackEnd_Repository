@@ -70,18 +70,18 @@ spring:
 
 app:
   file:
-    upload-dir: ${user.dir}/uploads
+    upload-dir: ${user.dir}/uploads/files
   image:
     storage:
       local:
-        base-path: ${user.dir}/uploads
+        base-path: ${user.dir}/uploads/files
         url-prefix: /static/profile
   server:
     url: ${APP_SERVER_URL:http://localhost}
 
 file:
   upload:
-    dir: ${FILE_UPLOAD_DIR:./uploads}
+    dir: ${FILE_UPLOAD_DIR:./uploads/files}
     max-size: 10485760  # 10MB
 
 regex:

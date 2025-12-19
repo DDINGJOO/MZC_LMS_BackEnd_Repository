@@ -49,6 +49,7 @@ public enum BoardErrorCode {
     // Assignment 관련 (ASSIGNMENT_0XX)
     ALREADY_SUBMITTED("ASSIGNMENT_001", "이미 제출한 과제입니다", HttpStatus.CONFLICT),
     SUBMISSION_NOT_FOUND("ASSIGNMENT_002", "제출 내역을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
+    RESUBMISSION_NOT_ALLOWED("ASSIGNMENT_003", "채점 완료된 과제는 재제출할 수 없습니다", HttpStatus.BAD_REQUEST)
     ;
     
     private final String code;

@@ -104,10 +104,12 @@ public class AssignmentService {
     }
 
     /**
-     * 게시글 ID로 과제 조회
+     * ID로 과제 조회 (assignment ID 또는 post ID)
+     * 먼저 assignment ID로 조회 시도, 없으면 post ID로 조회
      */
-    public AssignmentResponseDto getAssignmentByPostId(Long postId) {
-        Assignment assignment = assignmentRepository.findByPostId(postId)
+    public AssignmentResponseDto getAssignmentByPostId(Long id) {
+        Assignment assignment = assignmentRepository.findById(id)
+                .or(() -> assignmentRepository.findByPostId(id))
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
         if (assignment.getIsDeleted()) {
@@ -124,7 +126,21 @@ public class AssignmentService {
         List<Assignment> assignments = assignmentRepository.findByCourseId(courseId);
         
         return assignments.stream()
-                .map(AssignmentResponseDto::fromWithoutPost)
+                .map(AssignmentResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 전체 과제 목록 조회
+     */
+    public List<AssignmentResponseDto> getAllAssignments() {
+        List<Assignment> assignments = assignmentRepository.findAll().stream()
+                .filter(a -> !a.getIsDeleted())
+                .sorted((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()))
+                .collect(Collectors.toList());
+        
+        return assignments.stream()
+                .map(AssignmentResponseDto::from)
                 .collect(Collectors.toList());
     }
 
@@ -197,6 +213,8 @@ public class AssignmentService {
 
     /**
      * 과제 제출 (학생)
+     * - 신규 제출: 새로운 제출 생성
+     * - 재제출/수정: 기존 제출 업데이트 (정책에 따라 허용 여부 확인)
      */
     @Transactional
     public AssignmentSubmissionResponseDto submitAssignment(Long assignmentId, AssignmentSubmissionRequestDto request, Long studentId) {
@@ -206,40 +224,69 @@ public class AssignmentService {
         Assignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.POST_NOT_FOUND));
 
-        // 이미 제출했는지 확인
-        submissionRepository.findByAssignmentIdAndUserId(assignment.getId(), studentId)
-                .ifPresent(existing -> {
-                    throw new BoardException(BoardErrorCode.ALREADY_SUBMITTED);
-                });
-
-        // 제출 시간
-        LocalDateTime submittedAt = LocalDateTime.now();
-
-        // 지각 여부 판단
-        String status = assignment.getDueDate().isBefore(submittedAt) ? "LATE" : "SUBMITTED";
-
-        // 제출 생성
-        AssignmentSubmission submission = AssignmentSubmission.builder()
-                .assignment(assignment)
-                .userId(studentId)
-                .content(request.getContent())
-                .submittedAt(submittedAt)
-                .status(status)
-                .createdBy(studentId)
-                .build();
-
-        AssignmentSubmission savedSubmission = submissionRepository.save(submission);
+        // 기존 제출 확인
+        var existingSubmission = submissionRepository.findByAssignmentIdAndUserId(assignment.getId(), studentId);
         
-        // 첨부파일 처리
-        if (request.getAttachmentIds() != null && !request.getAttachmentIds().isEmpty()) {
-            List<Attachment> attachments = attachmentRepository.findAllById(request.getAttachmentIds());
-            savedSubmission.addAttachments(attachments);
-            log.info("첨부파일 {} 개 추가 완료", attachments.size());
+        if (existingSubmission.isPresent()) {
+            // 이미 제출한 경우 - 수정/재제출 로직
+            AssignmentSubmission existing = existingSubmission.get();
+            log.info("기존 제출 발견: submissionId={}, status={}, isGraded={}", 
+                    existing.getId(), existing.getStatus(), existing.isGraded());
+            
+            // 채점 완료된 경우 재제출 허용 여부 확인
+            if (existing.isGraded() && !existing.canResubmit()) {
+                log.warn("재제출 불가: submissionId={}, 채점 완료 상태", existing.getId());
+                throw new BoardException(BoardErrorCode.RESUBMISSION_NOT_ALLOWED);
+            }
+            
+            // 재제출/수정 허용 - 내용 업데이트
+            LocalDateTime now = LocalDateTime.now();
+            
+            // 첨부파일 처리
+            List<Attachment> attachments = null;
+            if (request.getAttachmentIds() != null && !request.getAttachmentIds().isEmpty()) {
+                attachments = attachmentRepository.findAllById(request.getAttachmentIds());
+                log.info("첨부파일 {} 개 업데이트", attachments.size());
+            }
+            
+            existing.resubmit(request.getContent(), attachments);
+            existing.updateModifier(studentId);
+            
+            log.info("과제 재제출/수정 완료: submissionId={}", existing.getId());
+            return AssignmentSubmissionResponseDto.from(existing);
+        } else {
+            // 신규 제출
+            log.info("신규 제출 생성");
+            
+            // 제출 시간
+            LocalDateTime submittedAt = LocalDateTime.now();
+
+            // 지각 여부 판단
+            String status = assignment.getDueDate().isBefore(submittedAt) ? "LATE" : "SUBMITTED";
+
+            // 제출 생성
+            AssignmentSubmission submission = AssignmentSubmission.builder()
+                    .assignment(assignment)
+                    .userId(studentId)
+                    .content(request.getContent())
+                    .submittedAt(submittedAt)
+                    .status(status)
+                    .createdBy(studentId)
+                    .build();
+
+            AssignmentSubmission savedSubmission = submissionRepository.save(submission);
+            
+            // 첨부파일 처리
+            if (request.getAttachmentIds() != null && !request.getAttachmentIds().isEmpty()) {
+                List<Attachment> attachments = attachmentRepository.findAllById(request.getAttachmentIds());
+                savedSubmission.addAttachments(attachments);
+                log.info("첨부파일 {} 개 추가 완료", attachments.size());
+            }
+            
+            log.info("과제 제출 완료: submissionId={}, status={}", savedSubmission.getId(), status);
+
+            return AssignmentSubmissionResponseDto.from(savedSubmission);
         }
-        
-        log.info("과제 제출 완료: submissionId={}, status={}", savedSubmission.getId(), status);
-
-        return AssignmentSubmissionResponseDto.from(savedSubmission);
     }
 
     /**

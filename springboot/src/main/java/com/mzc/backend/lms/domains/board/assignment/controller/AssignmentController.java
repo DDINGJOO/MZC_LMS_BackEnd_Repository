@@ -46,14 +46,20 @@ public class AssignmentController {
     }
 
     /**
-     * 강의별 과제 목록 조회
+     * 과제 목록 조회 (강의별 또는 전체)
      */
     @GetMapping
-    public ResponseEntity<List<AssignmentResponseDto>> getAssignmentsByCourse(
-            @RequestParam Long courseId) {
-        log.info("강의별 과제 목록 조회 API 호출: courseId={}", courseId);
-        List<AssignmentResponseDto> response = assignmentService.getAssignmentsByCourse(courseId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<AssignmentResponseDto>> getAssignments(
+            @RequestParam(required = false) Long courseId) {
+        if (courseId != null) {
+            log.info("강의별 과제 목록 조회 API 호출: courseId={}", courseId);
+            List<AssignmentResponseDto> response = assignmentService.getAssignmentsByCourse(courseId);
+            return ResponseEntity.ok(response);
+        } else {
+            log.info("전체 과제 목록 조회 API 호출");
+            List<AssignmentResponseDto> response = assignmentService.getAllAssignments();
+            return ResponseEntity.ok(response);
+        }
     }
 
     /**
