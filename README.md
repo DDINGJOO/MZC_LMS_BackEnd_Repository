@@ -27,7 +27,11 @@
 | [API Specification](./api-spec/README.md) | 도메인별 API 명세 (12개 도메인, 94개 API) |
 | [Architecture Guide](./docs/ARCHITECTURE_GUIDE.md) | 인프라 아키텍처 가이드 (Docker, Nginx, Load Balancing) |
 | [Flow Charts](./flow-chart) | 기능별 플로우 차트 (33개) |
-| [DB Diagram](https://dbdiagram.io/d/MZC_TEAM2-691ebf15228c5bbc1aadecbc) | 데이터베이스 스키마 |
+| [DB Table Spec](./docs/TABLE_SPEC.md) | 데이터베이스 테이블 명세서 |
+
+### Database Schema
+
+![LMS Database Schema](./docs/lms_db.png)
 
 
 ---
