@@ -44,22 +44,18 @@ Table users {
 // 게시판 카테고리 (게시판 유형 관리)
 Table board_categories {
   id bigint [pk, increment, note: "카테고리 고유 ID"]
-  name varchar(50) [unique, not null, note: "카테고리 이름"]
-  description varchar(255) [note: "카테고리 설명"]
-  board_type varchar(30) [not null, note: "게시판 유형 (NOTICE/FREE/QUESTION/DISCUSSION/PROFESSOR/STUDENT/DEPARTMENT/CONTEST/CAREER/ASSIGNMENT/EXAM/QUIZ/STUDY_RECRUITMENT)"]
+  board_type enum [not null, unique, note: "게시판 유형 (NOTICE/FREE/QUESTION/DISCUSSION/PROFESSOR/STUDENT/DEPARTMENT/CONTEST/CAREER/ASSIGNMENT/EXAM/QUIZ/STUDY_RECRUITMENT)"]
   allow_comments boolean [default: true, note: "댓글 허용 여부"]
   allow_attachments boolean [default: true, note: "첨부파일 허용 여부"]
   allow_anonymous boolean [default: false, note: "익명 작성 허용 여부"]
-  display_order int [default: 0, note: "표시 순서"]
-  is_active boolean [default: true, note: "활성화 여부"]
+  is_deleted boolean [default: false, note: "삭제 여부"]
   created_at timestamp [not null, default: `now()`, note: "생성일시"]
   updated_at timestamp [note: "수정일시"]
   deleted_at timestamp [note: "삭제일시 (Soft Delete)"]
 
   indexes {
-    board_type
-    display_order
-    is_active
+    board_type [unique]
+    is_deleted
   }
 }
 
@@ -252,16 +248,20 @@ Table post_hashtags {
 Table post_likes {
   id bigint [pk, increment, note: "좋아요 고유 ID"]
   user_id bigint [not null, ref: > users.id, note: "사용자 ID"]
-  post_id bigint [ref: > posts.id, note: "게시글 ID"]
-  comment_id bigint [ref: > comments.id, note: "댓글 ID"]
+  post_id bigint [ref: > posts.id, note: "게시글 ID (좋아요 유형이 POST인 경우)"]
+  comment_id bigint [ref: > comments.id, note: "댓글 ID (좋아요 유형이 COMMENT인 경우)"]
   like_type varchar(20) [not null, note: "좋아요 유형 (POST/COMMENT)"]
   created_at timestamp [not null, default: `now()`, note: "좋아요 생성일시"]
   deleted_at timestamp [note: "좋아요 취소일시 (Soft Delete)"]
 
   indexes {
-    (user_id, post_id) [unique, name: 'idx_user_post_like']
-    (user_id, comment_id) [unique, name: 'idx_user_comment_like']
-    like_type
+    (user_id, post_id) [unique, name: 'uk_user_post_like']
+    (user_id, comment_id) [unique, name: 'uk_user_comment_like']
+    user_id [name: 'idx_post_likes_user_id']
+    post_id [name: 'idx_post_likes_post_id']
+    comment_id [name: 'idx_post_likes_comment_id']
+    like_type [name: 'idx_post_likes_type']
+    deleted_at [name: 'idx_post_likes_deleted_at']
   }
 }
 
@@ -296,12 +296,14 @@ Table assignments {
   allowed_file_types varchar(255) [note: "허용 파일 확장자 (쉼표 구분)"]
   instructions text [null, note: "제출 지침"]
   created_by bigint [not null, ref: > users.id, note: "생성자 ID"]
+  updated_by bigint [ref: > users.id, note: "수정자 ID"]
   created_at timestamp [not null, default: `now()`, note: "생성일시"]
   updated_at timestamp [note: "수정일시"]
   deleted_at timestamp [note: "삭제일시 (Soft Delete)"]
+  is_deleted boolean [default: false, note: "삭제 여부"]
 
   indexes {
-    post_id [unique]
+    post_id [unique, name: 'uk_assignments_post_id']
     course_id
     due_date
     created_by
@@ -318,13 +320,34 @@ Table assignment_submissions {
   score decimal(5,2) [null, note: "획득 점수"]
   feedback text [null, note: "피드백"]
   graded_at timestamp [null, note: "채점일시"]
-  graded_by bigint [null, ref: > users.id, note: "채점자 ID"]
-  created_at timestamp [not null, default: `now()`, note: "생성일시"]
-  updated_at timestamp [note: "수정일시"]
-  deleted_at timestamp [note: "삭제일시 (Soft Delete)"]
+  created_by bigint [ref: > users.id, note: "생성자 ID"]
+  updated_by bigint [ref: > users.id, note: "수정자 ID"]
+  is_deleted boolean [default: false, note: "삭제 여부"]
+  allow_resubmission boolean [default: false, note: "재제출 허용 여부"]
+  resubmission_deadline timestamp [null, note: "재제출 마감일"]
 
   indexes {
     (assignment_id, user_id) [unique, name: 'idx_assignment_user']
+    user_id
+    status
+    submitted_at
+    created_by [name: 'idx_created_by']
+    is_deleted [name: 'idx_is_deleted']
+   과제 제출 첨부파일 관계 테이블
+Table submission_attachments {
+  id bigint [pk, increment, note: "과제 제출 첨부파일 연결 ID"]
+  submission_id bigint [not null, ref: > assignment_submissions.id, note: "과제 제출 ID"]
+  attachment_id bigint [not null, ref: > attachments.id, note: "첨부파일 ID"]
+  created_at timestamp [not null, default: `now()`, note: "생성일시"]
+
+  indexes {
+    (submission_id, attachment_id) [unique, name: 'uk_submission_attachment']
+    submission_id [name: 'idx_submission_id']
+    attachment_id [name: 'idx_attachment_id']
+  }
+}
+
+//  (assignment_id, user_id) [unique, name: 'idx_assignment_user']
     user_id
     status
     submitted_at
