@@ -147,7 +147,7 @@ class UserSearchServiceSpec extends Specification {
 
         then: "결과가 반환된다"
         result != null
-        result.users != null
+        result.content != null
     }
 
     def "유저 검색 시 학생 타입만 검색한다"() {

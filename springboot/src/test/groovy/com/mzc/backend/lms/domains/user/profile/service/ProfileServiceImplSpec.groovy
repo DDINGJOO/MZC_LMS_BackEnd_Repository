@@ -83,9 +83,9 @@ class ProfileServiceImplSpec extends Specification {
             getThumbnailUrl() >> "http://example.com/thumb.jpg"
         }
         def student = Mock(Student) {
-            getStudentId() >> "S001"
+            getStudentId() >> 1L
             getAdmissionYear() >> 2025
-            getGrade() >> 1
+            getGrade() >> Integer.valueOf(1)
         }
 
         userRepository.findById(userId) >> Optional.of(user)
@@ -109,7 +109,9 @@ class ProfileServiceImplSpec extends Specification {
         result.mobileNumber == "010-1234-5678"
         result.profileImageUrl == "http://example.com/image.jpg"
         result.userType == "STUDENT"
+        result.studentId == 1L
         result.admissionYear == 2025
+        result.grade == 1
     }
 
     def "교수 사용자의 프로필을 조회한다"() {
@@ -120,7 +122,7 @@ class ProfileServiceImplSpec extends Specification {
             getEmail() >> "encrypted_professor_email"
         }
         def professor = Mock(Professor) {
-            getProfessorId() >> "P001"
+            getProfessorId() >> 1001L
             getAppointmentDate() >> null
         }
 
@@ -141,7 +143,7 @@ class ProfileServiceImplSpec extends Specification {
         result.userId == userId
         result.email == "professor@example.com"
         result.userType == "PROFESSOR"
-        result.professorId == "P001"
+        result.professorId == 1001L
     }
 
     def "프로필 정보가 없는 사용자도 기본 정보를 조회할 수 있다"() {
