@@ -54,15 +54,28 @@ class CommentServiceSpec extends Specification {
             getAttachmentIds() >> null
         }
 
+        def savedComment = Mock(Comment) {
+            getId() >> 1L
+            getPost() >> post
+            getContent() >> "테스트 댓글"
+            getAuthorId() >> authorId
+            getDepth() >> 0
+            isDeletedByAdmin() >> false
+            getCreatedAt() >> null
+            getUpdatedAt() >> null
+            getParentComment() >> null
+            getChildComments() >> []
+            getAttachments() >> []
+        }
+
         postRepository.findById(postId) >> Optional.of(post)
-        commentRepository.save(_) >> { Comment c -> c }
         userInfoCacheService.getUserInfoMap(_) >> [:]
 
         when: "댓글을 생성하면"
         def result = commentService.createComment(request)
 
         then: "댓글이 저장된다"
-        1 * commentRepository.save(_)
+        1 * commentRepository.save(_) >> savedComment
         result != null
     }
 
@@ -106,6 +119,7 @@ class CommentServiceSpec extends Specification {
         def parentComment = Mock(Comment) {
             getId() >> parentCommentId
             getDepth() >> 0
+            getAuthorId() >> 99L
         }
         def request = Mock(CommentCreateRequestDto) {
             getPostId() >> postId
@@ -115,16 +129,29 @@ class CommentServiceSpec extends Specification {
             getAttachmentIds() >> null
         }
 
+        def savedComment = Mock(Comment) {
+            getId() >> 2L
+            getPost() >> post
+            getContent() >> "대댓글"
+            getAuthorId() >> authorId
+            getDepth() >> 1
+            isDeletedByAdmin() >> false
+            getCreatedAt() >> null
+            getUpdatedAt() >> null
+            getParentComment() >> parentComment
+            getChildComments() >> []
+            getAttachments() >> []
+        }
+
         postRepository.findById(postId) >> Optional.of(post)
         commentRepository.findById(parentCommentId) >> Optional.of(parentComment)
-        commentRepository.save(_) >> { Comment c -> c }
         userInfoCacheService.getUserInfoMap(_) >> [:]
 
         when: "대댓글을 생성하면"
         def result = commentService.createComment(request)
 
         then: "댓글이 저장된다"
-        1 * commentRepository.save(_)
+        1 * commentRepository.save(_) >> savedComment
     }
 
     def "대댓글의 대댓글은 생성할 수 없다 (깊이 제한)"() {
@@ -176,19 +203,32 @@ class CommentServiceSpec extends Specification {
         def postId = 1L
         def post = Mock(Post) {
             getId() >> postId
+            getAuthorId() >> 100L
         }
         def comment1 = Mock(Comment) {
+            getId() >> 1L
+            getPost() >> post
             getParentComment() >> null
             getContent() >> "댓글1"
             getAuthorId() >> 1L
+            getDepth() >> 0
+            isDeletedByAdmin() >> false
+            getCreatedAt() >> null
+            getUpdatedAt() >> null
             getAttachments() >> []
             getChildComments() >> []
             isDeleted() >> false
         }
         def comment2 = Mock(Comment) {
+            getId() >> 2L
+            getPost() >> post
             getParentComment() >> null
             getContent() >> "댓글2"
             getAuthorId() >> 2L
+            getDepth() >> 0
+            isDeletedByAdmin() >> false
+            getCreatedAt() >> null
+            getUpdatedAt() >> null
             getAttachments() >> []
             getChildComments() >> []
             isDeleted() >> false
@@ -211,7 +251,12 @@ class CommentServiceSpec extends Specification {
         def comment = Mock(Comment) {
             getId() >> commentId
             isDeleted() >> false
-            getAttachments() >> []
+            getAttachments() >> new ArrayList()
+            getAuthorId() >> updatedBy
+            getContent() >> "수정된 댓글"
+            getParentComment() >> null
+            getChildComments() >> []
+            getPost() >> Mock(Post) { getId() >> 1L; getAuthorId() >> 200L }
         }
         def request = Mock(CommentUpdateRequestDto) {
             getContent() >> "수정된 댓글"
