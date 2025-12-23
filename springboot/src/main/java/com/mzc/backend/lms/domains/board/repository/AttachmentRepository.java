@@ -9,8 +9,8 @@ import java.util.List;
 
 @Repository
 public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
-    /**
-     * 특정 게시글의 첨부파일 목록 조회
-     */
-    List<Attachment> findByPost(Post post);
+	/**
+	 * 특정 게시글의 첨부파일 목록 조회
+	 */
+	List<Attachment> findByPost(Post post);
 }
