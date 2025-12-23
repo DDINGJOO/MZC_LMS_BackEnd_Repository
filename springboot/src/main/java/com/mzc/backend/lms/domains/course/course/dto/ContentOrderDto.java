@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ContentOrderDto {
-    private Long contentId;
-    private Integer order;
+	private Long contentId;
+	private Integer order;
 }
 
