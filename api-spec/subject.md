@@ -3,6 +3,7 @@
 > 과목 관리 API
 
 ## 목차
+
 - [1. 과목 목록 조회](#1-과목-목록-조회)
 - [2. 과목 상세 조회](#2-과목-상세-조회)
 - [3. 과목 검색](#3-과목-검색)
@@ -14,23 +15,26 @@
 과목 목록을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/subjects
 ```
 
 ### Query Parameters
-| 파라미터 | 타입 | 필수 | 기본값 | 설명 |
-|----------|------|------|--------|------|
-| page | int | X | 0 | 페이지 번호 |
-| size | int | X | 20 | 페이지 크기 |
-| keyword | string | X | - | 검색어 (과목명, 과목코드) |
-| departmentId | long | X | - | 학과 ID |
-| showAllDepartments | boolean | X | false | 전체 학과 표시 |
-| courseType | string | X | - | 강의 유형 |
-| credits | int | X | - | 학점 |
-| isActive | boolean | X | true | 활성 과목만 조회 |
+
+| 파라미터               | 타입      | 필수 | 기본값   | 설명              |
+|--------------------|---------|----|-------|-----------------|
+| page               | int     | X  | 0     | 페이지 번호          |
+| size               | int     | X  | 20    | 페이지 크기          |
+| keyword            | string  | X  | -     | 검색어 (과목명, 과목코드) |
+| departmentId       | long    | X  | -     | 학과 ID           |
+| showAllDepartments | boolean | X  | false | 전체 학과 표시        |
+| courseType         | string  | X  | -     | 강의 유형           |
+| credits            | int     | X  | -     | 학점              |
+| isActive           | boolean | X  | true  | 활성 과목만 조회       |
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -63,16 +67,19 @@ GET /api/v1/subjects
 과목 상세 정보를 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/subjects/{subjectId}
 ```
 
 ### Path Parameters
-| 파라미터 | 타입 | 설명 |
-|----------|------|------|
+
+| 파라미터      | 타입   | 설명    |
+|-----------|------|-------|
 | subjectId | long | 과목 ID |
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -103,18 +110,21 @@ GET /api/v1/subjects/{subjectId}
 과목을 검색합니다. (페이징 지원)
 
 ### Request
+
 ```
 GET /api/v1/subjects/search
 ```
 
 ### Query Parameters
-| 파라미터 | 타입 | 필수 | 기본값 | 설명 |
-|----------|------|------|--------|------|
-| q | string | O | - | 검색어 |
-| page | int | X | 0 | 페이지 번호 |
-| size | int | X | 20 | 페이지 크기 (최대 50) |
+
+| 파라미터 | 타입     | 필수 | 기본값 | 설명             |
+|------|--------|----|-----|----------------|
+| q    | string | O  | -   | 검색어            |
+| page | int    | X  | 0   | 페이지 번호         |
+| size | int    | X  | 20  | 페이지 크기 (최대 50) |
 
 ### Response
+
 ```json
 {
   "success": true,
