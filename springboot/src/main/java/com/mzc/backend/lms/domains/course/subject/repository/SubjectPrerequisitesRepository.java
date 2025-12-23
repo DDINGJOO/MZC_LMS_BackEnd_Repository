@@ -9,27 +9,28 @@ import java.util.List;
 
 @Repository
 public interface SubjectPrerequisitesRepository extends JpaRepository<SubjectPrerequisites, Long> {
-    /**
-     * 과목으로 선수과목 목록 조회
-     */
-    List<SubjectPrerequisites> findBySubject(Subject subject);
-    /**
-     * 과목 ID로 선수과목 존재 여부 확인
-     */
-    boolean existsBySubject(Subject subject);
-
-    /**
-     * 과목 ID로 선수과목 목록 조회
-     */
-    List<SubjectPrerequisites> findBySubjectId(Long subjectId);
-
-    /**
-     * 선수과목으로 선수과목 목록 조회
-     */
-    List<SubjectPrerequisites> findByPrerequisite(Subject prerequisite);
-
-    /**
-     * 선수과목 ID로 선수과목 목록 조회
-     */
-    List<SubjectPrerequisites> findByPrerequisiteId(Long prerequisiteId);
+	/**
+	 * 과목으로 선수과목 목록 조회
+	 */
+	List<SubjectPrerequisites> findBySubject(Subject subject);
+	
+	/**
+	 * 과목 ID로 선수과목 존재 여부 확인
+	 */
+	boolean existsBySubject(Subject subject);
+	
+	/**
+	 * 과목 ID로 선수과목 목록 조회
+	 */
+	List<SubjectPrerequisites> findBySubjectId(Long subjectId);
+	
+	/**
+	 * 선수과목으로 선수과목 목록 조회
+	 */
+	List<SubjectPrerequisites> findByPrerequisite(Subject prerequisite);
+	
+	/**
+	 * 선수과목 ID로 선수과목 목록 조회
+	 */
+	List<SubjectPrerequisites> findByPrerequisiteId(Long prerequisiteId);
 }
