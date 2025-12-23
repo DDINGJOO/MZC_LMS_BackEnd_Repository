@@ -16,9 +16,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssignmentGradeRequestDto {
-
-    @NotNull(message = "점수는 필수입니다")
-    private BigDecimal score;
-
-    private String feedback;
+	
+	@NotNull(message = "점수는 필수입니다")
+	private BigDecimal score;
+	
+	private String feedback;
 }
