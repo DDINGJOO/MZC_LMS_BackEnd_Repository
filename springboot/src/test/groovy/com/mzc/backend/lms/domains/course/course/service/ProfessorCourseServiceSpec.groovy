@@ -6,7 +6,6 @@ import com.mzc.backend.lms.domains.academy.repository.AcademicTermRepository
 import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository
 import com.mzc.backend.lms.domains.course.course.dto.*
 import com.mzc.backend.lms.domains.course.course.entity.Course
-import com.mzc.backend.lms.domains.course.course.entity.CourseSchedule
 import com.mzc.backend.lms.domains.course.course.entity.CourseType
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository
 import com.mzc.backend.lms.domains.course.course.repository.CourseTypeRepository
@@ -22,9 +21,7 @@ import com.mzc.backend.lms.domains.user.professor.repository.ProfessorRepository
 import spock.lang.Specification
 import spock.lang.Subject as SpockSubject
 
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalTime
 
 /**
  * ProfessorCourseService Spock 테스트
