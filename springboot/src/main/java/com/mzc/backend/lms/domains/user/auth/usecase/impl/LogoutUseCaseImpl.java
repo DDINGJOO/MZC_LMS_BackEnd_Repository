@@ -14,24 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class LogoutUseCaseImpl implements LogoutUseCase {
-
-    private final RefreshTokenRepository refreshTokenRepository;
-
-    @Override
-    @Transactional
-    public boolean execute(String refreshToken) {
-        if (refreshToken == null || refreshToken.trim().isEmpty()) {
-            return true; // 토큰이 없어도 로그아웃은 성공으로 처리
-        }
-
-        refreshTokenRepository.findByToken(refreshToken)
-                .ifPresent(token -> {
-                    token.revoke();
-                    refreshTokenRepository.save(token);
-                    log.info("로그아웃: userId={}", token.getUser().getId());
-                });
-
-        return true;
-    }
-
+	
+	private final RefreshTokenRepository refreshTokenRepository;
+	
+	@Override
+	@Transactional
+	public boolean execute(String refreshToken) {
+		if (refreshToken == null || refreshToken.trim().isEmpty()) {
+			return true; // 토큰이 없어도 로그아웃은 성공으로 처리
+		}
+		
+		refreshTokenRepository.findByToken(refreshToken)
+				.ifPresent(token -> {
+					token.revoke();
+					refreshTokenRepository.save(token);
+					log.info("로그아웃: userId={}", token.getUser().getId());
+				});
+		
+		return true;
+	}
+	
 }
