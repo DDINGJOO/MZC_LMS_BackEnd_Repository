@@ -12,37 +12,37 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class MessageNotificationDto {
-
-    private String type;
-
-    private Long conversationId;
-
-    private Long messageId;
-
-    private Long senderId;
-
-    @Encrypted
-    private String senderName;
-
-    private String content;
-
-    private LocalDateTime createdAt;
-
-    public static MessageNotificationDto newMessage(
-            Long conversationId,
-            Long messageId,
-            Long senderId,
-            String senderName,
-            String content
-    ) {
-        return MessageNotificationDto.builder()
-                .type("NEW_MESSAGE")
-                .conversationId(conversationId)
-                .messageId(messageId)
-                .senderId(senderId)
-                .senderName(senderName)
-                .content(content.length() > 100 ? content.substring(0, 100) + "..." : content)
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
+	
+	private String type;
+	
+	private Long conversationId;
+	
+	private Long messageId;
+	
+	private Long senderId;
+	
+	@Encrypted
+	private String senderName;
+	
+	private String content;
+	
+	private LocalDateTime createdAt;
+	
+	public static MessageNotificationDto newMessage(
+			Long conversationId,
+			Long messageId,
+			Long senderId,
+			String senderName,
+			String content
+	) {
+		return MessageNotificationDto.builder()
+				.type("NEW_MESSAGE")
+				.conversationId(conversationId)
+				.messageId(messageId)
+				.senderId(senderId)
+				.senderName(senderName)
+				.content(content.length() > 100 ? content.substring(0, 100) + "..." : content)
+				.createdAt(LocalDateTime.now())
+				.build();
+	}
 }
