@@ -10,9 +10,9 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    @Query("SELECT c FROM Comment c WHERE c.post = :post AND c.isDeleted = false")
-    List<Comment> findByPost(Post post);
-
-    @Query("SELECT c FROM Comment c WHERE c.parentComment = :parentComment AND c.isDeleted = false")
-    List<Comment> findByParentComment(Comment parentComment);
+	@Query("SELECT c FROM Comment c WHERE c.post = :post AND c.isDeleted = false")
+	List<Comment> findByPost(Post post);
+	
+	@Query("SELECT c FROM Comment c WHERE c.parentComment = :parentComment AND c.isDeleted = false")
+	List<Comment> findByParentComment(Comment parentComment);
 }
