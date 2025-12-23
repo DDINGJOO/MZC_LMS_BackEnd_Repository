@@ -8,12 +8,12 @@ import lombok.Getter;
  */
 @Getter
 public class EnrollmentSummaryDto {
-
-    private final Integer courseCount;
-    private final Integer totalCredits;
-
-    public EnrollmentSummaryDto(Number courseCount, Number totalCredits) {
-        this.courseCount = courseCount != null ? courseCount.intValue() : 0;
-        this.totalCredits = totalCredits != null ? totalCredits.intValue() : 0;
-    }
+	
+	private final Integer courseCount;
+	private final Integer totalCredits;
+	
+	public EnrollmentSummaryDto(Number courseCount, Number totalCredits) {
+		this.courseCount = courseCount != null ? courseCount.intValue() : 0;
+		this.totalCredits = totalCredits != null ? totalCredits.intValue() : 0;
+	}
 }
