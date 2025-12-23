@@ -9,30 +9,30 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserSearchRequestDto {
-
-    private Long collegeId;
-
-    private Long departmentId;
-
-    private String name;
-
-    private UserType userType;
-
-    private Long cursorId;
-
-    private String cursorName;
-
-    private Integer size = 20;
-
-    private SortBy sortBy = SortBy.ID;
-
-    public enum UserType {
-        STUDENT,
-        PROFESSOR
-    }
-
-    public enum SortBy {
-        ID,
-        NAME
-    }
+	
+	private Long collegeId;
+	
+	private Long departmentId;
+	
+	private String name;
+	
+	private UserType userType;
+	
+	private Long cursorId;
+	
+	private String cursorName;
+	
+	private Integer size = 20;
+	
+	private SortBy sortBy = SortBy.ID;
+	
+	public enum UserType {
+		STUDENT,
+		PROFESSOR
+	}
+	
+	public enum SortBy {
+		ID,
+		NAME
+	}
 }
