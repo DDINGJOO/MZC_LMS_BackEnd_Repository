@@ -12,7 +12,6 @@ import com.mzc.backend.lms.domains.user.profile.repository.UserPrimaryContactRep
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileImageRepository
 import com.mzc.backend.lms.domains.user.profile.repository.UserProfileRepository
 import com.mzc.backend.lms.domains.user.student.entity.Student
-import com.mzc.backend.lms.domains.user.student.entity.StudentDepartment
 import com.mzc.backend.lms.domains.user.student.repository.StudentDepartmentRepository
 import com.mzc.backend.lms.domains.user.student.repository.StudentRepository
 import com.mzc.backend.lms.domains.user.user.entity.User
