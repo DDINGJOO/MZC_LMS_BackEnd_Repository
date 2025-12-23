@@ -10,16 +10,16 @@ import java.time.LocalDateTime;
  */
 @Getter
 public class NoticeDto {
-
-    private final Long id;
-    private final String title;
-    private final LocalDateTime createdAt;
-    private final Integer viewCount;
-
-    public NoticeDto(Long id, String title, LocalDateTime createdAt, Integer viewCount) {
-        this.id = id;
-        this.title = title;
-        this.createdAt = createdAt;
-        this.viewCount = viewCount;
-    }
+	
+	private final Long id;
+	private final String title;
+	private final LocalDateTime createdAt;
+	private final Integer viewCount;
+	
+	public NoticeDto(Long id, String title, LocalDateTime createdAt, Integer viewCount) {
+		this.id = id;
+		this.title = title;
+		this.createdAt = createdAt;
+		this.viewCount = viewCount;
+	}
 }
