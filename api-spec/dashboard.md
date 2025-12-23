@@ -3,6 +3,7 @@
 > 대시보드 API (학생용)
 
 ## 목차
+
 - [1. 미제출 과제 목록 조회](#1-미제출-과제-목록-조회)
 - [2. 오늘의 강의 목록 조회](#2-오늘의-강의-목록-조회)
 - [3. 최신 공지사항 목록 조회](#3-최신-공지사항-목록-조회)
@@ -15,21 +16,25 @@
 마감일이 임박한 미제출 과제 목록을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/dashboard/student/pending-assignments
 ```
 
 ### Headers
+
 ```
 Authorization: Bearer {accessToken}
 ```
 
 ### Query Parameters
-| 파라미터 | 타입 | 필수 | 기본값 | 설명 |
-|----------|------|------|--------|------|
-| days | int | X | 7 | 마감일 기준 일수 (최대 30) |
+
+| 파라미터 | 타입  | 필수 | 기본값 | 설명                |
+|------|-----|----|-----|-------------------|
+| days | int | X  | 7   | 마감일 기준 일수 (최대 30) |
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -58,6 +63,7 @@ Authorization: Bearer {accessToken}
 ```
 
 ### Notes
+
 - `isUrgent`: 마감까지 3일 이하이면 `true`
 - `daysRemaining`: 마감까지 남은 일수 (음수면 마감 지남)
 
@@ -68,16 +74,19 @@ Authorization: Bearer {accessToken}
 오늘 수강해야 할 강의 목록을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/dashboard/student/today-courses
 ```
 
 ### Headers
+
 ```
 Authorization: Bearer {accessToken}
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -110,11 +119,12 @@ Authorization: Bearer {accessToken}
 ```
 
 ### Attendance Status
-| 상태 | 설명 |
-|------|------|
-| NOT_ATTENDED | 미출석 |
-| ATTENDED | 출석 완료 |
-| IN_PROGRESS | 진행 중 |
+
+| 상태           | 설명    |
+|--------------|-------|
+| NOT_ATTENDED | 미출석   |
+| ATTENDED     | 출석 완료 |
+| IN_PROGRESS  | 진행 중  |
 
 ---
 
@@ -123,16 +133,19 @@ Authorization: Bearer {accessToken}
 최신 공지사항을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/dashboard/student/notices
 ```
 
 ### Query Parameters
-| 파라미터 | 타입 | 필수 | 기본값 | 설명 |
-|----------|------|------|--------|------|
-| limit | int | X | 5 | 조회할 개수 (최대 10) |
+
+| 파라미터  | 타입  | 필수 | 기본값 | 설명             |
+|-------|-----|----|-----|----------------|
+| limit | int | X  | 5   | 조회할 개수 (최대 10) |
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -165,16 +178,19 @@ GET /api/v1/dashboard/student/notices
 현재 수강 중인 과목 수와 총 학점을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/dashboard/student/enrollment-summary
 ```
 
 ### Headers
+
 ```
 Authorization: Bearer {accessToken}
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -198,13 +214,14 @@ Authorization: Bearer {accessToken}
 ```
 
 ### Response Fields
-| 필드 | 설명 |
-|------|------|
-| totalCourses | 수강 중인 과목 수 |
-| totalCredits | 현재 수강 학점 |
-| maxCredits | 최대 수강 가능 학점 |
-| coursesByType | 유형별 과목 수 |
-| creditsByType | 유형별 학점 |
-| averageAttendanceRate | 평균 출석률 (%) |
-| completedAssignments | 완료한 과제 수 |
-| pendingAssignments | 미완료 과제 수 |
+
+| 필드                    | 설명          |
+|-----------------------|-------------|
+| totalCourses          | 수강 중인 과목 수  |
+| totalCredits          | 현재 수강 학점    |
+| maxCredits            | 최대 수강 가능 학점 |
+| coursesByType         | 유형별 과목 수    |
+| creditsByType         | 유형별 학점      |
+| averageAttendanceRate | 평균 출석률 (%)  |
+| completedAssignments  | 완료한 과제 수    |
+| pendingAssignments    | 미완료 과제 수    |
