@@ -54,14 +54,14 @@ class CourseScheduleSpec extends Specification {
         weekdaySchedule.dayOfWeek.value == dayValue
 
         where:
-        dayOfWeek          | dayValue
-        DayOfWeek.MONDAY   | 1
-        DayOfWeek.TUESDAY  | 2
-        DayOfWeek.WEDNESDAY| 3
-        DayOfWeek.THURSDAY | 4
-        DayOfWeek.FRIDAY   | 5
-        DayOfWeek.SATURDAY | 6
-        DayOfWeek.SUNDAY   | 7
+        dayOfWeek           | dayValue
+        DayOfWeek.MONDAY    | 1
+        DayOfWeek.TUESDAY   | 2
+        DayOfWeek.WEDNESDAY | 3
+        DayOfWeek.THURSDAY  | 4
+        DayOfWeek.FRIDAY    | 5
+        DayOfWeek.SATURDAY  | 6
+        DayOfWeek.SUNDAY    | 7
     }
 
     def "Setter로 필드를 수정할 수 있다"() {
