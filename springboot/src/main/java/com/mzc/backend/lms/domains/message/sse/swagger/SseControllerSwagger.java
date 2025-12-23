@@ -7,7 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Tag(name = "SSE", description = "실시간 알림 API")
 public interface SseControllerSwagger {
-
-    @Operation(summary = "SSE 구독", description = "실시간 알림을 받기 위해 SSE 연결을 생성합니다.")
-    SseEmitter subscribe(@Parameter(hidden = true) Long userId);
+	
+	@Operation(summary = "SSE 구독", description = "실시간 알림을 받기 위해 SSE 연결을 생성합니다.")
+	SseEmitter subscribe(@Parameter(hidden = true) Long userId);
 }
