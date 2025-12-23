@@ -12,10 +12,10 @@ import java.util.List;
 @Getter
 @Builder
 public class WeekListResponseDto {
-    private Long id;
-    private Integer weekNumber;
-    private String weekTitle;
-    private List<WeekContentDto> contents;
-    private LocalDateTime createdAt;
+	private Long id;
+	private Integer weekNumber;
+	private String weekTitle;
+	private List<WeekContentDto> contents;
+	private LocalDateTime createdAt;
 }
 
