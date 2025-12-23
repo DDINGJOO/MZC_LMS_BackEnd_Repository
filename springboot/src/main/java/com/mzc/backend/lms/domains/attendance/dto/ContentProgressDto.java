@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ContentProgressDto {
-
-    private Long contentId;
-    private String title;
-    private String contentType;
-    private Boolean isCompleted;
-    private LocalDateTime completedAt;
+	
+	private Long contentId;
+	private String title;
+	private String contentType;
+	private Boolean isCompleted;
+	private LocalDateTime completedAt;
 }
