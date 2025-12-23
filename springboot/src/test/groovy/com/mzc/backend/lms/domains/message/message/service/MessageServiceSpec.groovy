@@ -9,7 +9,6 @@ import com.mzc.backend.lms.domains.message.sse.service.SseService
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfile
 import com.mzc.backend.lms.domains.user.user.entity.User
 import com.mzc.backend.lms.domains.user.user.repository.UserRepository
-import org.springframework.data.domain.PageRequest
 import spock.lang.Specification
 import spock.lang.Subject
 
