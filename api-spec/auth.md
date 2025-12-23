@@ -3,6 +3,7 @@
 > 인증/인가 관련 API
 
 ## 목차
+
 - [1. 이메일 인증 코드 발송](#1-이메일-인증-코드-발송)
 - [2. 이메일 인증 코드 확인](#2-이메일-인증-코드-확인)
 - [3. 회원가입](#3-회원가입)
@@ -18,11 +19,13 @@
 회원가입을 위한 이메일 인증 코드를 발송합니다.
 
 ### Request
+
 ```
 POST /api/auth/signup/email-verification
 ```
 
 ### Request Body
+
 ```json
 {
   "email": "user@example.com"
@@ -30,6 +33,7 @@ POST /api/auth/signup/email-verification
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -38,10 +42,11 @@ POST /api/auth/signup/email-verification
 ```
 
 ### Error Response
-| 상태 코드 | 메시지 |
-|-----------|--------|
-| 400 | 이미 가입된 이메일입니다. |
-| 500 | 인증 코드 발송에 실패했습니다. |
+
+| 상태 코드 | 메시지               |
+|-------|-------------------|
+| 400   | 이미 가입된 이메일입니다.    |
+| 500   | 인증 코드 발송에 실패했습니다. |
 
 ---
 
@@ -50,11 +55,13 @@ POST /api/auth/signup/email-verification
 발송된 인증 코드를 확인합니다.
 
 ### Request
+
 ```
 POST /api/auth/signup/verify-code
 ```
 
 ### Request Body
+
 ```json
 {
   "email": "user@example.com",
@@ -63,6 +70,7 @@ POST /api/auth/signup/verify-code
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -71,9 +79,10 @@ POST /api/auth/signup/verify-code
 ```
 
 ### Error Response
-| 상태 코드 | 메시지 |
-|-----------|--------|
-| 400 | 인증 코드가 올바르지 않거나 만료되었습니다. |
+
+| 상태 코드 | 메시지                      |
+|-------|--------------------------|
+| 400   | 인증 코드가 올바르지 않거나 만료되었습니다. |
 
 ---
 
@@ -82,11 +91,13 @@ POST /api/auth/signup/verify-code
 새로운 사용자를 등록합니다.
 
 ### Request
+
 ```
 POST /api/auth/signup
 ```
 
 ### Request Body
+
 ```json
 {
   "email": "user@example.com",
@@ -99,6 +110,7 @@ POST /api/auth/signup
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -108,10 +120,11 @@ POST /api/auth/signup
 ```
 
 ### Error Response
-| 상태 코드 | 메시지 |
-|-----------|--------|
-| 400 | 이메일 인증이 필요합니다. |
-| 400 | 이미 가입된 이메일입니다. |
+
+| 상태 코드 | 메시지            |
+|-------|----------------|
+| 400   | 이메일 인증이 필요합니다. |
+| 400   | 이미 가입된 이메일입니다. |
 
 ---
 
@@ -120,11 +133,13 @@ POST /api/auth/signup
 사용자 인증 후 JWT 토큰을 발급합니다.
 
 ### Request
+
 ```
 POST /api/auth/login
 ```
 
 ### Request Body
+
 ```json
 {
   "email": "user@example.com",
@@ -133,6 +148,7 @@ POST /api/auth/login
 ```
 
 ### Response
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
@@ -146,9 +162,10 @@ POST /api/auth/login
 ```
 
 ### Error Response
-| 상태 코드 | 메시지 |
-|-----------|--------|
-| 400 | 이메일 또는 비밀번호가 올바르지 않습니다. |
+
+| 상태 코드 | 메시지                     |
+|-------|-------------------------|
+| 400   | 이메일 또는 비밀번호가 올바르지 않습니다. |
 
 ---
 
@@ -157,11 +174,13 @@ POST /api/auth/login
 Refresh Token을 사용하여 새로운 Access Token을 발급합니다.
 
 ### Request
+
 ```
 POST /api/auth/refresh
 ```
 
 ### Request Body
+
 ```json
 {
   "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
@@ -169,6 +188,7 @@ POST /api/auth/refresh
 ```
 
 ### Response
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
@@ -179,10 +199,11 @@ POST /api/auth/refresh
 ```
 
 ### Error Response
-| 상태 코드 | 메시지 |
-|-----------|--------|
-| 401 | 유효하지 않은 Refresh Token입니다. |
-| 401 | 만료된 Refresh Token입니다. |
+
+| 상태 코드 | 메시지                       |
+|-------|---------------------------|
+| 401   | 유효하지 않은 Refresh Token입니다. |
+| 401   | 만료된 Refresh Token입니다.     |
 
 ---
 
@@ -191,16 +212,19 @@ POST /api/auth/refresh
 사용자 로그아웃 처리 (Refresh Token 무효화)
 
 ### Request
+
 ```
 POST /api/auth/logout
 ```
 
 ### Headers
+
 ```
 Refresh-Token: {refreshToken}
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -215,16 +239,19 @@ Refresh-Token: {refreshToken}
 이메일 사용 가능 여부를 확인합니다.
 
 ### Request
+
 ```
 GET /api/auth/check-email?email={email}
 ```
 
 ### Query Parameters
-| 파라미터 | 타입 | 필수 | 설명 |
-|----------|------|------|------|
-| email | string | O | 확인할 이메일 |
+
+| 파라미터  | 타입     | 필수 | 설명      |
+|-------|--------|----|---------|
+| email | string | O  | 확인할 이메일 |
 
 ### Response
+
 ```json
 {
   "available": true,
