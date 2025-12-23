@@ -9,6 +9,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DepartmentDto {
-    private Long id;
-    private String name;
+	private Long id;
+	private String name;
 }
