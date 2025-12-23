@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CourseTypeDto {
-    private String code;
-    private String name;
-    private String color;
+	private String code;
+	private String name;
+	private String color;
 }
