@@ -10,29 +10,29 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CourseNoticeCreatedEvent {
-
-    /**
-     * 공지사항 ID
-     */
-    private final Long noticeId;
-
-    /**
-     * 강의 ID
-     */
-    private final Long courseId;
-
-    /**
-     * 강의명
-     */
-    private final String courseName;
-
-    /**
-     * 공지사항 제목
-     */
-    private final String noticeTitle;
-
-    /**
-     * 작성자 ID (교수)
-     */
-    private final Long professorId;
+	
+	/**
+	 * 공지사항 ID
+	 */
+	private final Long noticeId;
+	
+	/**
+	 * 강의 ID
+	 */
+	private final Long courseId;
+	
+	/**
+	 * 강의명
+	 */
+	private final String courseName;
+	
+	/**
+	 * 공지사항 제목
+	 */
+	private final String noticeTitle;
+	
+	/**
+	 * 작성자 ID (교수)
+	 */
+	private final Long professorId;
 }
