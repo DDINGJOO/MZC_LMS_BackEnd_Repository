@@ -15,44 +15,44 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Repository
 public class SseEmitterRepository {
-
-    private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
-
-    /**
-     * SSE Emitter 저장
-     */
-    public SseEmitter save(Long userId, SseEmitter emitter) {
-        emitters.put(userId, emitter);
-        log.debug("SSE 연결 저장: userId={}", userId);
-        return emitter;
-    }
-
-    /**
-     * SSE Emitter 조회
-     */
-    public Optional<SseEmitter> findByUserId(Long userId) {
-        return Optional.ofNullable(emitters.get(userId));
-    }
-
-    /**
-     * SSE Emitter 삭제
-     */
-    public void deleteByUserId(Long userId) {
-        emitters.remove(userId);
-        log.debug("SSE 연결 삭제: userId={}", userId);
-    }
-
-    /**
-     * 연결된 사용자 수 조회
-     */
-    public int getConnectionCount() {
-        return emitters.size();
-    }
-
-    /**
-     * 특정 사용자의 연결 여부 확인
-     */
-    public boolean isConnected(Long userId) {
-        return emitters.containsKey(userId);
-    }
+	
+	private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+	
+	/**
+	 * SSE Emitter 저장
+	 */
+	public SseEmitter save(Long userId, SseEmitter emitter) {
+		emitters.put(userId, emitter);
+		log.debug("SSE 연결 저장: userId={}", userId);
+		return emitter;
+	}
+	
+	/**
+	 * SSE Emitter 조회
+	 */
+	public Optional<SseEmitter> findByUserId(Long userId) {
+		return Optional.ofNullable(emitters.get(userId));
+	}
+	
+	/**
+	 * SSE Emitter 삭제
+	 */
+	public void deleteByUserId(Long userId) {
+		emitters.remove(userId);
+		log.debug("SSE 연결 삭제: userId={}", userId);
+	}
+	
+	/**
+	 * 연결된 사용자 수 조회
+	 */
+	public int getConnectionCount() {
+		return emitters.size();
+	}
+	
+	/**
+	 * 특정 사용자의 연결 여부 확인
+	 */
+	public boolean isConnected(Long userId) {
+		return emitters.containsKey(userId);
+	}
 }
