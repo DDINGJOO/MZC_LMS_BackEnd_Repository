@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * 성적 공개 스케줄러
- *
+ * <p>
  * 정책 변경:
  * - 성적 공개는 "성적 공개 기간(GRADE_PUBLISH)"에 교수의 수동 요청(버튼)으로 수행
  * - 따라서 스케줄러는 자동 공개를 수행하지 않습니다.
@@ -19,18 +19,18 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class GradeAutoPublishScheduler {
-
-    /**
-     * 매일 03:10 실행 (기존 스케줄러들과 충돌 회피)
-     * - idempotent: 이미 공개된 성적은 재저장해도 동일 결과
-     */
-    @Scheduled(cron = "0 10 3 * * *")
-    @SchedulerLock(name = "gradeAutoPublish", lockAtMostFor = "30m", lockAtLeastFor = "1m")
-    public void publishGradesAfterGradeCalculationPeriod() {
-        LocalDateTime now = LocalDateTime.now();
-        log.info("성적 공개 스케줄러(자동 공개 비활성) 실행 at={}", now);
-        // intentionally no-op (manual publish only)
-    }
+	
+	/**
+	 * 매일 03:10 실행 (기존 스케줄러들과 충돌 회피)
+	 * - idempotent: 이미 공개된 성적은 재저장해도 동일 결과
+	 */
+	@Scheduled(cron = "0 10 3 * * *")
+	@SchedulerLock(name = "gradeAutoPublish", lockAtMostFor = "30m", lockAtLeastFor = "1m")
+	public void publishGradesAfterGradeCalculationPeriod() {
+		LocalDateTime now = LocalDateTime.now();
+		log.info("성적 공개 스케줄러(자동 공개 비활성) 실행 at={}", now);
+		// intentionally no-op (manual publish only)
+	}
 }
 
 
