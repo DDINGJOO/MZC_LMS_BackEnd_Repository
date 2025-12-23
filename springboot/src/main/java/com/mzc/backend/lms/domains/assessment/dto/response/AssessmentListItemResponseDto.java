@@ -13,32 +13,32 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class AssessmentListItemResponseDto {
-
-    private Long id;
-    private Long courseId;
-    private AssessmentType type;
-    private String title;
-    private LocalDateTime startAt;
-    private LocalDateTime endAt;
-    private Integer durationMinutes;
-    private BigDecimal totalScore;
-    private Boolean isOnline;
-    private String location;
-
-    public static AssessmentListItemResponseDto from(Assessment a) {
-        return AssessmentListItemResponseDto.builder()
-                .id(a.getId())
-                .courseId(a.getCourseId())
-                .type(a.getType())
-                .title(a.getPost().getTitle())
-                .startAt(a.getStartAt())
-                .endAt(a.endAt())
-                .durationMinutes(a.getDurationMinutes())
-                .totalScore(a.getTotalScore())
-                .isOnline(a.getIsOnline())
-                .location(a.getLocation())
-                .build();
-    }
+	
+	private Long id;
+	private Long courseId;
+	private AssessmentType type;
+	private String title;
+	private LocalDateTime startAt;
+	private LocalDateTime endAt;
+	private Integer durationMinutes;
+	private BigDecimal totalScore;
+	private Boolean isOnline;
+	private String location;
+	
+	public static AssessmentListItemResponseDto from(Assessment a) {
+		return AssessmentListItemResponseDto.builder()
+				.id(a.getId())
+				.courseId(a.getCourseId())
+				.type(a.getType())
+				.title(a.getPost().getTitle())
+				.startAt(a.getStartAt())
+				.endAt(a.endAt())
+				.durationMinutes(a.getDurationMinutes())
+				.totalScore(a.getTotalScore())
+				.isOnline(a.getIsOnline())
+				.location(a.getLocation())
+				.build();
+	}
 }
 
 
