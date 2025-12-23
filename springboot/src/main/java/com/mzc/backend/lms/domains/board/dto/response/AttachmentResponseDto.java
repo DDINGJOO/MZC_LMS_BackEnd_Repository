@@ -15,26 +15,26 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class AttachmentResponseDto {
-
-    private Long id;
-    private String originalName;
-    private String storedName;
-    private String filePath;
-    private Long fileSize;
-    private AttachmentType attachmentType;
-    private int downloadCount;
-    private LocalDateTime createdAt;
-
-    public static AttachmentResponseDto from(Attachment attachment) {
-        return AttachmentResponseDto.builder()
-                .id(attachment.getId())
-                .originalName(attachment.getOriginalName())
-                .storedName(attachment.getStoredName())
-                .filePath(attachment.getFilePath())
-                .fileSize(attachment.getFileSize())
-                .attachmentType(attachment.getAttachmentType())
-                .downloadCount(attachment.getDownloadCount())
-                .createdAt(attachment.getCreatedAt())
-                .build();
-    }
+	
+	private Long id;
+	private String originalName;
+	private String storedName;
+	private String filePath;
+	private Long fileSize;
+	private AttachmentType attachmentType;
+	private int downloadCount;
+	private LocalDateTime createdAt;
+	
+	public static AttachmentResponseDto from(Attachment attachment) {
+		return AttachmentResponseDto.builder()
+				.id(attachment.getId())
+				.originalName(attachment.getOriginalName())
+				.storedName(attachment.getStoredName())
+				.filePath(attachment.getFilePath())
+				.fileSize(attachment.getFileSize())
+				.attachmentType(attachment.getAttachmentType())
+				.downloadCount(attachment.getDownloadCount())
+				.createdAt(attachment.getCreatedAt())
+				.build();
+	}
 }
