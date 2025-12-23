@@ -9,12 +9,12 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CourseSearchRequestDto {
-    private Integer page;
-    private Integer size;
-    private String keyword;
-    private Long departmentId;
-    private Integer courseType;
-    private Integer credits;
-    private Long enrollmentPeriodId; // 필수 (enrollment_periods.id)
-    private String sort;
+	private Integer page;
+	private Integer size;
+	private String keyword;
+	private Long departmentId;
+	private Integer courseType;
+	private Integer credits;
+	private Long enrollmentPeriodId; // 필수 (enrollment_periods.id)
+	private String sort;
 }
