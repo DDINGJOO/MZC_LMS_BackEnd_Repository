@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class WeekContentDto {
-    private Long id;
-    private String contentType;
-    private String title;
-    private String contentUrl;
-    private String duration;
-    private Integer order;  // 표시 순서
-    private LocalDateTime createdAt;
+	private Long id;
+	private String contentType;
+	private String title;
+	private String contentUrl;
+	private String duration;
+	private Integer order;  // 표시 순서
+	private LocalDateTime createdAt;
 }
 
