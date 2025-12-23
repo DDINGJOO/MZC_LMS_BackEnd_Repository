@@ -16,38 +16,38 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class ConversationListResponseDto {
-
-    private Long conversationId;
-
-    private Long otherUserId;
-
-    @Encrypted
-    private String otherUserName;
-
-    private String otherUserThumbnailUrl;
-
-    private String lastMessageContent;
-
-    private LocalDateTime lastMessageAt;
-
-    private boolean isLastMessageMine;
-
-    private int unreadCount;
-
-    public static ConversationListResponseDto from(Conversation conversation, Long myUserId) {
-        User otherUser = conversation.getOtherUser(myUserId);
-        UserProfile otherProfile = otherUser.getUserProfile();
-        UserProfileImage otherProfileImage = otherUser.getProfileImage();
-
-        return ConversationListResponseDto.builder()
-                .conversationId(conversation.getId())
-                .otherUserId(otherUser.getId())
-                .otherUserName(otherProfile != null ? otherProfile.getName() : null)
-                .otherUserThumbnailUrl(otherProfileImage != null ? otherProfileImage.getThumbnailUrl() : null)
-                .lastMessageContent(conversation.getLastMessageContent())
-                .lastMessageAt(conversation.getLastMessageAt())
-                .isLastMessageMine(myUserId.equals(conversation.getLastMessageSenderId()))
-                .unreadCount(conversation.getUnreadCount(myUserId))
-                .build();
-    }
+	
+	private Long conversationId;
+	
+	private Long otherUserId;
+	
+	@Encrypted
+	private String otherUserName;
+	
+	private String otherUserThumbnailUrl;
+	
+	private String lastMessageContent;
+	
+	private LocalDateTime lastMessageAt;
+	
+	private boolean isLastMessageMine;
+	
+	private int unreadCount;
+	
+	public static ConversationListResponseDto from(Conversation conversation, Long myUserId) {
+		User otherUser = conversation.getOtherUser(myUserId);
+		UserProfile otherProfile = otherUser.getUserProfile();
+		UserProfileImage otherProfileImage = otherUser.getProfileImage();
+		
+		return ConversationListResponseDto.builder()
+				.conversationId(conversation.getId())
+				.otherUserId(otherUser.getId())
+				.otherUserName(otherProfile != null ? otherProfile.getName() : null)
+				.otherUserThumbnailUrl(otherProfileImage != null ? otherProfileImage.getThumbnailUrl() : null)
+				.lastMessageContent(conversation.getLastMessageContent())
+				.lastMessageAt(conversation.getLastMessageAt())
+				.isLastMessageMine(myUserId.equals(conversation.getLastMessageSenderId()))
+				.unreadCount(conversation.getUnreadCount(myUserId))
+				.build();
+	}
 }
