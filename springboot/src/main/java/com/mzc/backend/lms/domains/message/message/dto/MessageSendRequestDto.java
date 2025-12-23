@@ -11,10 +11,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MessageSendRequestDto {
-
-    @NotNull(message = "대화방 ID는 필수입니다.")
-    private Long conversationId;
-
-    @NotBlank(message = "메시지 내용은 필수입니다.")
-    private String content;
+	
+	@NotNull(message = "대화방 ID는 필수입니다.")
+	private Long conversationId;
+	
+	@NotBlank(message = "메시지 내용은 필수입니다.")
+	private String content;
 }
