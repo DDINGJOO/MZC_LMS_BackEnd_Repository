@@ -11,8 +11,8 @@ import java.util.List;
 @Getter
 @Builder
 public class UpdateCourseRequestDto {
-    private String sectionNumber;
-    private Integer maxStudents;
-    private List<ScheduleRequestDto> schedules;
+	private String sectionNumber;
+	private Integer maxStudents;
+	private List<ScheduleRequestDto> schedules;
 }
 
