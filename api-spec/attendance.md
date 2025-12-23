@@ -5,11 +5,13 @@
 ## 목차
 
 ### 학생용
+
 - [1. 내 전체 출석 현황 조회](#1-내-전체-출석-현황-조회)
 - [2. 특정 강의 출석 현황 조회](#2-특정-강의-출석-현황-조회)
 - [3. 주차별 출석 상세 조회](#3-주차별-출석-상세-조회)
 
 ### 교수용
+
 - [4. 강의 전체 출석 현황 조회](#4-강의-전체-출석-현황-조회)
 - [5. 학생별 출석 목록 조회](#5-학생별-출석-목록-조회)
 - [6. 주차별 학생 출석 현황 조회](#6-주차별-학생-출석-현황-조회)
@@ -23,16 +25,19 @@
 수강 중인 모든 강의의 출석 현황을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/attendance/my
 ```
 
 ### Headers
+
 ```
 Authorization: Bearer {accessToken}
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -60,11 +65,12 @@ Authorization: Bearer {accessToken}
 ```
 
 ### Status Types
-| 상태 | 설명 |
-|------|------|
-| NORMAL | 정상 출석 |
+
+| 상태      | 설명          |
+|---------|-------------|
+| NORMAL  | 정상 출석       |
 | WARNING | 경고 (출석률 낮음) |
-| FAIL | 출석 미달 |
+| FAIL    | 출석 미달       |
 
 ---
 
@@ -73,16 +79,19 @@ Authorization: Bearer {accessToken}
 특정 강의의 상세 출석 현황을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/attendance/courses/{courseId}
 ```
 
 ### Path Parameters
-| 파라미터 | 타입 | 설명 |
-|----------|------|------|
+
+| 파라미터     | 타입   | 설명    |
+|----------|------|-------|
 | courseId | long | 강의 ID |
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -125,17 +134,20 @@ GET /api/v1/attendance/courses/{courseId}
 특정 주차의 출석 상세 정보를 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/attendance/courses/{courseId}/weeks/{weekId}
 ```
 
 ### Path Parameters
-| 파라미터 | 타입 | 설명 |
-|----------|------|------|
+
+| 파라미터     | 타입   | 설명    |
+|----------|------|-------|
 | courseId | long | 강의 ID |
-| weekId | long | 주차 ID |
+| weekId   | long | 주차 ID |
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -172,16 +184,19 @@ GET /api/v1/attendance/courses/{courseId}/weeks/{weekId}
 강의의 전체 출석 통계를 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/professor/courses/{courseId}/attendance
 ```
 
 ### Path Parameters
-| 파라미터 | 타입 | 설명 |
-|----------|------|------|
+
+| 파라미터     | 타입   | 설명    |
+|----------|------|-------|
 | courseId | long | 강의 ID |
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -216,11 +231,13 @@ GET /api/v1/professor/courses/{courseId}/attendance
 강의에 등록된 학생들의 출석 현황을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/professor/courses/{courseId}/attendance/students
 ```
 
 ### Response
+
 ```json
 {
   "success": true,
@@ -246,17 +263,20 @@ GET /api/v1/professor/courses/{courseId}/attendance/students
 특정 주차의 학생별 출석 현황을 조회합니다.
 
 ### Request
+
 ```
 GET /api/v1/professor/courses/{courseId}/weeks/{weekId}/attendance
 ```
 
 ### Path Parameters
-| 파라미터 | 타입 | 설명 |
-|----------|------|------|
+
+| 파라미터     | 타입   | 설명    |
+|----------|------|-------|
 | courseId | long | 강의 ID |
-| weekId | long | 주차 ID |
+| weekId   | long | 주차 ID |
 
 ### Response
+
 ```json
 {
   "success": true,
