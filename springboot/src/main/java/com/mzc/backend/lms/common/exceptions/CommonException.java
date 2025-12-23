@@ -9,28 +9,28 @@ import org.springframework.http.HttpStatus;
  */
 @Getter
 public abstract class CommonException extends RuntimeException {
-
+	
 	private final CommonErrorCode commonErrorCode;
 	private final HttpStatus httpStatus;
-
+	
 	protected CommonException(CommonErrorCode commonErrorCode) {
 		super(commonErrorCode.getMessage());
 		this.commonErrorCode = commonErrorCode;
 		this.httpStatus = commonErrorCode.getStatus();
 	}
-
+	
 	protected CommonException(CommonErrorCode commonErrorCode, String message) {
 		super(message);
 		this.commonErrorCode = commonErrorCode;
 		this.httpStatus = commonErrorCode.getStatus();
 	}
-
+	
 	protected CommonException(CommonErrorCode commonErrorCode, String message, Throwable cause) {
 		super(message, cause);
 		this.commonErrorCode = commonErrorCode;
 		this.httpStatus = commonErrorCode.getStatus();
 	}
-
+	
 	/**
 	 * 예외 타입 반환 (Domain/Application 구분용)
 	 */
