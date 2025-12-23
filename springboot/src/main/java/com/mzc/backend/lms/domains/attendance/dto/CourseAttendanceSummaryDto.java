@@ -11,11 +11,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CourseAttendanceSummaryDto {
-
-    private Long courseId;
-    private String courseName;
-    private String sectionNumber;
-    private Integer completedWeeks;
-    private Integer totalWeeks;
-    private Double attendanceRate;
+	
+	private Long courseId;
+	private String courseName;
+	private String sectionNumber;
+	private Integer completedWeeks;
+	private Integer totalWeeks;
+	private Double attendanceRate;
 }
