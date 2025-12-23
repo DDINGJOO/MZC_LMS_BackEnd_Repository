@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubjectSearchResponse {
-    private Long id;
-    private String subjectCode;
-    private String subjectName;
-    private Integer credits;
-    private String courseType;  // 간단한 이름만
-    private String department;  // 간단한 이름만
+	private Long id;
+	private String subjectCode;
+	private String subjectName;
+	private Integer credits;
+	private String courseType;  // 간단한 이름만
+	private String department;  // 간단한 이름만
 }
 
