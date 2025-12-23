@@ -49,15 +49,13 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 
-
-
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j'
-    
+
     // Flyway용 MySQL 드라이버 추가
     implementation 'com.mysql:mysql-connector-j'
 
@@ -102,8 +100,8 @@ dependencies {
     testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // Test - Slf4j
-	testImplementation 'org.projectlombok:lombok'
-	testAnnotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // Spock Framework (Groovy BDD Testing)
     testImplementation 'org.spockframework:spock-core:2.4-M4-groovy-4.0'
@@ -122,7 +120,6 @@ tasks.named('test') {
     // Notification 테스트 제외
     exclude '**/notification/**'
 }
-
 
 
 // CheckStyle Configuration
