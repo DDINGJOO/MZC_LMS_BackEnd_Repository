@@ -16,49 +16,49 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubjectDetailResponse {
-    private Long id;
-    private String subjectCode;
-    private String subjectName;
-    private String englishName;
-    private Integer credits;
-    private SubjectResponse.CourseTypeDto courseType;
-    private SubjectResponse.DepartmentDto department;
-    private String description;
-    private List<String> objectives;
-    private List<SubjectResponse.PrerequisiteDto> prerequisites;
-    private List<CourseInfoDto> courses;  // 개설된 강좌들
-    private Boolean isActive;
-    private LocalDateTime createdAt;
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CourseInfoDto {
-        private Long id;
-        private String section;
-        private ProfessorDto professor;
-        private TermDto term;
-        private Integer currentStudents;
-        private Integer maxStudents;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ProfessorDto {
-        private Long id;
-        private String name;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class TermDto {
-        private Integer year;
-        private String termType;
-    }
+	private Long id;
+	private String subjectCode;
+	private String subjectName;
+	private String englishName;
+	private Integer credits;
+	private SubjectResponse.CourseTypeDto courseType;
+	private SubjectResponse.DepartmentDto department;
+	private String description;
+	private List<String> objectives;
+	private List<SubjectResponse.PrerequisiteDto> prerequisites;
+	private List<CourseInfoDto> courses;  // 개설된 강좌들
+	private Boolean isActive;
+	private LocalDateTime createdAt;
+	
+	@Getter
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class CourseInfoDto {
+		private Long id;
+		private String section;
+		private ProfessorDto professor;
+		private TermDto term;
+		private Integer currentStudents;
+		private Integer maxStudents;
+	}
+	
+	@Getter
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ProfessorDto {
+		private Long id;
+		private String name;
+	}
+	
+	@Getter
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class TermDto {
+		private Integer year;
+		private String termType;
+	}
 }
 
