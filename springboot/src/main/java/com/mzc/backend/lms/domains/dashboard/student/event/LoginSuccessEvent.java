@@ -10,14 +10,14 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class LoginSuccessEvent {
-
-    /**
-     * 로그인한 사용자 ID
-     */
-    private final Long userId;
-
-    /**
-     * 사용자 타입 (STUDENT, PROFESSOR)
-     */
-    private final String userType;
+	
+	/**
+	 * 로그인한 사용자 ID
+	 */
+	private final Long userId;
+	
+	/**
+	 * 사용자 타입 (STUDENT, PROFESSOR)
+	 */
+	private final String userType;
 }
