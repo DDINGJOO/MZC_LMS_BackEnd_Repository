@@ -10,21 +10,21 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DepartmentListResponseDto {
-
-    private Long id;
-
-    private String departmentName;
-
-    private String departmentCode;
-
-    private Long collegeId;
-
-    public static DepartmentListResponseDto from(Department department) {
-        return DepartmentListResponseDto.builder()
-                .id(department.getId())
-                .departmentName(department.getDepartmentName())
-                .departmentCode(department.getDepartmentCode())
-                .collegeId(department.getCollege().getId())
-                .build();
-    }
+	
+	private Long id;
+	
+	private String departmentName;
+	
+	private String departmentCode;
+	
+	private Long collegeId;
+	
+	public static DepartmentListResponseDto from(Department department) {
+		return DepartmentListResponseDto.builder()
+				.id(department.getId())
+				.departmentName(department.getDepartmentName())
+				.departmentCode(department.getDepartmentCode())
+				.collegeId(department.getCollege().getId())
+				.build();
+	}
 }
