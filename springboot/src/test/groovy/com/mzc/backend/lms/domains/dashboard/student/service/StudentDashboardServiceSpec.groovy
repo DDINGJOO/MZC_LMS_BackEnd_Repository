@@ -1,12 +1,12 @@
 package com.mzc.backend.lms.domains.dashboard.student.service
 
+import com.mzc.backend.lms.domains.course.course.entity.Course
+import com.mzc.backend.lms.domains.course.course.entity.CourseSchedule
+import com.mzc.backend.lms.domains.course.subject.entity.Subject
 import com.mzc.backend.lms.domains.dashboard.student.dto.EnrollmentSummaryDto
 import com.mzc.backend.lms.domains.dashboard.student.dto.NoticeDto
 import com.mzc.backend.lms.domains.dashboard.student.dto.PendingAssignmentDto
 import com.mzc.backend.lms.domains.dashboard.student.repository.DashboardQueryRepository
-import com.mzc.backend.lms.domains.course.course.entity.Course
-import com.mzc.backend.lms.domains.course.course.entity.CourseSchedule
-import com.mzc.backend.lms.domains.course.subject.entity.Subject
 import com.mzc.backend.lms.domains.enrollment.entity.Enrollment
 import com.mzc.backend.lms.domains.user.professor.entity.Professor
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfile
@@ -14,7 +14,6 @@ import com.mzc.backend.lms.domains.user.user.entity.User
 import spock.lang.Specification
 import spock.lang.Subject as TestSubject
 
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
