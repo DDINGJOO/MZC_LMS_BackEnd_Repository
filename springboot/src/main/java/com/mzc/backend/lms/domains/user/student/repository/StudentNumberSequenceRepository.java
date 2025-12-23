@@ -15,21 +15,21 @@ import java.util.Optional;
  */
 @Repository
 public interface StudentNumberSequenceRepository extends JpaRepository<StudentNumberSequence, Long> {
-
-    /**
-     * 년도/단과대학/학과별 시퀀스 조회 (비관적 락)
-     */
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT s FROM StudentNumberSequence s " +
-           "WHERE s.year = :year AND s.collegeId = :collegeId AND s.departmentId = :departmentId")
-    Optional<StudentNumberSequence> findByYearAndCollegeAndDepartmentWithLock(
-            @Param("year") Integer year,
-            @Param("collegeId") Long collegeId,
-            @Param("departmentId") Long departmentId);
-
-    /**
-     * 년도/단과대학/학과별 시퀀스 조회
-     */
-    Optional<StudentNumberSequence> findByYearAndCollegeIdAndDepartmentId(
-            Integer year, Long collegeId, Long departmentId);
+	
+	/**
+	 * 년도/단과대학/학과별 시퀀스 조회 (비관적 락)
+	 */
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("SELECT s FROM StudentNumberSequence s " +
+			"WHERE s.year = :year AND s.collegeId = :collegeId AND s.departmentId = :departmentId")
+	Optional<StudentNumberSequence> findByYearAndCollegeAndDepartmentWithLock(
+			@Param("year") Integer year,
+			@Param("collegeId") Long collegeId,
+			@Param("departmentId") Long departmentId);
+	
+	/**
+	 * 년도/단과대학/학과별 시퀀스 조회
+	 */
+	Optional<StudentNumberSequence> findByYearAndCollegeIdAndDepartmentId(
+			Integer year, Long collegeId, Long departmentId);
 }
