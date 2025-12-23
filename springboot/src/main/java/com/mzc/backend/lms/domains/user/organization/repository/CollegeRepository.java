@@ -11,19 +11,19 @@ import java.util.Optional;
  */
 @Repository
 public interface CollegeRepository extends JpaRepository<College, Long> {
-
-    /**
-     * 단과대학 코드로 조회
-     */
-    Optional<College> findByCollegeCode(String collegeCode);
-
-    /**
-     * 단과대학 코드 존재 여부 확인
-     */
-    boolean existsByCollegeCode(String collegeCode);
-
-    /**
-     * 단과대학명으로 조회
-     */
-    Optional<College> findByCollegeName(String collegeName);
+	
+	/**
+	 * 단과대학 코드로 조회
+	 */
+	Optional<College> findByCollegeCode(String collegeCode);
+	
+	/**
+	 * 단과대학 코드 존재 여부 확인
+	 */
+	boolean existsByCollegeCode(String collegeCode);
+	
+	/**
+	 * 단과대학명으로 조회
+	 */
+	Optional<College> findByCollegeName(String collegeName);
 }
