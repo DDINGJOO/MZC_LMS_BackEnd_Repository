@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class AttemptGradeResponseDto {
-
-    private Long attemptId;
-    private BigDecimal score;
-    private Boolean isLate;
-    private BigDecimal latePenaltyRate;
-    private LocalDateTime gradedAt;
-    private Long gradedBy;
+	
+	private Long attemptId;
+	private BigDecimal score;
+	private Boolean isLate;
+	private BigDecimal latePenaltyRate;
+	private LocalDateTime gradedAt;
+	private Long gradedBy;
 }
 
 
