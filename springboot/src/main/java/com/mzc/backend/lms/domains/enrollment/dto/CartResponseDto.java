@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.enrollment.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
 @Getter
 @Builder
 public class CartResponseDto {
-    private Integer totalCourses;
-    private Integer totalCredits;
-    private List<CartItemDto> courses;
+	private Integer totalCourses;
+	private Integer totalCredits;
+	private List<CartItemDto> courses;
 }
