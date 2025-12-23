@@ -1,6 +1,5 @@
 package com.mzc.backend.lms.domains.board.assignment.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,11 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssignmentSubmissionRequestDto {
-
-    private String content;
-    
-    /**
-     * 첨부파일 ID 목록
-     */
-    private List<Long> attachmentIds;
+	
+	private String content;
+	
+	/**
+	 * 첨부파일 ID 목록
+	 */
+	private List<Long> attachmentIds;
 }
