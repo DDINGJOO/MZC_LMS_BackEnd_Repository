@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UpdateWeekRequestDto {
-    private Integer weekNumber;
-    private String weekTitle;
+	private Integer weekNumber;
+	private String weekTitle;
 }
 
