@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Builder
 public class ReorderContentsResponseDto {
-    private Long weekId;
-    private List<ContentOrderDto> reorderedContents;
+	private Long weekId;
+	private List<ContentOrderDto> reorderedContents;
 }
 
