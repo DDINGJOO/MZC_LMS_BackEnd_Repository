@@ -17,36 +17,36 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class CheckEmailUseCaseImpl implements CheckEmailUseCase {
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-    );
-
-    private final UserRepository userRepository;
-    private final EncryptionService encryptionService;
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean execute(String email) {
-        if (!isValidFormat(email)) {
-            return false;
-        }
-
-        String encryptedEmail = encryptionService.encryptEmail(email);
-        boolean available = !userRepository.existsByEmail(encryptedEmail);
-
-        log.debug("이메일 중복 확인: email={}, available={}", email, available);
-
-        return available;
-    }
-
-    @Override
-    public boolean isValidFormat(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return false;
-        }
-
-        return EMAIL_PATTERN.matcher(email).matches();
-    }
-
+	
+	private static final Pattern EMAIL_PATTERN = Pattern.compile(
+			"^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+	);
+	
+	private final UserRepository userRepository;
+	private final EncryptionService encryptionService;
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean execute(String email) {
+		if (!isValidFormat(email)) {
+			return false;
+		}
+		
+		String encryptedEmail = encryptionService.encryptEmail(email);
+		boolean available = !userRepository.existsByEmail(encryptedEmail);
+		
+		log.debug("이메일 중복 확인: email={}, available={}", email, available);
+		
+		return available;
+	}
+	
+	@Override
+	public boolean isValidFormat(String email) {
+		if (email == null || email.trim().isEmpty()) {
+			return false;
+		}
+		
+		return EMAIL_PATTERN.matcher(email).matches();
+	}
+	
 }
