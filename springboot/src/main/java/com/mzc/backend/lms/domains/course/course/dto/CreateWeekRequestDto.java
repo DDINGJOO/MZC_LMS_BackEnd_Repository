@@ -16,13 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateWeekRequestDto {
-    @JsonProperty("weekNumber")
-    private Integer weekNumber;
-    
-    @JsonProperty("weekTitle")
-    private String weekTitle;
-    
-    @JsonProperty("contents")
-    private List<CreateWeekContentRequestDto> contents;  // 콘텐츠 배열 (선택)
+	@JsonProperty("weekNumber")
+	private Integer weekNumber;
+	
+	@JsonProperty("weekTitle")
+	private String weekTitle;
+	
+	@JsonProperty("contents")
+	private List<CreateWeekContentRequestDto> contents;  // 콘텐츠 배열 (선택)
 }
 
