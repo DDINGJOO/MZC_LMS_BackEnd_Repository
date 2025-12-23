@@ -15,8 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SyllabusRequestDto {
-    private List<String> objectives;  // 학습 목표
-    private String textbook;           // 교재
-    private GradingRequestDto grading; // 평가 기준
+	private List<String> objectives;  // 학습 목표
+	private String textbook;           // 교재
+	private GradingRequestDto grading; // 평가 기준
 }
 
