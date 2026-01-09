@@ -14,7 +14,7 @@ import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.notice.event.CourseNoticeCreatedEvent;
 import com.mzc.backend.lms.domains.course.notice.repository.CourseNoticeCommentRepository;
 import com.mzc.backend.lms.domains.course.notice.repository.CourseNoticeRepository;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.user.profile.dto.UserBasicInfoDto;
 import com.mzc.backend.lms.domains.user.profile.service.UserInfoCacheService;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.course.notice.listener;
 
 import com.mzc.backend.lms.domains.course.notice.event.CourseNoticeCreatedEvent;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
 import com.mzc.backend.lms.domains.notification.aop.publisher.NotificationEventPublisher;
 import lombok.RequiredArgsConstructor;

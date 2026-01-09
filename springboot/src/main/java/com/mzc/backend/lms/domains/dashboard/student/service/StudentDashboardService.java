@@ -7,7 +7,7 @@ import com.mzc.backend.lms.domains.dashboard.student.dto.TodayCourseDto;
 import com.mzc.backend.lms.domains.dashboard.student.repository.DashboardQueryRepository;
 import com.mzc.backend.lms.domains.course.course.entity.Course;
 import com.mzc.backend.lms.domains.course.course.entity.CourseSchedule;
-import com.mzc.backend.lms.domains.enrollment.entity.Enrollment;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import com.mzc.backend.lms.domains.user.professor.entity.Professor;
 import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
 import lombok.RequiredArgsConstructor;

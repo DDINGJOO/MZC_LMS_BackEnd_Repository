@@ -4,7 +4,7 @@ import com.mzc.backend.lms.domains.board.enums.BoardType;
 import com.mzc.backend.lms.domains.dashboard.student.dto.EnrollmentSummaryDto;
 import com.mzc.backend.lms.domains.dashboard.student.dto.NoticeDto;
 import com.mzc.backend.lms.domains.dashboard.student.dto.PendingAssignmentDto;
-import com.mzc.backend.lms.domains.enrollment.entity.Enrollment;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;

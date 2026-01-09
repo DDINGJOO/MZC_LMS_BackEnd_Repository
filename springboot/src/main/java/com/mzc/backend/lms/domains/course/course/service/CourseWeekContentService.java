@@ -8,7 +8,7 @@ import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
 import com.mzc.backend.lms.domains.course.course.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.course.repository.WeekContentRepository;
 import com.mzc.backend.lms.domains.course.exception.CourseException;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
