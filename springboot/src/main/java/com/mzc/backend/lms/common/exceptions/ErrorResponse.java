@@ -41,7 +41,7 @@ public class ErrorResponse {
 		return ErrorResponse.builder()
 				.timestamp(LocalDateTime.now())
 				.status(ex.getHttpStatus().value())
-				.code(ex.getCommonErrorCode().getErrCode())
+				.code(ex.getErrorCode().getCode())
 				.message(ex.getMessage())
 				.path(path)
 				.exceptionType(ex.getExceptionType())
