@@ -32,6 +32,25 @@ public abstract class CommonException extends RuntimeException {
 	}
 
 	/**
+	 * 도메인별 ErrorCode의 HttpStatus를 사용하는 생성자
+	 * 도메인 예외에서 자체 ErrorCode의 상태 코드를 사용할 때 활용
+	 */
+	protected CommonException(CommonErrorCode commonErrorCode, HttpStatus httpStatus, String message) {
+		super(message);
+		this.commonErrorCode = commonErrorCode;
+		this.httpStatus = httpStatus;
+	}
+
+	/**
+	 * 도메인별 ErrorCode의 HttpStatus를 사용하는 생성자 (with cause)
+	 */
+	protected CommonException(CommonErrorCode commonErrorCode, HttpStatus httpStatus, String message, Throwable cause) {
+		super(message, cause);
+		this.commonErrorCode = commonErrorCode;
+		this.httpStatus = httpStatus;
+	}
+
+	/**
 	 * 예외 타입 반환 (Domain/Application 구분용)
 	 */
 	public abstract String getExceptionType();
