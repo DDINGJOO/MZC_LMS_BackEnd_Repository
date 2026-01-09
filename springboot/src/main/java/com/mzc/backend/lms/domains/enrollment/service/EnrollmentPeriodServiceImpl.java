@@ -5,6 +5,7 @@ import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
 import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
 import com.mzc.backend.lms.domains.academy.repository.PeriodTypeRepository;
 import com.mzc.backend.lms.domains.enrollment.dto.EnrollmentPeriodResponseDto;
+import com.mzc.backend.lms.domains.enrollment.exception.EnrollmentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ public class EnrollmentPeriodServiceImpl implements EnrollmentPeriodService {
             
             // 타입 코드 유효성 검증
             if (!periodTypeRepository.existsByTypeCode(periodTypeCode)) {
-                throw new IllegalArgumentException("유효하지 않은 기간 타입 코드입니다: " + periodTypeCode);
+                throw EnrollmentException.invalidPeriodType(periodTypeCode);
             }
 
             // 현재 활성화된 기간 찾기

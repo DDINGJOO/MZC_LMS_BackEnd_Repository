@@ -14,6 +14,7 @@ import com.mzc.backend.lms.domains.board.assignment.repository.AssignmentSubmiss
 import com.mzc.backend.lms.domains.course.course.entity.Course;
 import com.mzc.backend.lms.domains.course.course.entity.CourseGradingPolicy;
 import com.mzc.backend.lms.domains.course.course.repository.CourseGradingPolicyRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
 import com.mzc.backend.lms.domains.course.course.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.grade.entity.Grade;
@@ -106,15 +107,15 @@ public class GradePublishService {
     @Transactional
     public void publishTermIfAllowed(Long academicTermId, LocalDateTime now) {
         if (academicTermId == null) {
-            throw new IllegalArgumentException("academicTermId는 필수입니다.");
+            throw CourseException.academicTermIdRequired();
         }
         if (!periodTypeRepository.existsByTypeCode(GRADE_PUBLISH)) {
-            throw new IllegalArgumentException("period_types에 GRADE_PUBLISH가 없습니다.");
+            throw CourseException.gradePublishPeriodNotFound();
         }
         boolean active = enrollmentPeriodRepository.existsActivePeriodByTypeCodeAndAcademicTermId(
                 GRADE_PUBLISH, academicTermId, now);
         if (!active) {
-            throw new IllegalArgumentException("성적 공개 기간이 아닙니다.");
+            throw CourseException.notGradePublishPeriod();
         }
         publishTerm(academicTermId, now);
     }
@@ -126,23 +127,23 @@ public class GradePublishService {
     @Transactional
     public void calculateCourseIfAllowed(Long courseId, LocalDateTime now) {
         if (courseId == null) {
-            throw new IllegalArgumentException("courseId는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         if (!periodTypeRepository.existsByTypeCode(GRADE_CALCULATION)) {
-            throw new IllegalArgumentException("period_types에 GRADE_CALCULATION이 없습니다.");
+            throw CourseException.gradeCalculationPeriodNotFound();
         }
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. courseId=" + courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         if (course.getAcademicTerm() == null || course.getAcademicTerm().getId() == null) {
-            throw new IllegalArgumentException("강의에 학기 정보가 없습니다. courseId=" + courseId);
+            throw CourseException.courseAcademicTermNotFound(courseId);
         }
 
         Long academicTermId = course.getAcademicTerm().getId();
         boolean active = enrollmentPeriodRepository.existsActivePeriodByTypeCodeAndAcademicTermId(
                 GRADE_CALCULATION, academicTermId, now);
         if (!active) {
-            throw new IllegalArgumentException("성적 산출기간이 아닙니다.");
+            throw CourseException.notGradeCalculationPeriod();
         }
 
         calculateCourseIfReady(course, now);
@@ -156,23 +157,23 @@ public class GradePublishService {
     @Transactional
     public void publishCourseIfAllowed(Long courseId, LocalDateTime now) {
         if (courseId == null) {
-            throw new IllegalArgumentException("courseId는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         if (!periodTypeRepository.existsByTypeCode(GRADE_PUBLISH)) {
-            throw new IllegalArgumentException("period_types에 GRADE_PUBLISH가 없습니다.");
+            throw CourseException.gradePublishPeriodNotFound();
         }
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. courseId=" + courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         if (course.getAcademicTerm() == null || course.getAcademicTerm().getId() == null) {
-            throw new IllegalArgumentException("강의에 학기 정보가 없습니다. courseId=" + courseId);
+            throw CourseException.courseAcademicTermNotFound(courseId);
         }
 
         Long academicTermId = course.getAcademicTerm().getId();
         boolean active = enrollmentPeriodRepository.existsActivePeriodByTypeCodeAndAcademicTermId(
                 GRADE_PUBLISH, academicTermId, now);
         if (!active) {
-            throw new IllegalArgumentException("성적 공개 기간이 아닙니다.");
+            throw CourseException.notGradePublishPeriod();
         }
 
         publishCourseIfReady(course, now, true);
@@ -199,7 +200,7 @@ public class GradePublishService {
         Long courseId = course.getId();
 
         CourseGradingPolicy policy = courseGradingPolicyRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의 평가비율을 찾을 수 없습니다. courseId=" + courseId));
+                .orElseThrow(() -> CourseException.gradingPolicyNotFound(courseId));
 
         // 평가 항목별 Assessment 목록/만점합
         List<Assessment> quizzes = assessmentRepository.findActiveByCourse(courseId, AssessmentType.QUIZ);
@@ -327,7 +328,7 @@ public class GradePublishService {
         Long courseId = course.getId();
 
         courseGradingPolicyRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의 평가비율을 찾을 수 없습니다. courseId=" + courseId));
+                .orElseThrow(() -> CourseException.gradingPolicyNotFound(courseId));
 
         // 시험 채점 미완료가 있으면 공개 불가
         List<Assessment> midterms = assessmentRepository.findActiveByCourse(courseId, AssessmentType.MIDTERM);
@@ -335,15 +336,15 @@ public class GradePublishService {
         List<Long> midtermIds = midterms.stream().map(Assessment::getId).toList();
         List<Long> finalIds = finals.stream().map(Assessment::getId).toList();
         if (!midtermIds.isEmpty() && assessmentAttemptRepository.existsUngradedSubmittedByAssessmentIds(midtermIds)) {
-            String msg = "성적 공개 스킵/불가(중간 채점 미완료) courseId=" + courseId;
-            if (strict) throw new IllegalArgumentException(msg);
-            log.info(msg);
+            String msg = "성적 공개 스킵/불가(중간 채점 미완료)";
+            if (strict) throw CourseException.gradePublishBlocked(msg, courseId);
+            log.info(msg + " courseId=" + courseId);
             return;
         }
         if (!finalIds.isEmpty() && assessmentAttemptRepository.existsUngradedSubmittedByAssessmentIds(finalIds)) {
-            String msg = "성적 공개 스킵/불가(기말 채점 미완료) courseId=" + courseId;
-            if (strict) throw new IllegalArgumentException(msg);
-            log.info(msg);
+            String msg = "성적 공개 스킵/불가(기말 채점 미완료)";
+            if (strict) throw CourseException.gradePublishBlocked(msg, courseId);
+            log.info(msg + " courseId=" + courseId);
             return;
         }
 
@@ -351,9 +352,9 @@ public class GradePublishService {
         List<Assignment> assignments = assignmentRepository.findByCourseId(courseId);
         List<Long> assignmentIds = assignments.stream().map(Assignment::getId).toList();
         if (!assignmentIds.isEmpty() && assignmentSubmissionRepository.existsPendingGradingByAssignmentIds(assignmentIds)) {
-            String msg = "성적 공개 스킵/불가(과제 채점 미완료) courseId=" + courseId;
-            if (strict) throw new IllegalArgumentException(msg);
-            log.info(msg);
+            String msg = "성적 공개 스킵/불가(과제 채점 미완료)";
+            if (strict) throw CourseException.gradePublishBlocked(msg, courseId);
+            log.info(msg + " courseId=" + courseId);
             return;
         }
 
@@ -366,22 +367,22 @@ public class GradePublishService {
 
         List<Grade> grades = gradeRepository.findByCourseIdAndStudentIdIn(courseId, studentIds);
         if (grades.size() != studentIds.size()) {
-            String msg = "성적 공개 스킵/불가(산출되지 않은 수강생 존재: calculate 필요) courseId=" + courseId;
-            if (strict) throw new IllegalArgumentException(msg);
-            log.info(msg);
+            String msg = "성적 공개 스킵/불가(산출되지 않은 수강생 존재: calculate 필요)";
+            if (strict) throw CourseException.gradePublishBlocked(msg, courseId);
+            log.info(msg + " courseId=" + courseId);
             return;
         }
         for (Grade g : grades) {
             if (g.getStatus() != com.mzc.backend.lms.domains.course.grade.enums.GradeStatus.GRADED) {
-                String msg = "성적 공개 스킵/불가(GRADED 상태가 아님: calculate 필요) courseId=" + courseId;
-                if (strict) throw new IllegalArgumentException(msg);
-                log.info(msg);
+                String msg = "성적 공개 스킵/불가(GRADED 상태가 아님: calculate 필요)";
+                if (strict) throw CourseException.gradePublishBlocked(msg, courseId);
+                log.info(msg + " courseId=" + courseId);
                 return;
             }
             if (g.getFinalScore() == null) {
-                String msg = "성적 공개 스킵/불가(finalScore가 없음: calculate 필요) courseId=" + courseId;
-                if (strict) throw new IllegalArgumentException(msg);
-                log.info(msg);
+                String msg = "성적 공개 스킵/불가(finalScore가 없음: calculate 필요)";
+                if (strict) throw CourseException.gradePublishBlocked(msg, courseId);
+                log.info(msg + " courseId=" + courseId);
                 return;
             }
         }

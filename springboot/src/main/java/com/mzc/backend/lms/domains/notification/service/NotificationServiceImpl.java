@@ -3,6 +3,7 @@ package com.mzc.backend.lms.domains.notification.service;
 import com.mzc.backend.lms.domains.notification.dto.NotificationCursorResponseDto;
 import com.mzc.backend.lms.domains.notification.dto.NotificationResponseDto;
 import com.mzc.backend.lms.domains.notification.entity.Notification;
+import com.mzc.backend.lms.domains.notification.exception.NotificationException;
 import com.mzc.backend.lms.domains.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,7 +85,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public NotificationResponseDto getNotification(Long userId, Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("알림을 찾을 수 없습니다: " + notificationId));
+                .orElseThrow(() -> NotificationException.notificationNotFound(notificationId));
 
         validateRecipient(notification, userId);
 
@@ -101,7 +102,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public NotificationResponseDto markAsRead(Long userId, Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("알림을 찾을 수 없습니다: " + notificationId));
+                .orElseThrow(() -> NotificationException.notificationNotFound(notificationId));
 
         validateRecipient(notification, userId);
 
@@ -132,7 +133,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void deleteNotification(Long userId, Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("알림을 찾을 수 없습니다: " + notificationId));
+                .orElseThrow(() -> NotificationException.notificationNotFound(notificationId));
 
         validateRecipient(notification, userId);
 
@@ -166,7 +167,7 @@ public class NotificationServiceImpl implements NotificationService {
      */
     private void validateRecipient(Notification notification, Long userId) {
         if (!notification.getRecipient().getId().equals(userId)) {
-            throw new IllegalArgumentException("해당 알림에 대한 권한이 없습니다.");
+            throw NotificationException.notNotificationOwner(userId, notification.getId());
         }
     }
 }

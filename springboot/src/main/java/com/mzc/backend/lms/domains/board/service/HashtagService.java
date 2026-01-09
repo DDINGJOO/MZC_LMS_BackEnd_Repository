@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.board.service;
 
 import com.mzc.backend.lms.domains.board.entity.Hashtag;
 import com.mzc.backend.lms.domains.board.entity.Post;
+import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.board.repository.HashtagRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class HashtagService {
     @Transactional
     public Hashtag getOrCreateHashtag(String tagName, Long userId) {
         if (tagName == null || tagName.isBlank()) {
-            throw new IllegalArgumentException("해시태그 이름은 필수입니다.");
+            throw BoardException.invalidHashtag();
         }
 
         // 소문자로 변환하여 검색 (name은 소문자로 저장됨)
@@ -71,7 +72,7 @@ public class HashtagService {
     @Transactional
     public void attachHashtagsToPost(Post post, List<String> tagNames, Long userId) {
         if (post == null) {
-            throw new IllegalArgumentException("게시글은 필수입니다.");
+            throw BoardException.postNotFound(null);
         }
 
         if (tagNames == null || tagNames.isEmpty()) {
@@ -110,7 +111,7 @@ public class HashtagService {
     @Transactional
     public void updatePostHashtags(Post post, List<String> tagNames, Long userId) {
         if (post == null) {
-            throw new IllegalArgumentException("게시글은 필수입니다.");
+            throw BoardException.postNotFound(null);
         }
 
         // 기존 해시태그 제거

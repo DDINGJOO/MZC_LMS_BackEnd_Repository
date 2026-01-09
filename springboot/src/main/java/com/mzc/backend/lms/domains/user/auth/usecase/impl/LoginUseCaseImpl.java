@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.user.auth.usecase.impl;
 
 import com.mzc.backend.lms.domains.dashboard.student.event.LoginSuccessEvent;
 import com.mzc.backend.lms.domains.user.auth.dto.LoginRequestDto;
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import com.mzc.backend.lms.domains.user.auth.dto.LoginResponseDto;
 import com.mzc.backend.lms.domains.user.auth.encryption.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.auth.jwt.service.JwtTokenService;
@@ -52,11 +53,11 @@ public class LoginUseCaseImpl implements LoginUseCase {
         User user = findUserByUsername(dto.getUsername());
 
         if (user == null) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
+            throw AuthException.invalidCredentials();
         }
 
         if (!encryptionService.matchesPassword(dto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
+            throw AuthException.invalidCredentials();
         }
 
         UserInfo userInfo = getUserInfo(user, dto.getUsername());

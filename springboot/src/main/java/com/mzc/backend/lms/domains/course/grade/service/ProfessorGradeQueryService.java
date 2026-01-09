@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.course.grade.service;
 
 import com.mzc.backend.lms.domains.course.course.entity.Course;
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.grade.dto.ProfessorCourseGradesResponseDto;
 import com.mzc.backend.lms.domains.course.grade.entity.Grade;
 import com.mzc.backend.lms.domains.course.grade.enums.GradeStatus;
@@ -37,10 +38,10 @@ public class ProfessorGradeQueryService {
         Objects.requireNonNull(professorId, "professorId");
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. courseId=" + courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         if (course.getProfessor() == null || course.getProfessor().getProfessorId() == null
                 || !course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("해당 강의 성적 조회 권한이 없습니다.");
+            throw CourseException.gradeViewNotAuthorized();
         }
 
         String courseName = (course.getSubject() != null) ? course.getSubject().getSubjectName() : null;

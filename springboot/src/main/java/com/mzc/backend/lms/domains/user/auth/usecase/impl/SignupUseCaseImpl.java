@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.user.auth.usecase.impl;
 
 import com.mzc.backend.lms.domains.user.auth.dto.SignupRequestDto;
 import com.mzc.backend.lms.domains.user.auth.email.service.EmailVerificationService;
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import com.mzc.backend.lms.domains.user.auth.encryption.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.auth.usecase.SignupUseCase;
 import com.mzc.backend.lms.domains.user.organization.entity.Department;
@@ -77,7 +78,7 @@ public class SignupUseCaseImpl implements SignupUseCase {
                     department.getId()
                 );
             } else {
-                throw new IllegalArgumentException("유효하지 않은 사용자 타입입니다.");
+                throw AuthException.invalidSignupData("유효하지 않은 사용자 타입");
             }
 
             // User 생성 (ID로 학번/교번 사용)
@@ -113,15 +114,15 @@ public class SignupUseCaseImpl implements SignupUseCase {
 
     private void validateSignupRequest(SignupRequestDto dto) {
         if (!dto.isPasswordMatched()) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw AuthException.invalidSignupData("비밀번호가 일치하지 않습니다");
         }
 
         if (!emailVerificationService.isEmailVerified(dto.getEmail())) {
-            throw new IllegalArgumentException("이메일 인증이 필요합니다.");
+            throw AuthException.emailVerificationFailed();
         }
 
         if (!isEmailAvailable(dto.getEmail())) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw AuthException.emailAlreadyExists(dto.getEmail());
         }
     }
 

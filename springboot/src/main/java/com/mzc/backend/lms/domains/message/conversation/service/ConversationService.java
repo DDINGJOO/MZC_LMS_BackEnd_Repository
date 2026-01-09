@@ -4,6 +4,7 @@ import com.mzc.backend.lms.domains.message.conversation.dto.ConversationListResp
 import com.mzc.backend.lms.domains.message.conversation.dto.ConversationResponseDto;
 import com.mzc.backend.lms.domains.message.conversation.entity.Conversation;
 import com.mzc.backend.lms.domains.message.conversation.repository.ConversationRepository;
+import com.mzc.backend.lms.domains.message.exception.MessageException;
 import com.mzc.backend.lms.domains.user.user.entity.User;
 import com.mzc.backend.lms.domains.user.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class ConversationService {
     @Transactional
     public ConversationResponseDto getOrCreateConversation(Long myUserId, Long otherUserId) {
         if (myUserId.equals(otherUserId)) {
-            throw new IllegalArgumentException("자기 자신과의 대화방은 생성할 수 없습니다.");
+            throw MessageException.selfConversationNotAllowed(myUserId);
         }
 
         User myUser = userRepository.findActiveById(myUserId)
@@ -76,7 +77,7 @@ public class ConversationService {
         validateParticipant(conversation, userId);
 
         if (conversation.isDeletedFor(userId)) {
-            throw new IllegalArgumentException("삭제된 대화방입니다.");
+            throw MessageException.conversationDeleted(conversationId);
         }
 
         return ConversationResponseDto.from(conversation, userId);
@@ -126,7 +127,7 @@ public class ConversationService {
      */
     private void validateParticipant(Conversation conversation, Long userId) {
         if (!userId.equals(conversation.getUser1().getId()) && !userId.equals(conversation.getUser2().getId())) {
-            throw new IllegalArgumentException("대화방에 참여하지 않은 사용자입니다.");
+            throw MessageException.notParticipant(userId, conversation.getId());
         }
     }
 }

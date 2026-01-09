@@ -14,6 +14,7 @@ import com.mzc.backend.lms.domains.course.course.repository.CourseTypeRepository
 import com.mzc.backend.lms.domains.course.course.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.subject.entity.Subject;
 import com.mzc.backend.lms.domains.course.subject.repository.SubjectRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.user.organization.entity.Department;
 import com.mzc.backend.lms.domains.user.professor.entity.Professor;
@@ -68,7 +69,7 @@ public class ProfessorCourseService {
         EnrollmentPeriod enrollmentPeriod = findEnrollmentPeriod(request.getEnrollmentPeriodId());
         AcademicTerm academicTerm = enrollmentPeriod.getAcademicTerm();
         if (academicTerm == null) {
-            throw new IllegalArgumentException("수강신청 기간에 연결된 학기 정보가 없습니다.");
+            throw CourseException.academicTermNotLinked();
         }
 
         // 3. 교수 및 학과 조회
@@ -115,14 +116,14 @@ public class ProfessorCourseService {
      */
     private void validateCreateCourseRequest(CreateCourseRequestDto request, Long professorId) {
         if (request == null) {
-            throw new IllegalArgumentException("요청 정보는 필수입니다.");
+            throw CourseException.requestInfoRequired();
         }
         if (professorId == null) {
-            throw new IllegalArgumentException("교수 ID는 필수입니다.");
+            throw CourseException.professorIdRequired();
         }
         if ((request.getSubjectId() == null && request.getSubject() == null) ||
             (request.getSubjectId() != null && request.getSubject() != null)) {
-            throw new IllegalArgumentException("subjectId와 subject 중 하나만 제공해야 합니다.");
+            throw CourseException.subjectIdOrSubjectRequired();
         }
     }
 
@@ -131,10 +132,10 @@ public class ProfessorCourseService {
      */
     private EnrollmentPeriod findEnrollmentPeriod(Long enrollmentPeriodId) {
         if (enrollmentPeriodId == null) {
-            throw new IllegalArgumentException("수강신청 기간 ID는 필수입니다.");
+            throw CourseException.enrollmentPeriodIdRequired();
         }
         return enrollmentPeriodRepository.findById(enrollmentPeriodId)
-                .orElseThrow(() -> new IllegalArgumentException("수강신청 기간을 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.enrollmentPeriodNotFound(enrollmentPeriodId));
     }
 
     /**
@@ -142,10 +143,10 @@ public class ProfessorCourseService {
      */
     private Professor findProfessor(Long professorId) {
         if (professorId == null) {
-            throw new IllegalArgumentException("교수 ID는 필수입니다.");
+            throw CourseException.professorIdRequired();
         }
         return professorRepository.findById(professorId)
-                .orElseThrow(() -> new IllegalArgumentException("교수를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.professorNotFound(professorId));
     }
 
     /**
@@ -155,7 +156,7 @@ public class ProfessorCourseService {
         ProfessorDepartment professorDepartment = professorDepartmentRepository
                 .findByProfessorId(professorId)
                 .filter(pd -> pd.getIsPrimary() != null && pd.getIsPrimary())
-                .orElseThrow(() -> new IllegalArgumentException("교수의 주 소속 학과를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.professorDepartmentNotFound(professorId));
         return professorDepartment.getDepartment();
     }
 
@@ -166,7 +167,7 @@ public class ProfessorCourseService {
                                               Department department, Long departmentId) {
         if (request.getSubjectId() != null) {
             Subject subject = subjectRepository.findById(request.getSubjectId())
-                    .orElseThrow(() -> new IllegalArgumentException("과목을 찾을 수 없습니다: " + request.getSubjectId()));
+                    .orElseThrow(() -> CourseException.subjectNotFound(request.getSubjectId()));
             log.info("기존 과목 사용: subjectId={}, subjectCode={}", subject.getId(), subject.getSubjectCode());
             return new SubjectResult(subject, false);
         } else {
@@ -180,25 +181,25 @@ public class ProfessorCourseService {
     private Subject createNewSubject(CreateCourseRequestDto.SubjectRequestDto subjectReq, Long professorId,
                                      Department department, Long departmentId) {
         if (subjectReq == null) {
-            throw new IllegalArgumentException("과목 정보는 필수입니다.");
+            throw CourseException.subjectInfoRequired();
         }
         // 과목 코드 중복 체크
             Long targetDeptId = subjectReq.getDepartmentId() != null ? subjectReq.getDepartmentId() : departmentId;
             if (subjectRepository.existsByDepartmentIdAndSubjectCode(targetDeptId, subjectReq.getSubjectCode())) {
-                throw new IllegalArgumentException("이미 존재하는 과목 코드입니다: " + subjectReq.getSubjectCode());
+                throw CourseException.subjectCodeDuplicate(subjectReq.getSubjectCode());
             }
-            
+
             // CourseType 조회
             int typeCode = convertCourseTypeToTypeCode(subjectReq.getCourseType());
             CourseType courseType = courseTypeRepository.findByTypeCode(typeCode)
-                    .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 이수구분입니다: " + subjectReq.getCourseType()));
-            
+                    .orElseThrow(() -> CourseException.courseTypeInvalid(subjectReq.getCourseType()));
+
             // Department 조회
             Department subjectDept = subjectReq.getDepartmentId() != null ?
                     professorDepartmentRepository.findByProfessorId(professorId)
                             .map(ProfessorDepartment::getDepartment)
                             .filter(d -> d.getId().equals(subjectReq.getDepartmentId()))
-                            .orElseThrow(() -> new IllegalArgumentException("학과를 찾을 수 없습니다: " + subjectReq.getDepartmentId()))
+                            .orElseThrow(() -> CourseException.departmentMismatch(subjectReq.getDepartmentId()))
                     : department;
             
             // 새 Subject 생성
@@ -233,7 +234,7 @@ public class ProfessorCourseService {
                 continue;
             }
             Subject prereqSubject = subjectRepository.findById(prereqId)
-                    .orElseThrow(() -> new IllegalArgumentException("선수과목을 찾을 수 없습니다: " + prereqId));
+                    .orElseThrow(() -> CourseException.prerequisiteNotFound(prereqId));
             subject.addPrerequisite(prereqSubject, true);
         }
         subjectRepository.save(subject);
@@ -246,10 +247,9 @@ public class ProfessorCourseService {
         CourseType courseType = subject.getCourseType();
         if (courseType.getCategory() == 0) { // 전공과목
             if (!subject.getDepartment().getId().equals(departmentId)) {
-                throw new IllegalArgumentException(
-                        String.format("전공과목은 해당 학과에서만 개설할 수 있습니다. (과목 학과: %s, 교수 학과: %s)",
-                                subject.getDepartment().getDepartmentName(),
-                                department.getDepartmentName()));
+                throw CourseException.majorSubjectDepartmentMismatch(
+                        subject.getDepartment().getDepartmentName(),
+                        department.getDepartmentName());
             }
         }
     }
@@ -259,7 +259,7 @@ public class ProfessorCourseService {
      */
     private void validateCourseDuplication(Long subjectId, Long academicTermId, String section) {
         if (courseRepository.existsBySubjectIdAndAcademicTermIdAndSectionNumber(subjectId, academicTermId, section)) {
-            throw new IllegalArgumentException("이미 동일한 과목, 학기, 분반으로 개설된 강의가 있습니다.");
+            throw CourseException.courseDuplicate();
         }
     }
 
@@ -282,9 +282,7 @@ public class ProfessorCourseService {
                     courseRepository.existsByProfessorAndTimeConflictExcludingCourse(professorId, academicTermId, excludeCourseId, dayOfWeek, startTime, endTime);
 
             if (hasConflict) {
-                    throw new IllegalArgumentException(
-                            String.format("시간표 충돌이 발생했습니다. (%s %s-%s)",
-                                    getDayName(dayOfWeek), scheduleDto.getStartTime(), scheduleDto.getEndTime()));
+                    throw CourseException.scheduleConflict(getDayName(dayOfWeek), scheduleDto.getStartTime(), scheduleDto.getEndTime());
                 }
             }
         }
@@ -380,7 +378,7 @@ public class ProfessorCourseService {
             case "MAJOR_ELEC" -> 2;
             case "GEN_REQ" -> 3;
             case "GEN_ELEC" -> 4;
-            default -> throw new IllegalArgumentException("유효하지 않은 이수구분입니다: " + courseType);
+            default -> throw CourseException.courseTypeInvalid(courseType);
         };
     }
 
@@ -417,13 +415,13 @@ public class ProfessorCourseService {
      */
     private void validateUpdateCourseRequest(Long courseId, Long professorId, UpdateCourseRequestDto request) {
         if (courseId == null) {
-            throw new IllegalArgumentException("강의 ID는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         if (professorId == null) {
-            throw new IllegalArgumentException("교수 ID는 필수입니다.");
+            throw CourseException.professorIdRequired();
         }
         if (request == null) {
-            throw new IllegalArgumentException("요청 정보는 필수입니다.");
+            throw CourseException.requestInfoRequired();
         }
     }
 
@@ -433,10 +431,18 @@ public class ProfessorCourseService {
      */
     private Course findCourseWithPermission(Long courseId, Long professorId, String permissionErrorMessage) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException(permissionErrorMessage);
+            if (permissionErrorMessage.contains("수정")) {
+                throw CourseException.courseUpdateNotAuthorized();
+            } else if (permissionErrorMessage.contains("취소")) {
+                throw CourseException.courseCancelNotAuthorized();
+            } else if (permissionErrorMessage.contains("조회")) {
+                throw CourseException.courseViewNotAuthorized();
+            } else {
+                throw CourseException.professorOnly();
+            }
         }
         return course;
     }
@@ -446,9 +452,7 @@ public class ProfessorCourseService {
      */
     private void validateMaxStudents(Integer maxStudents, Integer currentStudents) {
         if (maxStudents != null && maxStudents < currentStudents) {
-            throw new IllegalArgumentException(
-                    String.format("현재 수강생 수(%d명)보다 적은 정원(%d명)으로 설정할 수 없습니다.",
-                            currentStudents, maxStudents));
+            throw CourseException.maxStudentsBelowCurrent(currentStudents, maxStudents);
         }
         }
 
@@ -476,7 +480,7 @@ public class ProfessorCourseService {
         // 중복 체크
         if (courseRepository.existsBySubjectIdAndAcademicTermIdAndSectionNumber(
                 course.getSubject().getId(), course.getAcademicTerm().getId(), newSectionNumber)) {
-            throw new IllegalArgumentException("이미 동일한 분반으로 개설된 강의가 있습니다.");
+            throw CourseException.sectionDuplicate();
         }
 
         course.setSectionNumber(newSectionNumber);
@@ -522,8 +526,7 @@ public class ProfessorCourseService {
     private void validateNoEnrollments(Long courseId) {
         long enrollmentCount = enrollmentRepository.findByCourseId(courseId).size();
         if (enrollmentCount > 0) {
-            throw new IllegalArgumentException(
-                    String.format("수강생이 %d명 있어 강의를 취소할 수 없습니다.", enrollmentCount));
+            throw CourseException.courseHasEnrollments(enrollmentCount);
         }
     }
 
@@ -539,7 +542,7 @@ public class ProfessorCourseService {
 
         if (academicTermId != null) {
             academicTerm = academicTermRepository.findById(academicTermId)
-                    .orElseThrow(() -> new IllegalArgumentException("학기를 찾을 수 없습니다."));
+                    .orElseThrow(() -> CourseException.academicTermNotFound(academicTermId));
             courses = courseRepository.findByProfessorProfessorIdAndAcademicTermId(professorId, academicTermId);
         } else {
             courses = courseRepository.findByProfessorProfessorId(professorId);

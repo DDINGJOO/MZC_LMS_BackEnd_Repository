@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.user.auth.usecase.impl;
 
 import com.mzc.backend.lms.domains.user.auth.dto.RefreshTokenRequestDto;
 import com.mzc.backend.lms.domains.user.auth.dto.RefreshTokenResponseDto;
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import com.mzc.backend.lms.domains.user.auth.jwt.service.JwtTokenService;
 import com.mzc.backend.lms.domains.user.auth.token.entity.RefreshToken;
 import com.mzc.backend.lms.domains.user.auth.token.repository.RefreshTokenRepository;
@@ -35,14 +36,14 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
     @Transactional
     public RefreshTokenResponseDto execute(RefreshTokenRequestDto dto) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(dto.getRefreshToken())
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 토큰입니다."));
+                .orElseThrow(() -> AuthException.invalidToken());
 
         if (!refreshToken.isValid()) {
-            throw new IllegalArgumentException("만료되었거나 폐기된 토큰입니다.");
+            throw AuthException.tokenExpired();
         }
 
         if (!jwtTokenService.validateToken(dto.getRefreshToken())) {
-            throw new IllegalArgumentException("유효하지 않은 토큰 형식입니다.");
+            throw AuthException.invalidToken();
         }
 
         User user = refreshToken.getUser();

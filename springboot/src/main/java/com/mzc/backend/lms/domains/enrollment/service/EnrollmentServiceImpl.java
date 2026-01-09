@@ -12,6 +12,7 @@ import com.mzc.backend.lms.domains.course.subject.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.course.subject.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.dto.*;
 import com.mzc.backend.lms.domains.enrollment.entity.Enrollment;
+import com.mzc.backend.lms.domains.enrollment.exception.EnrollmentException;
 import com.mzc.backend.lms.domains.enrollment.event.EnrollmentCancelledEvent;
 import com.mzc.backend.lms.domains.enrollment.event.EnrollmentCreatedEvent;
 import com.mzc.backend.lms.domains.enrollment.repository.CourseCartRepository;
@@ -56,7 +57,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public EnrollmentBulkResponseDto enrollBulk(CourseIdsRequestDto request, String studentId) {
         // 1. 수강신청 기간 체크
         if (!isEnrollmentPeriodActive()) {
-            throw new IllegalArgumentException("수강신청 기간이 아닙니다.");
+            throw EnrollmentException.notEnrollmentPeriod();
         }
 
         Long studentIdLong = Long.parseLong(studentId);
@@ -68,13 +69,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         // 3. 과목 존재 여부 체크
         List<Long> courseIds = request.getCourseIds();
         if (courseIds == null || courseIds.isEmpty()) {
-            throw new IllegalArgumentException("강의 ID 목록이 비어있습니다.");
+            throw EnrollmentException.emptyCourseList();
         }
 
         // 존재하지 않는 강의 체크 (락 없이 먼저 확인)
         List<Course> courses = courseRepository.findAllById(courseIds);
         if (courses.size() != courseIds.size()) {
-            throw new IllegalArgumentException("존재하지 않는 강의가 포함되어 있습니다.");
+            throw EnrollmentException.courseNotExists(null);
         }
 
         // 4. 기존 수강신청 정보 조회
@@ -512,13 +513,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         // 2. 취소 가능 여부 체크
         if (!canCancelEnrollment()) {
-            throw new IllegalArgumentException("수강신청 취소 기간이 아닙니다.");
+            throw EnrollmentException.cancelPeriodEnded();
         }
 
         // 3. 수강신청 ID 목록 확인
         List<Long> enrollmentIds = request.getEnrollmentIds();
         if (enrollmentIds == null || enrollmentIds.isEmpty()) {
-            throw new IllegalArgumentException("수강신청 ID 목록이 비어있습니다.");
+            throw EnrollmentException.emptyCourseList();
         }
 
         // 4. 각 수강신청에 대해 취소 처리

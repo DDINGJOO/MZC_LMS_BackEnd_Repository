@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.notification.queue.service;
 
+import com.mzc.backend.lms.domains.notification.exception.NotificationException;
 import com.mzc.backend.lms.domains.notification.queue.config.NotificationRedisConfig;
 import com.mzc.backend.lms.domains.notification.queue.dto.BatchNotificationMessage;
 import com.mzc.backend.lms.domains.notification.queue.dto.NotificationMessage;
@@ -33,7 +34,7 @@ public class NotificationQueueServiceImpl implements NotificationQueueService {
             log.debug("알림 메시지 큐 추가: recipientId={}", message.getRecipientId());
         } catch (Exception e) {
             log.error("알림 메시지 큐 추가 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("알림 큐 추가 실패", e);
+            throw NotificationException.sendFailed(e);
         }
     }
 
@@ -48,7 +49,7 @@ public class NotificationQueueServiceImpl implements NotificationQueueService {
                     message.getBatchId(), message.getRecipientCount());
         } catch (Exception e) {
             log.error("배치 알림 메시지 큐 추가 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("배치 알림 큐 추가 실패", e);
+            throw NotificationException.sendFailed(e);
         }
     }
 

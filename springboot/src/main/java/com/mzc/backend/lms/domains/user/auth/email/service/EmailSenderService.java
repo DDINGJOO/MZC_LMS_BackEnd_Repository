@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.user.auth.email.service;
 
 import com.mzc.backend.lms.domains.user.auth.email.dto.EmailMessage;
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class EmailSenderService {
         } catch (Exception e) {
             log.error("이메일 전송 실패: to={}, error={}",
                 emailMessage.getTo(), e.getMessage(), e);
-            throw new RuntimeException("이메일 전송 실패", e);
+            throw AuthException.emailSendFailed(e);
         }
     }
 

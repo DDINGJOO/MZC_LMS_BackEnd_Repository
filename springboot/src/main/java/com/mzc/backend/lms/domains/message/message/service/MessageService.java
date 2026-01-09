@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.message.message.service;
 
 import com.mzc.backend.lms.domains.message.conversation.entity.Conversation;
 import com.mzc.backend.lms.domains.message.conversation.repository.ConversationRepository;
+import com.mzc.backend.lms.domains.message.exception.MessageException;
 import com.mzc.backend.lms.domains.message.message.dto.MessageBulkSendRequestDto;
 import com.mzc.backend.lms.domains.message.message.dto.MessageCursorResponseDto;
 import com.mzc.backend.lms.domains.message.message.dto.MessageResponseDto;
@@ -196,7 +197,7 @@ public class MessageService {
      */
     private void validateParticipant(Conversation conversation, Long userId) {
         if (!userId.equals(conversation.getUser1().getId()) && !userId.equals(conversation.getUser2().getId())) {
-            throw new IllegalArgumentException("대화방에 참여하지 않은 사용자입니다.");
+            throw MessageException.notParticipant(userId, conversation.getId());
         }
     }
 
