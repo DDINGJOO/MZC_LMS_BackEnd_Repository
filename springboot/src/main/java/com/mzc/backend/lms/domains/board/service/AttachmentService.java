@@ -5,6 +5,7 @@ import com.mzc.backend.lms.domains.board.entity.Attachment;
 import com.mzc.backend.lms.domains.board.entity.Comment;
 import com.mzc.backend.lms.domains.board.entity.Post;
 import com.mzc.backend.lms.domains.board.enums.AttachmentType;
+import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.board.repository.AttachmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,11 +48,11 @@ public class AttachmentService {
 
         // 파일 유효성 검사
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("파일이 비어있습니다.");
+            throw BoardException.emptyFile();
         }
-        
+
         if (file.getOriginalFilename() == null || file.getOriginalFilename().trim().isEmpty()) {
-            throw new IllegalArgumentException("파일명이 없습니다.");
+            throw BoardException.invalidFilename();
         }
 
         try {
@@ -82,7 +83,7 @@ public class AttachmentService {
 
         } catch (IOException e) {
             log.error("파일 저장 실패: {}", file.getOriginalFilename(), e);
-            throw new RuntimeException("파일 저장에 실패했습니다.", e);
+            throw BoardException.fileSaveFailed(e);
         }
     }
 
@@ -158,7 +159,7 @@ public class AttachmentService {
      */
     public AttachmentResponseDto getAttachment(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new IllegalArgumentException("첨부파일을 찾을 수 없습니다."));
+                .orElseThrow(() -> BoardException.attachmentNotFound(attachmentId));
         return AttachmentResponseDto.from(attachment);
     }
 
@@ -168,7 +169,7 @@ public class AttachmentService {
     @Transactional
     public void deleteAttachment(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new RuntimeException("첨부파일을 찾을 수 없습니다."));
+                .orElseThrow(() -> BoardException.attachmentNotFound(attachmentId));
 
         // 실제 파일 삭제
         try {
@@ -189,13 +190,13 @@ public class AttachmentService {
      */
     public File getFile(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new RuntimeException("첨부파일을 찾을 수 없습니다."));
+                .orElseThrow(() -> BoardException.attachmentNotFound(attachmentId));
 
         Path filePath = Paths.get(uploadDir, attachment.getStoredName());
         File file = filePath.toFile();
 
         if (!file.exists()) {
-            throw new RuntimeException("파일이 존재하지 않습니다.");
+            throw BoardException.fileNotFound();
         }
 
         // 다운로드 횟수 증가

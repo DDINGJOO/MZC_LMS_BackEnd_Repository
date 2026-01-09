@@ -60,11 +60,33 @@ public class BoardException extends CommonException {
                 String.format("댓글을 찾을 수 없습니다 (ID: %d)", commentId));
     }
 
-    /**
-     * 권한이 없을 때 발생하는 예외 생성
-     */
     public static BoardException unauthorized(String action) {
         return new BoardException(BoardErrorCode.UNAUTHORIZED_ACTION,
                 String.format("해당 작업을 수행할 권한이 없습니다: %s", action));
+    }
+
+    public static BoardException emptyFile() {
+        return new BoardException(BoardErrorCode.EMPTY_FILE);
+    }
+
+    public static BoardException invalidFilename() {
+        return new BoardException(BoardErrorCode.INVALID_FILENAME);
+    }
+
+    public static BoardException fileSaveFailed(Throwable cause) {
+        return new BoardException(BoardErrorCode.FILE_SAVE_FAILED, cause);
+    }
+
+    public static BoardException fileNotFound() {
+        return new BoardException(BoardErrorCode.FILE_NOT_FOUND);
+    }
+
+    public static BoardException attachmentNotFound(Long attachmentId) {
+        return new BoardException(BoardErrorCode.ATTACHMENT_NOT_FOUND,
+                String.format("첨부파일을 찾을 수 없습니다 (ID: %d)", attachmentId));
+    }
+
+    public static BoardException invalidHashtag() {
+        return new BoardException(BoardErrorCode.INVALID_HASHTAG);
     }
 }
