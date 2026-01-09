@@ -23,7 +23,7 @@ import com.mzc.backend.lms.domains.board.repository.BoardCategoryRepository;
 import com.mzc.backend.lms.domains.board.repository.PostRepository;
 import com.mzc.backend.lms.domains.course.course.entity.Course;
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.views.UserViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

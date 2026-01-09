@@ -15,7 +15,7 @@ import com.mzc.backend.lms.domains.course.course.repository.CourseWeekRepository
 import com.mzc.backend.lms.domains.course.subject.entity.Subject;
 import com.mzc.backend.lms.domains.course.subject.repository.SubjectRepository;
 import com.mzc.backend.lms.domains.course.exception.CourseException;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.user.organization.entity.Department;
 import com.mzc.backend.lms.domains.user.professor.entity.Professor;
 import com.mzc.backend.lms.domains.user.professor.entity.ProfessorDepartment;

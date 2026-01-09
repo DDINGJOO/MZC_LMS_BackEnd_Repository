@@ -6,7 +6,7 @@ import com.mzc.backend.lms.domains.assessment.exception.AssessmentException;
 import com.mzc.backend.lms.domains.attendance.exception.AttendanceException;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.course.exception.CourseException;
-import com.mzc.backend.lms.domains.enrollment.exception.EnrollmentException;
+import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
 import com.mzc.backend.lms.domains.message.exception.MessageException;
 import com.mzc.backend.lms.domains.notification.exception.NotificationException;
 import com.mzc.backend.lms.domains.user.auth.exception.AuthException;

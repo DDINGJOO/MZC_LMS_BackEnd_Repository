@@ -7,8 +7,8 @@ import com.mzc.backend.lms.domains.course.grade.dto.ProfessorCourseGradesRespons
 import com.mzc.backend.lms.domains.course.grade.entity.Grade;
 import com.mzc.backend.lms.domains.course.grade.enums.GradeStatus;
 import com.mzc.backend.lms.domains.course.grade.repository.GradeRepository;
-import com.mzc.backend.lms.domains.enrollment.entity.Enrollment;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.views.UserViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

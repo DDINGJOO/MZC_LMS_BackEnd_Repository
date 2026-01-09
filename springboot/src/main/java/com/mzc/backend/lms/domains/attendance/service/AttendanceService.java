@@ -12,7 +12,7 @@ import com.mzc.backend.lms.domains.course.course.entity.WeekContent;
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
 import com.mzc.backend.lms.domains.course.course.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.course.repository.WeekContentRepository;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.user.auth.encryption.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.student.entity.Student;
 import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;

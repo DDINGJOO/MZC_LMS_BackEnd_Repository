@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.academy.service;
 import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.academy.repository.AcademicTermRepository;
 import com.mzc.backend.lms.domains.course.course.dto.AcademicTermDto;
-import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
