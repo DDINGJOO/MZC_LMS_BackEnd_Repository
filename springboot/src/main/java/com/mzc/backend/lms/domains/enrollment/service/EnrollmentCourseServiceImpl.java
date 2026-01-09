@@ -11,6 +11,7 @@ import com.mzc.backend.lms.domains.course.subject.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.course.subject.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.dto.*;
 import com.mzc.backend.lms.domains.enrollment.entity.Enrollment;
+import com.mzc.backend.lms.domains.enrollment.exception.EnrollmentException;
 import com.mzc.backend.lms.domains.enrollment.repository.CourseCartRepository;
 import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
 import com.mzc.backend.lms.views.UserViewService;
@@ -78,7 +79,7 @@ public class EnrollmentCourseServiceImpl implements EnrollmentCourseService {
     private List<Course> filterCourses(CourseSearchRequestDto request) {
         // enrollmentPeriodId 필수 체크
         if (request.getEnrollmentPeriodId() == null) {
-            throw new IllegalArgumentException("enrollmentPeriodId는 필수입니다.");
+            throw EnrollmentException.periodNotFound(null);
         }
 
         // EnrollmentPeriod 조회

@@ -9,6 +9,8 @@ import com.mzc.backend.lms.domains.course.subject.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.course.subject.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.dto.*;
 import com.mzc.backend.lms.domains.enrollment.entity.CourseCart;
+import com.mzc.backend.lms.domains.enrollment.exception.EnrollmentErrorCode;
+import com.mzc.backend.lms.domains.enrollment.exception.EnrollmentException;
 import com.mzc.backend.lms.domains.enrollment.entity.Enrollment;
 import com.mzc.backend.lms.domains.enrollment.repository.CourseCartRepository;
 import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
@@ -147,7 +149,7 @@ public class CartServiceImpl implements CartService {
         
         // 1. 수강신청 기간 체크
         if (!isEnrollmentPeriodActive()) {
-            throw new IllegalArgumentException("수강신청 기간이 아닙니다.");
+            throw EnrollmentException.notEnrollmentPeriod();
         }
 
         Long studentIdLong = Long.parseLong(studentId);
@@ -159,12 +161,12 @@ public class CartServiceImpl implements CartService {
         // 3. 과목 존재 여부 체크 및 조회
         List<Long> courseIds = request.getCourseIds();
         if (courseIds == null || courseIds.isEmpty()) {
-            throw new IllegalArgumentException("강의 ID 목록이 비어있습니다.");
+            throw EnrollmentException.emptyCourseList();
         }
 
         List<Course> courses = courseRepository.findAllById(courseIds);
         if (courses.size() != courseIds.size()) {
-            throw new IllegalArgumentException("존재하지 않는 강의가 포함되어 있습니다.");
+            throw EnrollmentException.courseNotExists(null);
         }
 
         // 4. 기존 장바구니 및 수강신청 정보 조회
@@ -256,8 +258,7 @@ public class CartServiceImpl implements CartService {
                 .sum();
         
         if (currentCredits + newCredits > MAX_CREDITS_PER_TERM) {
-            throw new IllegalArgumentException(String.format("학점 제한을 초과합니다. (현재: %d학점, 추가: %d학점, 최대: %d학점)", 
-                    currentCredits, newCredits, MAX_CREDITS_PER_TERM));
+            throw EnrollmentException.maxCreditsExceeded(currentCredits, MAX_CREDITS_PER_TERM);
         }
 
         // 7. 시간표 충돌 체크
@@ -279,9 +280,9 @@ public class CartServiceImpl implements CartService {
             Course newCourse = findCourseBySchedule(newSchedule, courses);
             for (CourseSchedule existingSchedule : existingSchedules) {
                 if (hasScheduleConflict(newSchedule, existingSchedule)) {
-                    throw new IllegalArgumentException(String.format(
-                        "강의 %s(%s)의 시간표가 기존 강의와 충돌합니다.", 
-                        newCourse.getSubject().getSubjectName(), newCourse.getSubject().getSubjectCode()));
+                    String conflictInfo = String.format("강의 %s(%s)의 시간표가 기존 강의와 충돌합니다.",
+                        newCourse.getSubject().getSubjectName(), newCourse.getSubject().getSubjectCode());
+                    throw EnrollmentException.scheduleConflict(conflictInfo);
                 }
             }
         }
@@ -290,17 +291,17 @@ public class CartServiceImpl implements CartService {
         for (int i = 0; i < newSchedules.size(); i++) {
             CourseSchedule schedule1 = newSchedules.get(i);
             Course course1 = findCourseBySchedule(schedule1, courses);
-        
+
             for (int j = i + 1; j < newSchedules.size(); j++) {
                 CourseSchedule schedule2 = newSchedules.get(j);
                 Course course2 = findCourseBySchedule(schedule2, courses);
 
-                if (hasScheduleConflict(schedule1, schedule2) && 
+                if (hasScheduleConflict(schedule1, schedule2) &&
                     !course1.getId().equals(course2.getId())) {
-                    throw new IllegalArgumentException(String.format(
-                        "강의 %s(%s)와 %s(%s)의 시간표가 충돌합니다.", 
+                    String conflictInfo = String.format("강의 %s(%s)와 %s(%s)의 시간표가 충돌합니다.",
                         course1.getSubject().getSubjectName(), course1.getSubject().getSubjectCode(),
-                        course2.getSubject().getSubjectName(), course2.getSubject().getSubjectCode()));
+                        course2.getSubject().getSubjectName(), course2.getSubject().getSubjectCode());
+                    throw EnrollmentException.scheduleConflict(conflictInfo);
                 }
             }
         }
@@ -318,7 +319,7 @@ public class CartServiceImpl implements CartService {
             
             CourseCart savedCart = courseCartRepository.save(cart);
             if (savedCart == null || savedCart.getId() == null) {
-                throw new IllegalStateException("장바구니 저장에 실패했습니다.");
+                throw new EnrollmentException(EnrollmentErrorCode.ENROLLMENT_NOT_FOUND);
             }
             
             succeededItems.add(CartBulkAddResponseDto.SucceededItemDto.builder()
@@ -385,14 +386,14 @@ public class CartServiceImpl implements CartService {
 
         // cartIds 필수 체크
         if (request.getCartIds() == null || request.getCartIds().isEmpty()) {
-            throw new IllegalArgumentException("cartIds는 필수입니다.");
+            throw EnrollmentException.emptyCourseList();
         }
 
         // 장바구니 항목 조회 및 소유권 확인
         List<CourseCart> cartsToDelete = courseCartRepository.findAllById(request.getCartIds());
-        
+
         if (cartsToDelete.size() != request.getCartIds().size()) {
-            throw new IllegalArgumentException("일부 장바구니 항목을 찾을 수 없습니다.");
+            throw EnrollmentException.enrollmentNotFound(null);
         }
 
         // 소유권 확인 및 삭제할 항목 수집
