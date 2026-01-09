@@ -3,6 +3,7 @@ package com.mzc.backend.lms.domains.notification.controller;
 import com.mzc.backend.lms.domains.notification.dto.NotificationCursorResponseDto;
 import com.mzc.backend.lms.domains.notification.dto.NotificationResponseDto;
 import com.mzc.backend.lms.domains.notification.service.NotificationService;
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -234,7 +235,7 @@ public class NotificationController {
      */
     private void validateUserId(Long userId) {
         if (userId == null) {
-            throw new IllegalArgumentException("인증이 필요합니다.");
+            throw AuthException.invalidToken();
         }
     }
 
