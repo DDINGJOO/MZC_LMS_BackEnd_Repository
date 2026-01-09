@@ -100,7 +100,7 @@ public class ApplicationExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createForValidation(
                 HttpStatus.BAD_REQUEST,
-                CommonErrorCode.INVALID_INPUT.getErrCode(),
+                CommonErrorCode.INVALID_INPUT.getCode(),
                 "입력값 검증에 실패했습니다",
                 request,
                 exception.getBindingResult().getFieldErrors()
@@ -128,7 +128,7 @@ public class ApplicationExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createForConstraintViolation(
                 HttpStatus.BAD_REQUEST,
-                CommonErrorCode.INVALID_INPUT.getErrCode(),
+                CommonErrorCode.INVALID_INPUT.getCode(),
                 "제약 조건 검증에 실패했습니다",
                 request,
                 violations
@@ -152,7 +152,7 @@ public class ApplicationExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.UNAUTHORIZED,
-                CommonErrorCode.UNAUTHORIZED.getErrCode(),
+                CommonErrorCode.UNAUTHORIZED.getCode(),
                 "AUTHENTICATION",
                 "인증에 실패했습니다",
                 request
@@ -200,7 +200,7 @@ public class ApplicationExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.BAD_REQUEST,
-                CommonErrorCode.INVALID_FORMAT.getErrCode(),
+                CommonErrorCode.INVALID_FORMAT.getCode(),
                 "PARSE_ERROR",
                 "요청 본문을 파싱할 수 없습니다",
                 request
@@ -272,7 +272,7 @@ public class ApplicationExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.BAD_REQUEST,
-                CommonErrorCode.REQUIRED_FIELD_MISSING.getErrCode(),
+                CommonErrorCode.REQUIRED_FIELD_MISSING.getCode(),
                 "MISSING_PARAMETER",
                 String.format("필수 파라미터 '%s'가 누락되었습니다", exception.getParameterName()),
                 request
@@ -297,7 +297,7 @@ public class ApplicationExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.BAD_REQUEST,
-                CommonErrorCode.INVALID_FORMAT.getErrCode(),
+                CommonErrorCode.INVALID_FORMAT.getCode(),
                 "TYPE_MISMATCH",
                 String.format("파라미터 '%s'의 타입이 올바르지 않습니다", exception.getName()),
                 request
@@ -344,7 +344,7 @@ public class ApplicationExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.BAD_REQUEST,
-                CommonErrorCode.INVALID_INPUT.getErrCode(),
+                CommonErrorCode.INVALID_INPUT.getCode(),
                 "INVALID_ARGUMENT",
                 exception.getMessage(),
                 request

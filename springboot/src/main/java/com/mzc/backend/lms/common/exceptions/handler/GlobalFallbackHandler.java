@@ -84,7 +84,7 @@ public class GlobalFallbackHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                CommonErrorCode.INTERNAL_SERVER_ERROR.getErrCode(),
+                CommonErrorCode.INTERNAL_SERVER_ERROR.getCode(),
                 "INTERNAL_ERROR",
                 "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
                 request
@@ -114,7 +114,7 @@ public class GlobalFallbackHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                CommonErrorCode.INTERNAL_SERVER_ERROR.getErrCode(),
+                CommonErrorCode.INTERNAL_SERVER_ERROR.getCode(),
                 "SYSTEM_ERROR",
                 "시스템 오류가 발생했습니다. 관리자에게 문의해주세요.",
                 request

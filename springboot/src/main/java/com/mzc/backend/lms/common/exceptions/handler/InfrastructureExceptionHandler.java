@@ -104,7 +104,7 @@ public class InfrastructureExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.CONFLICT,
-                CommonErrorCode.DATABASE_ERROR.getErrCode(),
+                CommonErrorCode.DATABASE_ERROR.getCode(),
                 "DATA_INTEGRITY",
                 "데이터 무결성 제약 조건을 위반했습니다. 중복된 데이터가 존재할 수 있습니다.",
                 request
@@ -153,7 +153,7 @@ public class InfrastructureExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                CommonErrorCode.DATABASE_ERROR.getErrCode(),
+                CommonErrorCode.DATABASE_ERROR.getCode(),
                 "DATABASE",
                 "데이터베이스 처리 중 오류가 발생했습니다",
                 request
@@ -178,7 +178,7 @@ public class InfrastructureExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.BAD_GATEWAY,
-                CommonErrorCode.EXTERNAL_API_ERROR.getErrCode(),
+                CommonErrorCode.EXTERNAL_API_ERROR.getCode(),
                 "EXTERNAL_API",
                 "외부 서비스에 접근할 수 없습니다",
                 request
@@ -203,7 +203,7 @@ public class InfrastructureExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.BAD_GATEWAY,
-                CommonErrorCode.EXTERNAL_API_ERROR.getErrCode(),
+                CommonErrorCode.EXTERNAL_API_ERROR.getCode(),
                 "EXTERNAL_API",
                 "외부 API 호출 중 오류가 발생했습니다",
                 request
@@ -228,7 +228,7 @@ public class InfrastructureExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                CommonErrorCode.EXTERNAL_API_ERROR.getErrCode(),
+                CommonErrorCode.EXTERNAL_API_ERROR.getCode(),
                 "CONNECTION",
                 "서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
                 request
@@ -253,7 +253,7 @@ public class InfrastructureExceptionHandler {
 
         ProblemDetail problem = problemDetailFactory.createGeneric(
                 HttpStatus.GATEWAY_TIMEOUT,
-                CommonErrorCode.EXTERNAL_API_ERROR.getErrCode(),
+                CommonErrorCode.EXTERNAL_API_ERROR.getCode(),
                 "TIMEOUT",
                 "요청 처리 시간이 초과되었습니다",
                 request

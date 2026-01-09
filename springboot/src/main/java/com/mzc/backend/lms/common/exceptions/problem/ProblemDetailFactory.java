@@ -15,8 +15,6 @@ import java.util.Map;
 
 /**
  * RFC 7807 Problem Details 표준에 따른 에러 응답 생성 팩토리
- *
- * @see <a href="https://www.rfc-editor.org/rfc/rfc7807">RFC 7807</a>
  */
 @Component
 public class ProblemDetailFactory {
@@ -31,12 +29,12 @@ public class ProblemDetailFactory {
     public ProblemDetail create(CommonException exception, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatus(exception.getHttpStatus());
 
-        problem.setType(URI.create(ERROR_TYPE_BASE_URI + exception.getCommonErrorCode().getErrCode()));
+        problem.setType(URI.create(ERROR_TYPE_BASE_URI + exception.getErrorCode().getCode()));
         problem.setTitle(exception.getExceptionType());
         problem.setDetail(exception.getMessage());
         problem.setInstance(URI.create(request.getRequestURI()));
 
-        problem.setProperty("errorCode", exception.getCommonErrorCode().getErrCode());
+        problem.setProperty("errorCode", exception.getErrorCode().getCode());
         problem.setProperty("timestamp", LocalDateTime.now().format(TIMESTAMP_FORMATTER));
 
         return problem;
