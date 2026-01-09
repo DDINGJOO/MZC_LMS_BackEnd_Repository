@@ -10,6 +10,7 @@ import com.mzc.backend.lms.domains.course.notice.dto.response.CourseNoticeDetail
 import com.mzc.backend.lms.domains.course.notice.dto.response.CourseNoticeResponse;
 import com.mzc.backend.lms.domains.course.notice.entity.CourseNotice;
 import com.mzc.backend.lms.domains.course.notice.entity.CourseNoticeComment;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.notice.event.CourseNoticeCreatedEvent;
 import com.mzc.backend.lms.domains.course.notice.repository.CourseNoticeCommentRepository;
 import com.mzc.backend.lms.domains.course.notice.repository.CourseNoticeRepository;
@@ -205,15 +206,15 @@ public class CourseNoticeServiceImpl implements CourseNoticeService {
 
     private Course findCourseById(Long courseId) {
         return courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. courseId=" + courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
     }
 
     private CourseNotice findNoticeByIdAndCourseId(Long noticeId, Long courseId) {
         CourseNotice notice = courseNoticeRepository.findByIdAndNotDeleted(noticeId)
-                .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다. noticeId=" + noticeId));
+                .orElseThrow(() -> CourseException.noticeNotFound(noticeId));
 
         if (!notice.belongsToCourse(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 공지사항이 아닙니다.");
+            throw CourseException.noticeNotInCourse(noticeId, courseId);
         }
 
         return notice;
@@ -221,10 +222,10 @@ public class CourseNoticeServiceImpl implements CourseNoticeService {
 
     private CourseNoticeComment findCommentByIdAndNoticeId(Long commentId, Long noticeId) {
         CourseNoticeComment comment = courseNoticeCommentRepository.findByIdAndNotDeleted(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다. commentId=" + commentId));
+                .orElseThrow(() -> CourseException.commentNotFound(commentId));
 
         if (!comment.belongsToNotice(noticeId)) {
-            throw new IllegalArgumentException("해당 공지사항의 댓글이 아닙니다.");
+            throw CourseException.commentNotInNotice(commentId, noticeId);
         }
 
         return comment;
@@ -232,7 +233,7 @@ public class CourseNoticeServiceImpl implements CourseNoticeService {
 
     private void validateProfessorPermission(Course course, Long userId) {
         if (!course.getProfessor().getProfessorId().equals(userId)) {
-            throw new IllegalArgumentException("해당 강의의 담당 교수만 접근 가능합니다.");
+            throw CourseException.professorOnly();
         }
     }
 
@@ -247,19 +248,19 @@ public class CourseNoticeServiceImpl implements CourseNoticeService {
         // 수강생인 경우 접근 허용
         boolean isEnrolled = enrollmentRepository.existsByStudentIdAndCourseId(userId, courseId);
         if (!isEnrolled) {
-            throw new IllegalArgumentException("해당 강의의 수강생 또는 담당 교수만 접근 가능합니다.");
+            throw CourseException.enrolledOrProfessorOnly();
         }
     }
 
     private void validateCommentsAllowed(CourseNotice notice) {
         if (!notice.isCommentsAllowed()) {
-            throw new IllegalArgumentException("해당 공지사항은 댓글이 허용되지 않습니다.");
+            throw CourseException.commentNotAllowed(notice.getId());
         }
     }
 
     private void validateCommentAuthor(CourseNoticeComment comment, Long userId) {
         if (!comment.isAuthor(userId)) {
-            throw new IllegalArgumentException("댓글 작성자만 수정/삭제할 수 있습니다.");
+            throw CourseException.commentOwnerOnly();
         }
     }
 

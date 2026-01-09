@@ -7,6 +7,7 @@ import com.mzc.backend.lms.domains.course.course.entity.WeekContent;
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
 import com.mzc.backend.lms.domains.course.course.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.course.repository.WeekContentRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.enrollment.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,24 +43,23 @@ public class CourseWeekContentService {
 
         // 1. 강의 조회 및 권한 확인
         if (courseId == null) {
-            throw new IllegalArgumentException("강의 ID는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("주차 생성 권한이 없습니다.");
+            throw CourseException.weekOperationNotAuthorized("주차 생성");
         }
 
         // 2. 주차 번호 16주 초과 체크
         if (request.getWeekNumber() > 16) {
-            throw new IllegalArgumentException("주차는 최대 16주까지만 생성할 수 있습니다.");
+            throw CourseException.maxWeekExceeded();
         }
 
         // 3. 중복 주차 번호 체크
         if (courseWeekRepository.existsByCourseIdAndWeekNumber(courseId, request.getWeekNumber())) {
-            throw new IllegalArgumentException(
-                    String.format("이미 %d주차가 존재합니다.", request.getWeekNumber()));
+            throw CourseException.weekAlreadyExists(request.getWeekNumber());
         }
 
         // 4. 콘텐츠 유효성 검사
@@ -67,20 +67,20 @@ public class CourseWeekContentService {
             for (CreateWeekContentRequestDto contentDto : request.getContents()) {
                 // 필수 필드 검증
                 if (contentDto.getContentType() == null || contentDto.getContentType().trim().isEmpty()) {
-                    throw new IllegalArgumentException("콘텐츠 타입은 필수입니다.");
+                    throw CourseException.contentFieldRequired("콘텐츠 타입");
                 }
                 if (contentDto.getTitle() == null || contentDto.getTitle().trim().isEmpty()) {
-                    throw new IllegalArgumentException("콘텐츠 제목은 필수입니다.");
+                    throw CourseException.contentFieldRequired("콘텐츠 제목");
                 }
                 if (contentDto.getContentUrl() == null || contentDto.getContentUrl().trim().isEmpty()) {
-                    throw new IllegalArgumentException("콘텐츠 URL은 필수입니다.");
+                    throw CourseException.contentFieldRequired("콘텐츠 URL");
                 }
-                
+
                 // 지원하는 콘텐츠 타입 검증
                 String contentType = contentDto.getContentType().toUpperCase();
-                if (!contentType.equals("VIDEO") && !contentType.equals("DOCUMENT") 
+                if (!contentType.equals("VIDEO") && !contentType.equals("DOCUMENT")
                     && !contentType.equals("LINK") && !contentType.equals("QUIZ")) {
-                    throw new IllegalArgumentException("지원하지 않는 콘텐츠 타입입니다: " + contentType);
+                    throw CourseException.contentTypeInvalid(contentType);
                 }
             }
         }
@@ -114,8 +114,7 @@ public class CourseWeekContentService {
                 
                 // order 중복 체크
                 if (weekContentRepository.existsByWeekIdAndDisplayOrder(savedWeek.getId(), displayOrder)) {
-                    throw new IllegalArgumentException(
-                            String.format("콘텐츠 순서 %d가 이미 존재합니다.", displayOrder));
+                    throw CourseException.contentOrderDuplicate(displayOrder);
                 }
 
                 WeekContent content = WeekContent.builder()
@@ -161,36 +160,35 @@ public class CourseWeekContentService {
 
         // 1. 강의 조회 및 권한 확인
         if (courseId == null) {
-            throw new IllegalArgumentException("강의 ID는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("주차 수정 권한이 없습니다.");
+            throw CourseException.weekOperationNotAuthorized("주차 수정");
         }
 
         // 2. 주차 조회
         if (weekId == null) {
-            throw new IllegalArgumentException("주차 ID는 필수입니다.");
+            throw CourseException.weekIdRequired();
         }
         CourseWeek week = courseWeekRepository.findById(weekId)
-                .orElseThrow(() -> new IllegalArgumentException("주차를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.weekNotFound(weekId));
 
         if (!week.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 주차가 아닙니다.");
+            throw CourseException.weekNotInCourse(weekId, courseId);
         }
 
         // 3. 주차 번호 변경 시 16주 초과 체크
         if (request.getWeekNumber() != null && request.getWeekNumber() > 16) {
-            throw new IllegalArgumentException("주차는 최대 16주까지만 생성할 수 있습니다.");
+            throw CourseException.maxWeekExceeded();
         }
 
         // 4. 주차 번호 변경 시 중복 체크
         if (request.getWeekNumber() != null && !week.getWeekNumber().equals(request.getWeekNumber())) {
             if (courseWeekRepository.existsByCourseIdAndWeekNumber(courseId, request.getWeekNumber())) {
-                throw new IllegalArgumentException(
-                        String.format("이미 %d주차가 존재합니다.", request.getWeekNumber()));
+                throw CourseException.weekAlreadyExists(request.getWeekNumber());
             }
         }
 
@@ -215,23 +213,23 @@ public class CourseWeekContentService {
         log.info("주차 삭제 요청: courseId={}, weekId={}, professorId={}", courseId, weekId, professorId);
 
         if (courseId == null || weekId == null || professorId == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw CourseException.invalidRequest();
         }
 
         // 1. 강의 조회 및 권한 확인
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("주차 삭제 권한이 없습니다.");
+            throw CourseException.weekOperationNotAuthorized("주차 삭제");
         }
 
         // 2. 주차 조회
         CourseWeek week = courseWeekRepository.findById(weekId)
-                .orElseThrow(() -> new IllegalArgumentException("주차를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.weekNotFound(weekId));
 
         if (!week.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 주차가 아닙니다.");
+            throw CourseException.weekNotInCourse(weekId, courseId);
         }
 
         // 3. 주차 삭제 (연관된 콘텐츠도 함께 삭제됨 - Cascade)
@@ -247,25 +245,25 @@ public class CourseWeekContentService {
     public WeekContentDto createContent(Long courseId, Long weekId, CreateWeekContentRequestDto request, Long professorId) {
         log.info("콘텐츠 등록 요청: courseId={}, weekId={}, contentType={}, professorId={}",
                 courseId, weekId, request.getContentType(), professorId);
-        
+
         if (courseId == null || weekId == null || request == null || professorId == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw CourseException.invalidRequest();
         }
 
         // 1. 강의 조회 및 권한 확인
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("콘텐츠 등록 권한이 없습니다.");
+            throw CourseException.contentOperationNotAuthorized("콘텐츠 등록");
         }
 
         // 2. 주차 조회
         CourseWeek week = courseWeekRepository.findById(weekId)
-                .orElseThrow(() -> new IllegalArgumentException("주차를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.weekNotFound(weekId));
 
         if (!week.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 주차가 아닙니다.");
+            throw CourseException.weekNotInCourse(weekId, courseId);
         }
 
         // 3. displayOrder 설정 (order가 없으면 마지막 순서로)
@@ -274,8 +272,7 @@ public class CourseWeekContentService {
             displayOrder = request.getOrder();
             // displayOrder 중복 체크
             if (weekContentRepository.existsByWeekIdAndDisplayOrder(weekId, displayOrder)) {
-                throw new IllegalArgumentException(
-                        String.format("이미 동일한 순서(%d)의 콘텐츠가 존재합니다.", displayOrder));
+                throw CourseException.contentOrderDuplicate(displayOrder);
             }
         } else {
             // 기존 콘텐츠의 최대 displayOrder 조회
@@ -297,7 +294,7 @@ public class CourseWeekContentService {
                 .build();
 
         if (content == null) {
-            throw new IllegalArgumentException("콘텐츠 생성에 실패했습니다.");
+            throw CourseException.contentCreateFailed();
         }
 
         WeekContent savedContent = weekContentRepository.save(content);
@@ -316,35 +313,34 @@ public class CourseWeekContentService {
                 courseId, weekId, contentId, professorId);
 
         if (courseId == null || weekId == null || contentId == null || request == null || professorId == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw CourseException.invalidRequest();
         }
 
         // 1. 강의 조회 및 권한 확인
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("콘텐츠 수정 권한이 없습니다.");
+            throw CourseException.contentOperationNotAuthorized("콘텐츠 수정");
         }
 
         // 2. 콘텐츠 조회
         WeekContent content = weekContentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("콘텐츠를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.contentNotFound(contentId));
 
         if (!content.getWeek().getId().equals(weekId)) {
-            throw new IllegalArgumentException("해당 주차의 콘텐츠가 아닙니다.");
+            throw CourseException.contentNotInWeek(contentId, weekId);
         }
 
         if (!content.getWeek().getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 콘텐츠가 아닙니다.");
+            throw CourseException.contentNotInCourse(contentId, courseId);
         }
 
         // 3. displayOrder 변경 시 중복 체크
         Integer displayOrder = request.getDisplayOrder();
         if (displayOrder != null && !content.getDisplayOrder().equals(displayOrder)) {
             if (weekContentRepository.existsByWeekIdAndDisplayOrder(weekId, displayOrder)) {
-                throw new IllegalArgumentException(
-                        String.format("이미 동일한 순서(%d)의 콘텐츠가 존재합니다.", displayOrder));
+                throw CourseException.contentOrderDuplicate(displayOrder);
             }
         }
 
@@ -371,17 +367,17 @@ public class CourseWeekContentService {
         log.info("콘텐츠 수정 요청: contentId={}, professorId={}", contentId, professorId);
 
         if (contentId == null || request == null || professorId == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw CourseException.invalidRequest();
         }
 
         // 1. 콘텐츠 조회
         WeekContent content = weekContentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("콘텐츠를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.contentNotFound(contentId));
 
         // 2. 강의 조회 및 권한 확인
         Course course = content.getWeek().getCourse();
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("콘텐츠 수정 권한이 없습니다.");
+            throw CourseException.contentOperationNotAuthorized("콘텐츠 수정");
         }
 
         // 3. displayOrder 변경 시 중복 체크
@@ -389,8 +385,7 @@ public class CourseWeekContentService {
         Long weekId = content.getWeek().getId();
         if (displayOrder != null && !content.getDisplayOrder().equals(displayOrder)) {
             if (weekContentRepository.existsByWeekIdAndDisplayOrder(weekId, displayOrder)) {
-                throw new IllegalArgumentException(
-                        String.format("이미 동일한 순서(%d)의 콘텐츠가 존재합니다.", displayOrder));
+                throw CourseException.contentOrderDuplicate(displayOrder);
             }
         }
 
@@ -418,27 +413,27 @@ public class CourseWeekContentService {
                 courseId, weekId, contentId, professorId);
 
         if (courseId == null || weekId == null || contentId == null || professorId == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw CourseException.invalidRequest();
         }
 
         // 1. 강의 조회 및 권한 확인
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("콘텐츠 삭제 권한이 없습니다.");
+            throw CourseException.contentOperationNotAuthorized("콘텐츠 삭제");
         }
 
         // 2. 콘텐츠 조회
         WeekContent content = weekContentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("콘텐츠를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.contentNotFound(contentId));
 
         if (!content.getWeek().getId().equals(weekId)) {
-            throw new IllegalArgumentException("해당 주차의 콘텐츠가 아닙니다.");
+            throw CourseException.contentNotInWeek(contentId, weekId);
         }
 
         if (!content.getWeek().getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 콘텐츠가 아닙니다.");
+            throw CourseException.contentNotInCourse(contentId, courseId);
         }
 
         // 3. 콘텐츠 삭제
@@ -454,17 +449,17 @@ public class CourseWeekContentService {
         log.info("콘텐츠 삭제 요청: contentId={}, professorId={}", contentId, professorId);
 
         if (contentId == null || professorId == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw CourseException.invalidRequest();
         }
 
         // 1. 콘텐츠 조회
         WeekContent content = weekContentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("콘텐츠를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.contentNotFound(contentId));
 
         // 2. 강의 조회 및 권한 확인
         Course course = content.getWeek().getCourse();
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("콘텐츠 삭제 권한이 없습니다.");
+            throw CourseException.contentOperationNotAuthorized("콘텐츠 삭제");
         }
 
         // 3. 콘텐츠 삭제
@@ -481,29 +476,23 @@ public class CourseWeekContentService {
         log.info("주차별 콘텐츠 목록 조회: courseId={}, weekId={}, professorId={}", courseId, weekId, professorId);
 
         if (courseId == null || weekId == null || professorId == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            throw CourseException.invalidRequest();
         }
 
         // 1. 강의 조회 및 권한 확인
-        if (courseId == null) {
-            throw new IllegalArgumentException("강의 ID는 필수입니다.");
-        }
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("콘텐츠 조회 권한이 없습니다.");
+            throw CourseException.contentOperationNotAuthorized("콘텐츠 조회");
         }
 
         // 2. 주차 조회
-        if (weekId == null) {
-            throw new IllegalArgumentException("주차 ID는 필수입니다.");
-        }
         CourseWeek week = courseWeekRepository.findById(weekId)
-                .orElseThrow(() -> new IllegalArgumentException("주차를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.weekNotFound(weekId));
 
         if (!week.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 주차가 아닙니다.");
+            throw CourseException.weekNotInCourse(weekId, courseId);
         }
 
         // 3. 콘텐츠 목록 조회
@@ -530,17 +519,17 @@ public class CourseWeekContentService {
 
         // 1. 강의 조회 및 권한 확인
         if (courseId == null) {
-            throw new IllegalArgumentException("강의 ID는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         // 교수이거나 수강 중인 학생인지 확인
         boolean isProfessor = course.getProfessor().getProfessorId().equals(requesterId);
         boolean isEnrolledStudent = enrollmentRepository.existsByStudentIdAndCourseId(requesterId, courseId);
 
         if (!isProfessor && !isEnrolledStudent) {
-            throw new IllegalArgumentException("주차 조회 권한이 없습니다.");
+            throw CourseException.weekOperationNotAuthorized("주차 조회");
         }
 
         // 2. 주차 목록 조회
@@ -575,38 +564,37 @@ public class CourseWeekContentService {
 
         // 1. 강의 조회 및 권한 확인
         if (courseId == null) {
-            throw new IllegalArgumentException("강의 ID는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("콘텐츠 순서 변경 권한이 없습니다.");
+            throw CourseException.contentOperationNotAuthorized("콘텐츠 순서 변경");
         }
 
         // 2. 주차 조회
         if (weekId == null) {
-            throw new IllegalArgumentException("주차 ID는 필수입니다.");
+            throw CourseException.weekIdRequired();
         }
         CourseWeek week = courseWeekRepository.findById(weekId)
-                .orElseThrow(() -> new IllegalArgumentException("주차를 찾을 수 없습니다."));
+                .orElseThrow(() -> CourseException.weekNotFound(weekId));
 
         if (!week.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("해당 강의의 주차가 아닙니다.");
+            throw CourseException.weekNotInCourse(weekId, courseId);
         }
 
         // 3. 콘텐츠 순서 변경
         if (request.getContentOrders() != null && !request.getContentOrders().isEmpty()) {
             for (ContentOrderDto orderDto : request.getContentOrders()) {
                 if (orderDto.getContentId() == null) {
-                    throw new IllegalArgumentException("콘텐츠 ID는 필수입니다.");
+                    throw CourseException.contentIdRequired();
                 }
                 WeekContent content = weekContentRepository.findById(orderDto.getContentId())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                String.format("콘텐츠를 찾을 수 없습니다. contentId: %d", orderDto.getContentId())));
+                        .orElseThrow(() -> CourseException.contentNotFound(orderDto.getContentId()));
 
                 if (!content.getWeek().getId().equals(weekId)) {
-                    throw new IllegalArgumentException("해당 주차의 콘텐츠가 아닙니다.");
+                    throw CourseException.contentNotInWeek(orderDto.getContentId(), weekId);
                 }
 
                 // displayOrder 업데이트

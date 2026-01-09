@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.course.subject.service;
 
 import com.mzc.backend.lms.domains.course.course.repository.CourseTypeRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.subject.dto.SubjectDetailResponse;
 import com.mzc.backend.lms.domains.course.subject.dto.SubjectResponse;
 import com.mzc.backend.lms.domains.course.subject.dto.SubjectSearchResponse;
@@ -84,7 +85,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public SubjectDetailResponse getSubjectDetail(Long subjectId) {
         Subject subject = subjectRepository.findByIdWithDetails(subjectId)
-                .orElseThrow(() -> new RuntimeException("Subject not found: " + subjectId));
+                .orElseThrow(() -> CourseException.subjectNotFound(subjectId));
 
         return toSubjectDetailResponse(subject);
     }
@@ -92,7 +93,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public Page<SubjectSearchResponse> searchSubjects(String query, Pageable pageable) {
         if (query == null || query.trim().length() < 2) {
-            throw new IllegalArgumentException("검색어는 최소 2글자 이상이어야 합니다.");
+            throw CourseException.searchQueryTooShort();
         }
 
         Page<Subject> subjects = subjectRepository.searchSubjects(query.trim(), pageable);

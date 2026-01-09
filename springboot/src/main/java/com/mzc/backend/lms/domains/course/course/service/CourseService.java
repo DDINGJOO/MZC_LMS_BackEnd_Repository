@@ -14,6 +14,7 @@ import com.mzc.backend.lms.domains.course.subject.repository.SubjectPrerequisite
 import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
 import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.views.UserViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,27 +78,27 @@ public class CourseService {
     private List<Course> filterCourses(CourseSearchRequestDto request) {
         // enrollmentPeriodId 필수 체크
         if (request.getEnrollmentPeriodId() == null) {
-            throw new IllegalArgumentException("enrollmentPeriodId는 필수입니다.");
+            throw CourseException.enrollmentPeriodIdRequired();
         }
 
         // EnrollmentPeriod 조회
         EnrollmentPeriod enrollmentPeriod = enrollmentPeriodRepository.findById(request.getEnrollmentPeriodId())
-                .orElseThrow(() -> new IllegalArgumentException("수강신청 기간을 찾을 수 없습니다: " + request.getEnrollmentPeriodId()));
+                .orElseThrow(() -> CourseException.enrollmentPeriodNotFound(request.getEnrollmentPeriodId()));
 
         // EnrollmentPeriod의 AcademicTerm으로 강의 조회
         Long academicTermId = enrollmentPeriod.getAcademicTerm().getId();
-        
+
         if(courseRepository.findByAcademicTermId(academicTermId).isEmpty()) {
-            throw new IllegalArgumentException("해당 학기의 강의가 없습니다.");
+            throw CourseException.noCoursesInTerm();
         }
 
         // 학기로 필터링
         List<Course> courses = courseRepository.findByAcademicTermId(academicTermId);
-        log.info("enrollmentPeriodId={}, academicTermId={}로 조회된 강의 수: {}", 
+        log.info("enrollmentPeriodId={}, academicTermId={}로 조회된 강의 수: {}",
                 request.getEnrollmentPeriodId(), academicTermId, courses.size());
 
         if(request.getDepartmentId() != null && courseRepository.findBySubjectDepartmentId(request.getDepartmentId()).isEmpty()) {
-            throw new IllegalArgumentException("해당 학과는 존재하지 않습니다.");
+            throw CourseException.departmentNotFound();
         }
 
         // 학과 필터
@@ -330,11 +331,11 @@ public class CourseService {
      */
     public CourseDetailDto getCourseDetailById(Long courseId) {
         if(courseId == null) {
-            throw new IllegalArgumentException("강의 ID는 필수입니다.");
+            throw CourseException.courseIdRequired();
         }
         // 강의 조회
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. courseId: " + courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         
         log.info("강의 상세 조회: courseId={}, courseName={}", 
                 courseId, course.getSubject().getSubjectName());

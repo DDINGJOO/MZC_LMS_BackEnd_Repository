@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.course.grade.controller;
 
 import com.mzc.backend.lms.domains.course.course.entity.Course;
 import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.grade.service.GradePublishService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,23 +39,23 @@ public class ProfessorCourseGradePublishController {
     ) {
         try {
             if (courseId == null) {
-                return ResponseEntity.badRequest().body(error("courseId는 필수입니다."));
+                throw CourseException.courseIdRequired();
             }
             if (professorId == null) {
                 return ResponseEntity.status(401).body(error("인증이 필요합니다."));
             }
 
             Course course = courseRepository.findById(courseId)
-                    .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. courseId=" + courseId));
+                    .orElseThrow(() -> CourseException.courseNotFound(courseId));
             if (course.getProfessor() == null || course.getProfessor().getProfessorId() == null
                     || !course.getProfessor().getProfessorId().equals(professorId)) {
-                throw new IllegalArgumentException("해당 강의 성적 산출 권한이 없습니다.");
+                throw CourseException.gradeCalculateNotAuthorized();
             }
 
             gradePublishService.calculateCourseIfAllowed(courseId, LocalDateTime.now());
             return ResponseEntity.ok(success(null, "성적 산출 처리를 실행했습니다. (강의 단위)"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(error(e.getMessage()));
+        } catch (CourseException e) {
+            return ResponseEntity.status(e.getErrorCode().getStatus()).body(error(e.getMessage()));
         } catch (Exception e) {
             log.error("강의 성적 산출 실행 실패 courseId={}", courseId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("서버 오류"));
@@ -73,23 +74,23 @@ public class ProfessorCourseGradePublishController {
     ) {
         try {
             if (courseId == null) {
-                return ResponseEntity.badRequest().body(error("courseId는 필수입니다."));
+                throw CourseException.courseIdRequired();
             }
             if (professorId == null) {
                 return ResponseEntity.status(401).body(error("인증이 필요합니다."));
             }
 
             Course course = courseRepository.findById(courseId)
-                    .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. courseId=" + courseId));
+                    .orElseThrow(() -> CourseException.courseNotFound(courseId));
             if (course.getProfessor() == null || course.getProfessor().getProfessorId() == null
                     || !course.getProfessor().getProfessorId().equals(professorId)) {
-                throw new IllegalArgumentException("해당 강의 성적 산출/공개 권한이 없습니다.");
+                throw CourseException.gradePublishNotAuthorized();
             }
 
             gradePublishService.publishCourseIfAllowed(courseId, LocalDateTime.now());
             return ResponseEntity.ok(success(null, "성적 공개 처리를 실행했습니다. (강의 단위)"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(error(e.getMessage()));
+        } catch (CourseException e) {
+            return ResponseEntity.status(e.getErrorCode().getStatus()).body(error(e.getMessage()));
         } catch (Exception e) {
             log.error("강의 성적 수동 공개 실행 실패 courseId={}", courseId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("서버 오류"));
