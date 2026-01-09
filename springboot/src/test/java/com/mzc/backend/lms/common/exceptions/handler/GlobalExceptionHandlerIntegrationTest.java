@@ -135,7 +135,7 @@ class GlobalExceptionHandlerIntegrationTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getProperties().get("errorCode"))
-                    .isEqualTo(CommonErrorCode.UNAUTHORIZED.getErrCode());
+                    .isEqualTo(CommonErrorCode.UNAUTHORIZED.getCode());
         }
 
         @Test
