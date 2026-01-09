@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mzc.backend.lms.domains.assessment.dto.request.AssessmentCreateRequestDto;
+import com.mzc.backend.lms.domains.assessment.exception.AssessmentException;
 import com.mzc.backend.lms.domains.assessment.dto.request.AssessmentUpdateRequestDto;
 import com.mzc.backend.lms.domains.assessment.dto.request.AttemptGradeRequestDto;
 import com.mzc.backend.lms.domains.assessment.dto.request.AttemptSubmitRequestDto;
@@ -70,7 +71,7 @@ public class AssessmentService {
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         boolean isProfessor = course.getProfessor().getProfessorId().equals(professorId);
         if (!isProfessor) {
-            throw new IllegalArgumentException("조회 권한이 없습니다.");
+            throw AssessmentException.viewNotAuthorized();
         }
 
         // 교수는 시작 전 포함 전체 조회 가능
@@ -87,7 +88,7 @@ public class AssessmentService {
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         boolean isProfessor = course.getProfessor().getProfessorId().equals(professorId);
         if (!isProfessor) {
-            throw new IllegalArgumentException("조회 권한이 없습니다.");
+            throw AssessmentException.viewNotAuthorized();
         }
 
         // 교수에게는 정답 포함 원본 제공
@@ -105,7 +106,7 @@ public class AssessmentService {
         Course course = courseRepository.findById(assessment.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("조회 권한이 없습니다.");
+            throw AssessmentException.viewNotAuthorized();
         }
 
         String normalized = normalizeAttemptStatus(status);
@@ -155,7 +156,7 @@ public class AssessmentService {
         Course course = courseRepository.findById(assessment.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("조회 권한이 없습니다.");
+            throw AssessmentException.viewNotAuthorized();
         }
 
         Long uid = attempt.getUserId();
@@ -198,14 +199,14 @@ public class AssessmentService {
 
         // boardType 제한 (다른 게시판 타입으로 유입되는 실수 방지)
         if (boardType != BoardType.QUIZ && boardType != BoardType.EXAM) {
-            throw new IllegalArgumentException("QUIZ/EXAM 게시판만 허용됩니다.");
+            throw AssessmentException.invalidBoardType();
         }
         // boardType - type 정합성 보장
         if (boardType == BoardType.QUIZ && req.getType() != AssessmentType.QUIZ) {
-            throw new IllegalArgumentException("QUIZ 게시판에는 type=QUIZ만 등록할 수 있습니다.");
+            throw AssessmentException.quizTypeMismatch();
         }
         if (boardType == BoardType.EXAM && req.getType() == AssessmentType.QUIZ) {
-            throw new IllegalArgumentException("EXAM 게시판에는 QUIZ 유형을 등록할 수 없습니다.");
+            throw AssessmentException.examTypeMismatch();
         }
         validateQuestionData(req.getType(), req.getQuestionData());
 
@@ -214,7 +215,7 @@ public class AssessmentService {
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         boolean isProfessor = course.getProfessor().getProfessorId().equals(professorId);
         if (!isProfessor) {
-            throw new IllegalArgumentException("퀴즈/시험 생성 권한이 없습니다.");
+            throw AssessmentException.createNotAuthorized();
         }
 
         // 2) 게시판 카테고리 조회
@@ -264,7 +265,7 @@ public class AssessmentService {
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         boolean isProfessor = course.getProfessor().getProfessorId().equals(professorId);
         if (!isProfessor) {
-            throw new IllegalArgumentException("수정 권한이 없습니다.");
+            throw AssessmentException.updateNotAuthorized();
         }
 
         // Post 수정(제목/설명)
@@ -305,7 +306,7 @@ public class AssessmentService {
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         boolean isProfessor = course.getProfessor().getProfessorId().equals(professorId);
         if (!isProfessor) {
-            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+            throw AssessmentException.deleteNotAuthorized();
         }
 
         assessment.delete();
@@ -320,7 +321,7 @@ public class AssessmentService {
         Objects.requireNonNull(courseId, "courseId");
         // 수강 중인지 확인
         if (!enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
-            throw new IllegalArgumentException("수강 중인 강의만 조회할 수 있습니다.");
+            throw AssessmentException.notEnrolled(courseId);
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -335,12 +336,12 @@ public class AssessmentService {
 
         // 수강 중인지 확인
         if (!enrollmentRepository.existsByStudentIdAndCourseId(studentId, assessment.getCourseId())) {
-            throw new IllegalArgumentException("수강 중인 강의만 조회할 수 있습니다.");
+            throw AssessmentException.notEnrolled(assessment.getCourseId());
         }
 
         // 시작 전이면 숨김
         if (LocalDateTime.now().isBefore(assessment.getStartAt())) {
-            throw new IllegalArgumentException("시작 전 퀴즈/시험은 조회할 수 없습니다.");
+            throw AssessmentException.notStarted(assessmentId);
         }
 
         String masked = QuestionDataMasker.maskCorrectAnswers(assessment.getQuestionData());
@@ -354,12 +355,12 @@ public class AssessmentService {
 
         // 수강 중인지 확인
         if (!enrollmentRepository.existsByStudentIdAndCourseId(studentId, assessment.getCourseId())) {
-            throw new IllegalArgumentException("수강 중인 강의만 응시할 수 있습니다.");
+            throw AssessmentException.notEnrolledForAttempt(assessment.getCourseId());
         }
 
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(assessment.getStartAt())) {
-            throw new IllegalArgumentException("시작 전에는 응시를 시작할 수 없습니다.");
+            throw AssessmentException.notStartedForAttempt(assessmentId);
         }
 
         AssessmentAttempt attempt = attemptRepository.findActiveByAssessmentIdAndUserId(assessmentId, studentId)
@@ -368,7 +369,7 @@ public class AssessmentService {
             // 시작/종료 시간이 별도 컬럼이 없으므로 startAt + durationMinutes를 종료로 간주
             // (단, 이미 attempt가 있는 사용자는 재진입을 허용해야 해서 신규 생성 시점에만 차단)
             if (now.isAfter(assessment.endAt())) {
-                throw new IllegalArgumentException("종료된 퀴즈/시험입니다.");
+                throw AssessmentException.alreadyEnded(assessmentId);
             }
             try {
                 attempt = Objects.requireNonNull(attemptRepository.save(
@@ -385,7 +386,7 @@ public class AssessmentService {
         }
 
         if (attempt.isSubmitted()) {
-            throw new IllegalArgumentException("이미 제출한 퀴즈/시험입니다.");
+            throw AssessmentException.alreadySubmitted(attempt.getId());
         }
 
         if (attempt.getStartedAt() == null) {
@@ -409,13 +410,13 @@ public class AssessmentService {
                 .orElseThrow(() -> new IllegalArgumentException("응시 정보를 찾을 수 없습니다."));
 
         if (!attempt.getUserId().equals(studentId)) {
-            throw new IllegalArgumentException("본인 응시만 제출할 수 있습니다.");
+            throw AssessmentException.submitNotAuthorized();
         }
         if (attempt.isSubmitted()) {
-            throw new IllegalArgumentException("이미 제출한 퀴즈/시험입니다.");
+            throw AssessmentException.alreadySubmitted(attemptId);
         }
         if (attempt.getStartedAt() == null) {
-            throw new IllegalArgumentException("응시 시작 후 제출할 수 있습니다.");
+            throw AssessmentException.notInProgress();
         }
 
         Assessment assessment = attempt.getAssessment();
@@ -423,7 +424,7 @@ public class AssessmentService {
         LocalDateTime deadline = attempt.getStartedAt().plusMinutes(assessment.getDurationMinutes());
         LocalDateTime graceDeadline = deadline.plusSeconds(LATE_GRACE_PERIOD.getSeconds());
         if (now.isAfter(graceDeadline)) {
-            throw new IllegalArgumentException("제출 가능 시간이 지났습니다. (마감 후 10분 초과)");
+            throw AssessmentException.submissionTimeExceeded();
         }
         boolean isLate = now.isAfter(deadline);
 
@@ -469,16 +470,16 @@ public class AssessmentService {
 
         Assessment assessment = attempt.getAssessment();
         if (assessment.getType() == AssessmentType.QUIZ) {
-            throw new IllegalArgumentException("퀴즈는 자동채점 대상입니다.");
+            throw AssessmentException.autoGradedQuiz();
         }
         if (!attempt.isSubmitted()) {
-            throw new IllegalArgumentException("제출된 응시만 채점할 수 있습니다.");
+            throw AssessmentException.onlySubmittedCanGrade();
         }
 
         Course course = courseRepository.findById(assessment.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("채점 권한이 없습니다.");
+            throw AssessmentException.gradeNotAuthorized();
         }
 
         BigDecimal rawScore = req.getScore();
@@ -499,7 +500,7 @@ public class AssessmentService {
         try {
             return MAPPER.writeValueAsString(value);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("JSON 직렬화에 실패했습니다.");
+            throw AssessmentException.jsonSerializationFailed(e);
         }
     }
 
@@ -510,11 +511,11 @@ public class AssessmentService {
      */
     private void validateQuestionData(AssessmentType assessmentType, JsonNode questionData) {
         if (questionData == null || questionData.isNull()) {
-            throw new IllegalArgumentException("문제 JSON(questionData)은 필수입니다.");
+            throw AssessmentException.questionDataRequired();
         }
         JsonNode questions = questionData.get("questions");
         if (questions == null || !questions.isArray()) {
-            throw new IllegalArgumentException("questionData.questions는 배열이어야 합니다.");
+            throw AssessmentException.invalidQuestionFormat();
         }
 
         for (JsonNode q : questions) {
@@ -525,22 +526,22 @@ public class AssessmentService {
             if (assessmentType == AssessmentType.QUIZ) {
                 // 퀴즈는 객관식만 허용
                 if (!"MCQ".equalsIgnoreCase(typeStr)) {
-                    throw new IllegalArgumentException("퀴즈는 객관식(MCQ) 문항만 허용합니다.");
+                    throw AssessmentException.quizMcqOnly();
                 }
             }
 
             if ("MCQ".equalsIgnoreCase(typeStr)) {
                 JsonNode choices = q.get("choices");
                 if (choices == null || !choices.isArray() || choices.size() == 0) {
-                    throw new IllegalArgumentException("MCQ 문항은 choices 배열이 필요합니다.");
+                    throw AssessmentException.mcqChoicesRequired();
                 }
                 JsonNode idx = q.get("correctChoiceIndex");
                 if (idx == null || !idx.canConvertToInt()) {
-                    throw new IllegalArgumentException("MCQ 문항은 correctChoiceIndex(숫자, 0-based)가 필요합니다.");
+                    throw AssessmentException.mcqCorrectIndexRequired();
                 }
                 int i = idx.asInt();
                 if (i < 0 || i >= choices.size()) {
-                    throw new IllegalArgumentException("correctChoiceIndex 범위가 choices 크기를 벗어났습니다.");
+                    throw AssessmentException.mcqIndexOutOfRange(i, choices.size());
                 }
             }
         }
@@ -548,13 +549,13 @@ public class AssessmentService {
 
     private BigDecimal gradeQuiz(Assessment assessment, JsonNode answers) {
         if (assessment.getQuestionData() == null || assessment.getQuestionData().isBlank()) {
-            throw new IllegalArgumentException("퀴즈 문제 데이터가 없습니다.");
+            throw AssessmentException.emptyQuestionData();
         }
         try {
             JsonNode qd = MAPPER.readTree(assessment.getQuestionData());
             JsonNode questions = qd.get("questions");
             if (questions == null || !questions.isArray()) {
-                throw new IllegalArgumentException("퀴즈 문제 데이터 형식이 올바르지 않습니다.");
+                throw AssessmentException.invalidQuestionData("형식 오류");
             }
 
             BigDecimal total = BigDecimal.ZERO;
@@ -584,8 +585,10 @@ public class AssessmentService {
                 }
             }
             return total;
+        } catch (AssessmentException e) {
+            throw e;
         } catch (Exception e) {
-            throw new IllegalArgumentException("퀴즈 채점에 실패했습니다.");
+            throw AssessmentException.gradingFailed(e);
         }
     }
 
@@ -604,7 +607,7 @@ public class AssessmentService {
         String s = (status == null || status.isBlank()) ? "ALL" : status.trim().toUpperCase();
         return switch (s) {
             case "ALL", "SUBMITTED", "IN_PROGRESS" -> s;
-            default -> throw new IllegalArgumentException("status는 ALL|SUBMITTED|IN_PROGRESS 만 허용합니다.");
+            default -> throw AssessmentException.invalidStatusFilter(status);
         };
     }
 
