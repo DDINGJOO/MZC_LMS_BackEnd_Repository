@@ -3,6 +3,7 @@ package com.mzc.backend.lms.domains.attendance.service;
 import com.mzc.backend.lms.domains.attendance.dto.*;
 import com.mzc.backend.lms.domains.attendance.entity.WeekAttendance;
 import com.mzc.backend.lms.domains.attendance.event.ContentCompletedEvent;
+import com.mzc.backend.lms.domains.attendance.exception.AttendanceException;
 import com.mzc.backend.lms.domains.attendance.repository.StudentContentProgressRepository;
 import com.mzc.backend.lms.domains.attendance.repository.WeekAttendanceRepository;
 import com.mzc.backend.lms.domains.course.course.entity.Course;
@@ -203,13 +204,10 @@ public class AttendanceService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 수강 여부 확인
-     */
     private void validateEnrollment(Long studentId, Long courseId) {
         boolean enrolled = enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId);
         if (!enrolled) {
-            throw new IllegalArgumentException("Student is not enrolled in this course");
+            throw AttendanceException.notEnrolledStudent(studentId, courseId);
         }
     }
 
@@ -313,7 +311,7 @@ public class AttendanceService {
                 .orElseThrow(() -> new IllegalArgumentException("Week not found: " + weekId));
 
         if (!week.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("Week does not belong to this course");
+            throw AttendanceException.weekNotInCourse(weekId, courseId);
         }
 
         // 수강생 목록 조회
@@ -345,15 +343,12 @@ public class AttendanceService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 교수 권한 확인
-     */
     private void validateProfessorCourse(Long professorId, Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
 
         if (!course.getProfessor().getProfessorId().equals(professorId)) {
-            throw new IllegalArgumentException("Professor is not authorized for this course");
+            throw AttendanceException.professorOnly();
         }
     }
 
