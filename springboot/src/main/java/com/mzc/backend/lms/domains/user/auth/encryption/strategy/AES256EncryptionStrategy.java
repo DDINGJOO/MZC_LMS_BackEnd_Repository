@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.user.auth.encryption.strategy;
 
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +45,7 @@ public class AES256EncryptionStrategy implements EncryptionStrategy {
 
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
-            throw new RuntimeException("AES256 암호화 실패", e);
+            throw AuthException.encryptionFailed(e);
         }
     }
 
@@ -68,7 +69,7 @@ public class AES256EncryptionStrategy implements EncryptionStrategy {
 
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new RuntimeException("AES256 복호화 실패", e);
+            throw AuthException.decryptionFailed(e);
         }
     }
 

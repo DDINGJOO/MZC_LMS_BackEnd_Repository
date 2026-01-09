@@ -1,13 +1,20 @@
 package com.mzc.backend.lms.domains.user.user.exceptions;
 
+import com.mzc.backend.lms.common.exceptions.DomainErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
  * User 도메인 에러 코드
+ * <p>
+ * 사용자, 학생, 교수, 암호화 관련 에러 코드를 정의합니다.
+ * </p>
+ *
+ * @see DomainErrorCode
  */
 @Getter
-public enum UserErrorCode {
+public enum UserErrorCode implements DomainErrorCode {
+
     // User 관련 에러 (USER_0XX)
     USER_NOT_FOUND("USER_001", "사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND),
     USER_ALREADY_EXISTS("USER_002", "이미 존재하는 사용자입니다", HttpStatus.CONFLICT),
@@ -32,21 +39,29 @@ public enum UserErrorCode {
 
     // 기타 에러 (USER_MISC_0XX)
     INVALID_USER_TYPE("USER_MISC_001", "유효하지 않은 사용자 타입입니다", HttpStatus.BAD_REQUEST),
-    USER_DATA_INCONSISTENT("USER_MISC_002", "사용자 데이터 불일치", HttpStatus.INTERNAL_SERVER_ERROR);
+    USER_DATA_INCONSISTENT("USER_MISC_002", "사용자 데이터 불일치", HttpStatus.INTERNAL_SERVER_ERROR),
+    ;
 
-    private final String errorCode;
+    private static final String DOMAIN = "USER";
+
+    private final String code;
     private final String message;
     private final HttpStatus status;
 
-    UserErrorCode(String errorCode, String message, HttpStatus status) {
-        this.errorCode = errorCode;
+    UserErrorCode(String code, String message, HttpStatus status) {
+        this.code = code;
         this.message = message;
         this.status = status;
     }
 
     @Override
+    public String getDomain() {
+        return DOMAIN;
+    }
+
+    @Override
     public String toString() {
-        return String.format("UserErrorCode{status=%s, errorCode='%s', message='%s'}",
-            status, errorCode, message);
+        return String.format("UserErrorCode{domain='%s', code='%s', message='%s', status=%s}",
+                DOMAIN, code, message, status);
     }
 }

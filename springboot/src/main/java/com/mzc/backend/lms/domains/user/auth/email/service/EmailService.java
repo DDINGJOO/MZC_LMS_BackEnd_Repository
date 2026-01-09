@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.user.auth.email.service;
 
 import com.mzc.backend.lms.domains.user.auth.email.dto.EmailMessage;
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class EmailService {
             log.info("인증 코드 이메일 발송 완료: {}", toEmail);
         } catch (Exception e) {
             log.error("이메일 발송 실패: {}", toEmail, e);
-            throw new RuntimeException("이메일 발송에 실패했습니다.", e);
+            throw AuthException.emailSendFailed(e);
         }
     }
 
