@@ -99,4 +99,12 @@ public class AuthException extends CommonException {
     public static AuthException decryptionFailed(Throwable cause) {
         return new AuthException(AuthErrorCode.DECRYPTION_FAILED, cause);
     }
+
+    public static AuthException unauthorized() {
+        return new AuthException(AuthErrorCode.UNAUTHORIZED);
+    }
+
+    public static AuthException accessDenied() {
+        return new AuthException(AuthErrorCode.ACCESS_DENIED);
+    }
 }

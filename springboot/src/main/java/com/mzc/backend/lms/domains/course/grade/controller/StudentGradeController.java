@@ -1,7 +1,9 @@
 package com.mzc.backend.lms.domains.course.grade.controller;
 
+import com.mzc.backend.lms.common.response.ApiResponse;
 import com.mzc.backend.lms.domains.course.grade.dto.StudentGradeResponseDto;
 import com.mzc.backend.lms.domains.course.grade.service.StudentGradeService;
+import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -30,36 +30,15 @@ public class StudentGradeController {
      * - academicTermId로 학기 필터 가능
      */
     @GetMapping
-    public ResponseEntity<?> listMyGrades(
+    public ResponseEntity<ApiResponse<List<StudentGradeResponseDto>>> listMyGrades(
             @AuthenticationPrincipal Long studentId,
             @RequestParam(required = false) Long academicTermId
     ) {
-        try {
-            if (studentId == null) {
-                return ResponseEntity.status(401).body(error("인증이 필요합니다."));
-            }
-
-            List<StudentGradeResponseDto> data = studentGradeService.listPublishedGrades(studentId, academicTermId);
-
-            Map<String, Object> res = new HashMap<>();
-            res.put("success", true);
-            res.put("data", data);
-            res.put("count", data.size());
-            return ResponseEntity.ok(res);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(error(e.getMessage()));
-        } catch (Exception e) {
-            log.error("학생 성적 조회 실패 studentId={}, academicTermId={}", studentId, academicTermId, e);
-            return ResponseEntity.internalServerError().body(error("학생 성적 조회에 실패했습니다."));
+        if (studentId == null) {
+            throw AuthException.unauthorized();
         }
-    }
 
-    private Map<String, Object> error(String message) {
-        Map<String, Object> res = new HashMap<>();
-        res.put("success", false);
-        res.put("message", message);
-        return res;
+        List<StudentGradeResponseDto> data = studentGradeService.listPublishedGrades(studentId, academicTermId);
+        return ResponseEntity.ok(ApiResponse.success(data));
     }
 }
-
-

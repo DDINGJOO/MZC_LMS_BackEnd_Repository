@@ -35,6 +35,10 @@ public enum AuthErrorCode implements DomainErrorCode {
     TOKEN_EXPIRED("AUTH_TOKEN_003", "만료된 토큰입니다", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_INVALID("AUTH_TOKEN_004", "유효하지 않은 리프레시 토큰입니다", HttpStatus.UNAUTHORIZED),
 
+    // 인증/인가 관련 (AUTH_0XX)
+    UNAUTHORIZED("AUTH_AUTH_001", "로그인이 필요합니다", HttpStatus.UNAUTHORIZED),
+    ACCESS_DENIED("AUTH_AUTH_002", "접근 권한이 없습니다", HttpStatus.FORBIDDEN),
+
     // 암호화 관련 (ENCRYPTION_0XX)
     ENCRYPTION_FAILED("AUTH_ENCRYPT_001", "암호화에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
     DECRYPTION_FAILED("AUTH_ENCRYPT_002", "복호화에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),

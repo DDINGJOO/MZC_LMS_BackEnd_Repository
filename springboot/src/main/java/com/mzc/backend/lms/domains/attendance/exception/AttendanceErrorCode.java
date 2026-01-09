@@ -15,6 +15,7 @@ public enum AttendanceErrorCode implements DomainErrorCode {
 
     // 출석 관련 (ATTENDANCE_0XX)
     ATTENDANCE_NOT_FOUND("ATTENDANCE_001", "출석 기록을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
+    WEEK_NOT_FOUND("ATTENDANCE_005", "주차를 찾을 수 없습니다", HttpStatus.NOT_FOUND),
     ALREADY_CHECKED("ATTENDANCE_002", "이미 출석 체크되었습니다", HttpStatus.CONFLICT),
     CHECK_TIME_EXPIRED("ATTENDANCE_003", "출석 체크 시간이 종료되었습니다", HttpStatus.BAD_REQUEST),
     NOT_CHECK_TIME("ATTENDANCE_004", "출석 체크 시간이 아닙니다", HttpStatus.BAD_REQUEST),

@@ -48,6 +48,11 @@ public class AttendanceException extends CommonException {
             String.format("출석 ID: %d", attendanceId));
     }
 
+    public static AttendanceException weekNotFound(Long weekId) {
+        return new AttendanceException(AttendanceErrorCode.WEEK_NOT_FOUND,
+            String.format("주차 ID: %d", weekId));
+    }
+
     public static AttendanceException alreadyChecked(Long userId, Long sessionId) {
         return new AttendanceException(AttendanceErrorCode.ALREADY_CHECKED,
             String.format("사용자 ID: %d, 세션 ID: %d", userId, sessionId));
