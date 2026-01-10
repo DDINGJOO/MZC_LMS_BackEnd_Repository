@@ -17,7 +17,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 import com.mzc.backend.lms.domains.user.student.entity.Student;
-import com.mzc.backend.lms.domains.course.course.entity.Course;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 
 
 /*

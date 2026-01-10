@@ -1,35 +1,36 @@
 package com.mzc.backend.lms.domains.enrollment.application.service;
 
-import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentCourseUseCase;
-
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
-import com.mzc.backend.lms.domains.course.constants.CourseConstants;
-import com.mzc.backend.lms.domains.course.course.entity.Course;
-import com.mzc.backend.lms.domains.course.course.entity.CourseSchedule;
-import com.mzc.backend.lms.domains.course.course.entity.CourseType;
-import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
-import com.mzc.backend.lms.domains.course.subject.entity.SubjectPrerequisites;
-import com.mzc.backend.lms.domains.course.subject.repository.SubjectPrerequisitesRepository;
-import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.*;
-import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.*;
-import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
-import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.CourseCartRepository;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
-import com.mzc.backend.lms.views.UserViewService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
+import com.mzc.backend.lms.domains.course.constants.CourseConstants;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
+import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
+import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.repository.SubjectPrerequisitesRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
+import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.*;
+import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.*;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.CourseCartRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentCourseUseCase;
+import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
+import com.mzc.backend.lms.views.UserViewService;
 
 /**
  * 수강신청 강의 조회 UseCase 구현체
