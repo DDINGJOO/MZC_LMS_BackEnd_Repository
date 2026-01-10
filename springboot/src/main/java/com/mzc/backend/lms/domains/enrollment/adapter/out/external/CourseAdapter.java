@@ -1,11 +1,11 @@
 package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.constants.CourseConstants;
-import com.mzc.backend.lms.domains.course.course.entity.Course;
-import com.mzc.backend.lms.domains.course.course.entity.CourseSchedule;
-import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
-import com.mzc.backend.lms.domains.course.subject.entity.SubjectPrerequisites;
-import com.mzc.backend.lms.domains.course.subject.repository.SubjectPrerequisitesRepository;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
+import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
+import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;

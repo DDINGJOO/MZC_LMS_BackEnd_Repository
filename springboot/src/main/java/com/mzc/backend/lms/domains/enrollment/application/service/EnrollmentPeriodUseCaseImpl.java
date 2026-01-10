@@ -1,21 +1,22 @@
 package com.mzc.backend.lms.domains.enrollment.application.service;
 
-import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentPeriodUseCase;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
 import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
 import com.mzc.backend.lms.domains.academy.repository.PeriodTypeRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.EnrollmentPeriodResponseDto;
+import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentPeriodUseCase;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
  * 수강신청 기간 조회 UseCase 구현체

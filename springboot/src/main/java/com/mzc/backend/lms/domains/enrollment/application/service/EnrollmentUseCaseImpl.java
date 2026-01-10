@@ -1,30 +1,30 @@
 package com.mzc.backend.lms.domains.enrollment.application.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import com.mzc.backend.lms.domains.course.constants.CourseConstants;
+import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
+import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
+import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.*;
+import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.*;
+import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentUseCase;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.*;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.CourseInfo;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.ScheduleInfo;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort.PeriodInfo;
-import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.*;
-import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.*;
-import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
 import com.mzc.backend.lms.domains.user.student.entity.Student;
 import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;
-import com.mzc.backend.lms.domains.course.course.repository.CourseRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 수강신청 UseCase 구현체
