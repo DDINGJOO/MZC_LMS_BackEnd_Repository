@@ -1,10 +1,10 @@
 package com.mzc.backend.lms.domains.message.conversation.dto;
 
 import com.mzc.backend.lms.domains.message.conversation.entity.Conversation;
-import com.mzc.backend.lms.domains.user.auth.encryption.annotation.Encrypted;
-import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
-import com.mzc.backend.lms.domains.user.profile.entity.UserProfileImage;
-import com.mzc.backend.lms.domains.user.user.entity.User;
+import com.mzc.backend.lms.domains.user.encryption.annotation.Encrypted;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfile;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfileImage;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 

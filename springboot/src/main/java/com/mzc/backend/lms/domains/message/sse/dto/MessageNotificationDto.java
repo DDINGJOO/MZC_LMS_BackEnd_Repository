@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.message.sse.dto;
 
-import com.mzc.backend.lms.domains.user.auth.encryption.annotation.Encrypted;
+import com.mzc.backend.lms.domains.user.encryption.annotation.Encrypted;
 import lombok.Builder;
 import lombok.Getter;
 
