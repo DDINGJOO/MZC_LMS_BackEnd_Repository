@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.course.notice.adapter.in.event;
 import com.mzc.backend.lms.domains.course.notice.domain.event.CourseNoticeCreatedEvent;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
-import com.mzc.backend.lms.domains.notification.aop.publisher.NotificationEventPublisher;
+import com.mzc.backend.lms.domains.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CourseNoticeNotificationListener {
 
-    private final NotificationEventPublisher notificationEventPublisher;
+    private final SendNotificationUseCase sendNotificationUseCase;
     private final EnrollmentRepository enrollmentRepository;
 
     /**
@@ -47,7 +47,7 @@ public class CourseNoticeNotificationListener {
             String message = String.format("[%s] %s", event.getCourseName(), event.getNoticeTitle());
             String actionUrl = String.format("/courses/%d/notices/%d", event.getCourseId(), event.getNoticeId());
 
-            notificationEventPublisher.publishBatchWithEntity(
+            sendNotificationUseCase.sendBatchWithEntity(
                     NotificationEventType.COURSE_NOTICE_CREATED,
                     event.getProfessorId(),
                     studentIds,

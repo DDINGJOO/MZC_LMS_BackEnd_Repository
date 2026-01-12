@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.enrollment.adapter.in.event;
 import com.mzc.backend.lms.domains.enrollment.domain.event.EnrollmentCancelledEvent;
 import com.mzc.backend.lms.domains.enrollment.domain.event.EnrollmentCreatedEvent;
 import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
-import com.mzc.backend.lms.domains.notification.aop.publisher.NotificationEventPublisher;
+import com.mzc.backend.lms.domains.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -20,7 +20,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class EnrollmentNotificationListener {
 
-    private final NotificationEventPublisher notificationEventPublisher;
+    private final SendNotificationUseCase sendNotificationUseCase;
 
     /**
      * 수강신청 완료 이벤트 처리
@@ -36,7 +36,7 @@ public class EnrollmentNotificationListener {
             String message = String.format("%s (%s분반) 수강신청이 완료되었습니다.",
                     event.getCourseName(), event.getSectionNumber());
 
-            notificationEventPublisher.publishForCourse(
+            sendNotificationUseCase.sendForCourse(
                     NotificationEventType.ENROLLMENT_CREATED,
                     null,  // 시스템 발송
                     event.getStudentId(),
@@ -67,7 +67,7 @@ public class EnrollmentNotificationListener {
             String message = String.format("%s (%s분반) 수강이 취소되었습니다.",
                     event.getCourseName(), event.getSectionNumber());
 
-            notificationEventPublisher.publishForCourse(
+            sendNotificationUseCase.sendForCourse(
                     NotificationEventType.ENROLLMENT_CANCELLED,
                     null,  // 시스템 발송
                     event.getStudentId(),
