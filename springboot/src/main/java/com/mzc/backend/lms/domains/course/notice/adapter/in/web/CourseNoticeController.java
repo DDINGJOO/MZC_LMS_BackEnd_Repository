@@ -8,7 +8,7 @@ import com.mzc.backend.lms.domains.course.notice.adapter.in.web.dto.response.Cou
 import com.mzc.backend.lms.domains.course.notice.adapter.in.web.dto.response.CourseNoticeDetailResponse;
 import com.mzc.backend.lms.domains.course.notice.adapter.in.web.dto.response.CourseNoticeResponse;
 import com.mzc.backend.lms.domains.course.notice.application.port.in.CourseNoticeUseCase;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

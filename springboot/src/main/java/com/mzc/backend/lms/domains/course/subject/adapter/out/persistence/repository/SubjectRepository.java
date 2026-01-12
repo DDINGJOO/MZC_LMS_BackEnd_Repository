@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import com.mzc.backend.lms.domains.user.organization.entity.Department;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Department;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
 
 @Repository

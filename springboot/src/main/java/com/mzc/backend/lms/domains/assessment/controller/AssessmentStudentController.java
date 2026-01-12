@@ -5,7 +5,7 @@ import com.mzc.backend.lms.domains.assessment.dto.request.AttemptSubmitRequestDt
 import com.mzc.backend.lms.domains.assessment.dto.response.*;
 import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
 import com.mzc.backend.lms.domains.assessment.service.AssessmentService;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

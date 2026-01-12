@@ -13,9 +13,9 @@ import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.reposit
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.WeekContentRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
-import com.mzc.backend.lms.domains.user.auth.encryption.service.EncryptionService;
-import com.mzc.backend.lms.domains.user.student.entity.Student;
-import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;
+import com.mzc.backend.lms.domains.user.encryption.service.EncryptionService;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

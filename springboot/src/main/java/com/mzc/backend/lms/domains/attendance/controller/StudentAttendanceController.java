@@ -6,7 +6,7 @@ import com.mzc.backend.lms.domains.attendance.dto.CourseAttendanceSummaryDto;
 import com.mzc.backend.lms.domains.attendance.dto.WeekAttendanceDto;
 import com.mzc.backend.lms.domains.attendance.exception.AttendanceException;
 import com.mzc.backend.lms.domains.attendance.service.AttendanceService;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

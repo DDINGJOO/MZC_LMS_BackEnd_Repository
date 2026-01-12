@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.common.config;
 
-import com.mzc.backend.lms.domains.user.auth.jwt.filter.JwtAuthenticationFilter;
+import com.mzc.backend.lms.domains.user.jwt.filter.JwtAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

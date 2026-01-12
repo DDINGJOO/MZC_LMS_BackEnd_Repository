@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.course.subject.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.subject.application.port.out.ProfessorDepartmentPort;
-import com.mzc.backend.lms.domains.user.professor.repository.ProfessorDepartmentRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.ProfessorDepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

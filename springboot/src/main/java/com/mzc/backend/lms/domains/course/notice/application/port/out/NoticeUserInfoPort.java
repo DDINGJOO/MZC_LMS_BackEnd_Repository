@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.course.notice.application.port.out;
 
-import com.mzc.backend.lms.domains.user.profile.dto.UserBasicInfoDto;
+import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
 
 import java.util.Map;
 import java.util.Set;

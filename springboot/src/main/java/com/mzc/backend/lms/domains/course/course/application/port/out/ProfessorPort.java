@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.course.course.application.port.out;
 
-import com.mzc.backend.lms.domains.user.organization.entity.Department;
-import com.mzc.backend.lms.domains.user.professor.entity.Professor;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Department;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 
 import java.util.Optional;
 

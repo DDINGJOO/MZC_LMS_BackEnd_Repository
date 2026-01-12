@@ -4,7 +4,7 @@ import com.mzc.backend.lms.common.response.ApiResponse;
 import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.academy.repository.AcademicTermRepository;
 import com.mzc.backend.lms.domains.course.course.adapter.in.web.dto.AcademicTermDto;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

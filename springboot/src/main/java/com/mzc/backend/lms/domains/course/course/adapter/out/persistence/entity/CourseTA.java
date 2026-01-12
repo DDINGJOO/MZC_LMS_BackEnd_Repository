@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.mzc.backend.lms.domains.user.student.entity.Student;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 
 @Entity
 @Table(name = "course_tas")

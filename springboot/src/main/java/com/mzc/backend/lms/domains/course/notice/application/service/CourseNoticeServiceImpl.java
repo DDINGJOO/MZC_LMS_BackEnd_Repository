@@ -13,7 +13,7 @@ import com.mzc.backend.lms.domains.course.notice.adapter.out.persistence.entity.
 import com.mzc.backend.lms.domains.course.notice.adapter.out.persistence.entity.CourseNoticeComment;
 import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.notice.domain.event.CourseNoticeCreatedEvent;
-import com.mzc.backend.lms.domains.user.profile.dto.UserBasicInfoDto;
+import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

@@ -7,7 +7,7 @@ import com.mzc.backend.lms.domains.notification.dto.NotificationCursorResponseDt
 import com.mzc.backend.lms.domains.notification.dto.NotificationResponseDto;
 import com.mzc.backend.lms.domains.notification.dto.UnreadCountResponseDto;
 import com.mzc.backend.lms.domains.notification.service.NotificationService;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

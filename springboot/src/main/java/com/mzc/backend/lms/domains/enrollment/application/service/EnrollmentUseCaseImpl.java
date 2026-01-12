@@ -23,8 +23,8 @@ import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.Co
 import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.ScheduleInfo;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort.PeriodInfo;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
-import com.mzc.backend.lms.domains.user.student.entity.Student;
-import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
 
 /**
  * 수강신청 UseCase 구현체

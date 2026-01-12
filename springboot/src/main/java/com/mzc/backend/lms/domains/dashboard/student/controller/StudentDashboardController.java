@@ -6,7 +6,7 @@ import com.mzc.backend.lms.domains.dashboard.student.dto.NoticeDto;
 import com.mzc.backend.lms.domains.dashboard.student.dto.PendingAssignmentDto;
 import com.mzc.backend.lms.domains.dashboard.student.dto.TodayCourseDto;
 import com.mzc.backend.lms.domains.dashboard.student.service.StudentDashboardService;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

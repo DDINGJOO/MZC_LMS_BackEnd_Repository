@@ -16,7 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
-import com.mzc.backend.lms.domains.user.student.entity.Student;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 
 import java.time.LocalDateTime;
 

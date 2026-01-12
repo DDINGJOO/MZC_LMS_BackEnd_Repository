@@ -2,7 +2,7 @@ package com.mzc.backend.lms.domains.course.course.adapter.out.persistence.reposi
 
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseTA;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
-import com.mzc.backend.lms.domains.user.student.entity.Student;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

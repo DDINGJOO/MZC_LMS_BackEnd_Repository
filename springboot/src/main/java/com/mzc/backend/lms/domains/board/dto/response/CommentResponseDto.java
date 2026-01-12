@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.board.dto.response;
 
 import com.mzc.backend.lms.domains.board.entity.Comment;
-import com.mzc.backend.lms.domains.user.profile.dto.UserBasicInfoDto;
+import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

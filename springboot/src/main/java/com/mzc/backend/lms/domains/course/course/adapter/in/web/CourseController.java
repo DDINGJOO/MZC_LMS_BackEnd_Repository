@@ -5,7 +5,7 @@ import com.mzc.backend.lms.domains.course.course.application.port.in.CourseQuery
 import com.mzc.backend.lms.domains.course.course.adapter.in.web.dto.CourseResponseDto;
 import com.mzc.backend.lms.domains.course.course.adapter.in.web.dto.CourseSearchRequestDto;
 import com.mzc.backend.lms.domains.course.course.adapter.in.web.dto.CourseDetailDto;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

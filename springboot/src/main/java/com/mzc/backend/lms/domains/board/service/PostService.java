@@ -17,10 +17,10 @@ import com.mzc.backend.lms.domains.board.repository.BoardCategoryRepository;
 import com.mzc.backend.lms.domains.board.repository.PostLikeRepository;
 import com.mzc.backend.lms.domains.board.repository.PostRepository;
 import com.mzc.backend.lms.domains.board.repository.UserTypeQueryRepository;
-import com.mzc.backend.lms.domains.user.profile.dto.UserBasicInfoDto;
-import com.mzc.backend.lms.domains.user.profile.service.UserInfoCacheService;
-import com.mzc.backend.lms.domains.user.user.entity.User;
-import com.mzc.backend.lms.domains.user.user.repository.UserRepository;
+import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
+import com.mzc.backend.lms.domains.user.application.port.in.GetUserInfoCacheUseCase;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserRepository;
 import com.mzc.backend.lms.util.file.FileUploadUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -49,13 +49,13 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
     private final UserTypeQueryRepository userTypeQueryRepository;
-    private final UserInfoCacheService userInfoCacheService;
+    private final GetUserInfoCacheUseCase getUserInfoCacheUseCase;
     private final FileUploadUtils fileStorageService;
     private final AttachmentRepository attachmentRepository;
     private final HashtagService hashtagService;
     private final EntityManager entityManager;
-    private final com.mzc.backend.lms.domains.user.student.repository.StudentDepartmentRepository studentDepartmentRepository;
-    private final com.mzc.backend.lms.domains.user.professor.repository.ProfessorDepartmentRepository professorDepartmentRepository;
+    private final com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentDepartmentRepository studentDepartmentRepository;
+    private final com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.ProfessorDepartmentRepository professorDepartmentRepository;
 
     /**
      * 게시글 생성 (boardType 기반, 2단계 업로드)
@@ -214,7 +214,7 @@ public class PostService {
         
         // 6. 사용자 정보 일괄 조회
         if (!creatorIds.isEmpty()) {
-            Map<Long, UserBasicInfoDto> userInfoMap = userInfoCacheService.getUserInfoMap(creatorIds);
+            Map<Long, UserBasicInfoDto> userInfoMap = getUserInfoCacheUseCase.getUserInfoMap(creatorIds);
             
             // 7. 각 게시글에 작성자 이름 설정
             result.getContent().forEach(dto -> {
@@ -511,7 +511,7 @@ public class PostService {
      */
     private String determineUserType(Long userId) {
         try {
-            Map<Long, UserBasicInfoDto> userInfoMap = userInfoCacheService.getUserInfoMap(Set.of(userId));
+            Map<Long, UserBasicInfoDto> userInfoMap = getUserInfoCacheUseCase.getUserInfoMap(Set.of(userId));
             UserBasicInfoDto userInfo = userInfoMap.get(userId);
             
             if (userInfo != null && userInfo.getUserType() != null) {
@@ -539,7 +539,7 @@ public class PostService {
         if (response.getCreatedBy() != null) {
             try {
                 log.info("사용자 정보 조회 시작: userId={}", response.getCreatedBy());
-                Map<Long, UserBasicInfoDto> userInfoMap = userInfoCacheService.getUserInfoMap(Set.of(response.getCreatedBy()));
+                Map<Long, UserBasicInfoDto> userInfoMap = getUserInfoCacheUseCase.getUserInfoMap(Set.of(response.getCreatedBy()));
                 UserBasicInfoDto userInfo = userInfoMap.get(response.getCreatedBy());
                 
                 log.info("조회된 사용자 정보: userId={}, userInfo={}", response.getCreatedBy(), userInfo);
