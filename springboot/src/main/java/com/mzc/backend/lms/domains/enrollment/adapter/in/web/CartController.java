@@ -7,7 +7,7 @@ import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.CartBul
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.CartBulkDeleteResponseDto;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.CartResponseDto;
 import com.mzc.backend.lms.domains.enrollment.application.port.in.CartUseCase;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

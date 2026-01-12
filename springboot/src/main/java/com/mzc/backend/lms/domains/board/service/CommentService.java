@@ -15,8 +15,8 @@ import com.mzc.backend.lms.domains.board.repository.CommentRepository;
 import com.mzc.backend.lms.domains.board.repository.PostRepository;
 import com.mzc.backend.lms.domains.notification.aop.annotation.NotifyEvent;
 import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
-import com.mzc.backend.lms.domains.user.profile.dto.UserBasicInfoDto;
-import com.mzc.backend.lms.domains.user.profile.service.UserInfoCacheService;
+import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
+import com.mzc.backend.lms.domains.user.application.port.in.GetUserInfoCacheUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final AttachmentRepository attachmentRepository;
-    private final UserInfoCacheService userInfoCacheService;
+    private final GetUserInfoCacheUseCase getUserInfoCacheUseCase;
 
     private static final int MAX_COMMENT_DEPTH = 1; // 대댓글까지만 허용 (depth 0, 1)
 
@@ -109,8 +109,8 @@ public class CommentService {
 
         log.info("댓글 생성 완료: commentId={}, depth={}", savedComment.getId(), savedComment.getDepth());
 
-        // 7. 작성자 정보 조회 (UserInfoCacheService 활용)
-        Map<Long, UserBasicInfoDto> userInfoMap = userInfoCacheService.getUserInfoMap(
+        // 7. 작성자 정보 조회 (GetUserInfoCacheUseCase 활용)
+        Map<Long, UserBasicInfoDto> userInfoMap = getUserInfoCacheUseCase.getUserInfoMap(
                 Set.of(request.getAuthorId())
         );
 

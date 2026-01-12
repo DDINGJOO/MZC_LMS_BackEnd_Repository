@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.views;
 
-import com.mzc.backend.lms.domains.user.user.exceptions.UserException;
+import com.mzc.backend.lms.domains.user.exception.UserException;
 import com.mzc.backend.lms.views.user.StudentView;
 
 import java.util.List;

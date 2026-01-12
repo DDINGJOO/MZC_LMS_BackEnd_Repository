@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.attendance.entity;
 
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.WeekContent;
-import com.mzc.backend.lms.domains.user.student.entity.Student;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import jakarta.persistence.*;
 import lombok.*;
 

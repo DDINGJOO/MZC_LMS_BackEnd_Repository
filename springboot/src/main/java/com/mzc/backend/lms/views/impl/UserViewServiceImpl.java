@@ -1,15 +1,15 @@
 package com.mzc.backend.lms.views.impl;
 
-import com.mzc.backend.lms.domains.user.auth.encryption.service.EncryptionService;
-import com.mzc.backend.lms.domains.user.professor.repository.ProfessorRepository;
-import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
-import com.mzc.backend.lms.domains.user.profile.entity.UserProfileImage;
-import com.mzc.backend.lms.domains.user.profile.repository.UserPrimaryContactRepository;
-import com.mzc.backend.lms.domains.user.profile.repository.UserProfileImageRepository;
-import com.mzc.backend.lms.domains.user.profile.repository.UserProfileRepository;
-import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;
-import com.mzc.backend.lms.domains.user.user.entity.User;
-import com.mzc.backend.lms.domains.user.user.repository.UserRepository;
+import com.mzc.backend.lms.domains.user.encryption.service.EncryptionService;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.ProfessorRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfile;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfileImage;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserPrimaryContactRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserProfileImageRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserProfileRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserRepository;
 import com.mzc.backend.lms.views.UserViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

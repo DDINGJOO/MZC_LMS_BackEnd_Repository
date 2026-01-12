@@ -8,8 +8,8 @@ import com.mzc.backend.lms.domains.dashboard.student.repository.DashboardQueryRe
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
-import com.mzc.backend.lms.domains.user.professor.entity.Professor;
-import com.mzc.backend.lms.domains.user.profile.entity.UserProfile;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

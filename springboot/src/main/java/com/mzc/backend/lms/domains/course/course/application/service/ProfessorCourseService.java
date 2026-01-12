@@ -18,8 +18,8 @@ import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseWeek;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.Subject;
 import com.mzc.backend.lms.domains.course.exception.CourseException;
-import com.mzc.backend.lms.domains.user.organization.entity.Department;
-import com.mzc.backend.lms.domains.user.professor.entity.Professor;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Department;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

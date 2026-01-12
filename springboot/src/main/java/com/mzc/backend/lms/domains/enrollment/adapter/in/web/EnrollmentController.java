@@ -12,7 +12,7 @@ import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.MyEnro
 import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentCourseUseCase;
 import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentPeriodUseCase;
 import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentUseCase;
-import com.mzc.backend.lms.domains.user.auth.exception.AuthException;
+import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

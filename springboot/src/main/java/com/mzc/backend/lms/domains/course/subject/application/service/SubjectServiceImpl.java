@@ -11,7 +11,7 @@ import com.mzc.backend.lms.domains.course.subject.adapter.in.web.dto.SubjectResp
 import com.mzc.backend.lms.domains.course.subject.adapter.in.web.dto.SubjectSearchResponse;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.Subject;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
-import com.mzc.backend.lms.domains.user.organization.entity.Department;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Department;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -2,8 +2,8 @@ package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
 
 import com.mzc.backend.lms.domains.enrollment.application.port.out.StudentPort;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
-import com.mzc.backend.lms.domains.user.student.entity.Student;
-import com.mzc.backend.lms.domains.user.student.repository.StudentRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
 import com.mzc.backend.lms.views.UserViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
