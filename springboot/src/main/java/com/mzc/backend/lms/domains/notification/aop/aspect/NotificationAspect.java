@@ -2,7 +2,7 @@ package com.mzc.backend.lms.domains.notification.aop.aspect;
 
 import com.mzc.backend.lms.domains.notification.aop.annotation.NotifyEvent;
 import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
-import com.mzc.backend.lms.domains.notification.aop.publisher.NotificationEventPublisher;
+import com.mzc.backend.lms.domains.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * 알림 이벤트 AOP Aspect
  * @NotifyEvent 어노테이션이 붙은 메소드 실행 후 자동으로 알림 발송
+ * (Hexagonal Architecture - 다른 도메인 서비스가 알림을 트리거하는 Adapter 역할)
  */
 @Slf4j
 @Aspect
@@ -34,7 +35,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationAspect {
 
-    private final NotificationEventPublisher eventPublisher;
+    private final SendNotificationUseCase sendNotificationUseCase;
 
     private final ExpressionParser expressionParser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
@@ -101,12 +102,12 @@ public class NotificationAspect {
         }
 
         if (StringUtils.hasText(relatedEntityType) && relatedEntityId != null) {
-            eventPublisher.publishWithEntity(eventType, senderId, recipientId,
+            sendNotificationUseCase.sendWithEntity(eventType, senderId, recipientId,
                     relatedEntityType, relatedEntityId, courseId, title, message, actionUrl);
         } else if (courseId != null) {
-            eventPublisher.publishForCourse(eventType, senderId, recipientId, courseId, title, message);
+            sendNotificationUseCase.sendForCourse(eventType, senderId, recipientId, courseId, title, message);
         } else {
-            eventPublisher.publish(eventType, senderId, recipientId, title, message);
+            sendNotificationUseCase.send(eventType, senderId, recipientId, title, message);
         }
 
         log.debug("단일 알림 발송 요청: type={}, recipientId={}", eventType, recipientId);
@@ -129,10 +130,10 @@ public class NotificationAspect {
         }
 
         if (StringUtils.hasText(relatedEntityType) && relatedEntityId != null) {
-            eventPublisher.publishBatchWithEntity(eventType, senderId, recipientIds,
+            sendNotificationUseCase.sendBatchWithEntity(eventType, senderId, recipientIds,
                     relatedEntityType, relatedEntityId, courseId, title, message, actionUrl);
         } else {
-            eventPublisher.publishBatch(eventType, senderId, recipientIds, courseId, title, message);
+            sendNotificationUseCase.sendBatch(eventType, senderId, recipientIds, courseId, title, message);
         }
 
         log.debug("배치 알림 발송 요청: type={}, recipientCount={}", eventType, recipientIds.size());
