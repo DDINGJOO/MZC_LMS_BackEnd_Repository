@@ -5,8 +5,8 @@ import com.mzc.backend.lms.domains.message.conversation.dto.ConversationResponse
 import com.mzc.backend.lms.domains.message.conversation.entity.Conversation;
 import com.mzc.backend.lms.domains.message.conversation.repository.ConversationRepository;
 import com.mzc.backend.lms.domains.message.exception.MessageException;
-import com.mzc.backend.lms.domains.user.user.entity.User;
-import com.mzc.backend.lms.domains.user.user.repository.UserRepository;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

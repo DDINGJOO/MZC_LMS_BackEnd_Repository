@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.message.message.entity;
 
 import com.mzc.backend.lms.domains.message.conversation.entity.Conversation;
-import com.mzc.backend.lms.domains.user.user.entity.User;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
