@@ -1,9 +1,9 @@
 package com.mzc.backend.lms.domains.course.grade.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.grade.application.port.out.AssignmentPort;
-import com.mzc.backend.lms.domains.board.assignment.entity.Assignment;
-import com.mzc.backend.lms.domains.board.assignment.repository.AssignmentRepository;
-import com.mzc.backend.lms.domains.board.assignment.repository.AssignmentSubmissionRepository;
+import com.mzc.backend.lms.domains.board.assignment.adapter.out.persistence.entity.Assignment;
+import com.mzc.backend.lms.domains.board.assignment.adapter.out.persistence.repository.AssignmentRepositoryJpa;
+import com.mzc.backend.lms.domains.board.assignment.adapter.out.persistence.repository.AssignmentSubmissionRepositoryJpa;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +19,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AssignmentAdapter implements AssignmentPort {
 
-    private final AssignmentRepository assignmentRepository;
-    private final AssignmentSubmissionRepository assignmentSubmissionRepository;
+    private final AssignmentRepositoryJpa assignmentRepository;
+    private final AssignmentSubmissionRepositoryJpa assignmentSubmissionRepository;
 
     @Override
     public List<Assignment> findByCourseId(Long courseId) {

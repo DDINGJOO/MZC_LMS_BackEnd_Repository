@@ -1,12 +1,12 @@
 package com.mzc.backend.lms.util.file;
 
 import com.github.f4b6a3.ulid.UlidCreator;
-import com.mzc.backend.lms.domains.board.entity.Attachment;
-import com.mzc.backend.lms.domains.board.entity.Post;
-import com.mzc.backend.lms.domains.board.enums.AttachmentType;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Attachment;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Post;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.AttachmentType;
 import com.mzc.backend.lms.domains.board.exception.BoardErrorCode;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
-import com.mzc.backend.lms.domains.board.repository.AttachmentRepository;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.AttachmentRepositoryJpa;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,14 +28,14 @@ import java.util.List;
 public class FileUploadUtils {
 
     private final Path uploadPath;
-    private final AttachmentRepository attachmentRepository;
+    private final AttachmentRepositoryJpa attachmentRepository;
     
     @Value("${file.upload.max-size:10485760}")
     private long maxFileSize; // 10MB
 
     public FileUploadUtils(
             @Value("${file.upload.dir:uploads}") String uploadDir,
-            AttachmentRepository attachmentRepository) {
+            AttachmentRepositoryJpa attachmentRepository) {
         this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         this.attachmentRepository = attachmentRepository;
         

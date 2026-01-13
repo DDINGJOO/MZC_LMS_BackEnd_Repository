@@ -15,12 +15,12 @@ import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enu
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentAttemptJpaRepository;
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentJpaRepository;
 import com.mzc.backend.lms.domains.assessment.application.util.QuestionDataMasker;
-import com.mzc.backend.lms.domains.board.entity.BoardCategory;
-import com.mzc.backend.lms.domains.board.entity.Post;
-import com.mzc.backend.lms.domains.board.enums.BoardType;
-import com.mzc.backend.lms.domains.board.enums.PostType;
-import com.mzc.backend.lms.domains.board.repository.BoardCategoryRepository;
-import com.mzc.backend.lms.domains.board.repository.PostRepository;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.BoardCategory;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Post;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.BoardType;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.PostType;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.BoardCategoryRepositoryJpa;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.PostRepositoryJpa;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
@@ -53,8 +53,8 @@ public class AssessmentService {
     private final AssessmentJpaRepository assessmentRepository;
     private final AssessmentAttemptJpaRepository attemptRepository;
 
-    private final PostRepository postRepository;
-    private final BoardCategoryRepository boardCategoryRepository;
+    private final PostRepositoryJpa postRepository;
+    private final BoardCategoryRepositoryJpa boardCategoryRepository;
 
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;

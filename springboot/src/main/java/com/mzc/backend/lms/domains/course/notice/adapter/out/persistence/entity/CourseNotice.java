@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.course.notice.adapter.out.persistence.entity;
 
-import com.mzc.backend.lms.domains.board.entity.AuditableEntity;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.AuditableEntity;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
