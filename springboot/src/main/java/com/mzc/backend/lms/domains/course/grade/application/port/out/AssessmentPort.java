@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.course.grade.application.port.out;
 
-import com.mzc.backend.lms.domains.assessment.entity.Assessment;
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Assessment;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
 
 import java.math.BigDecimal;
 import java.util.List;

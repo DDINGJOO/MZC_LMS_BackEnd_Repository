@@ -1,6 +1,6 @@
-package com.mzc.backend.lms.domains.assessment.entity;
+package com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity;
 
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
 import com.mzc.backend.lms.domains.board.entity.Post;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

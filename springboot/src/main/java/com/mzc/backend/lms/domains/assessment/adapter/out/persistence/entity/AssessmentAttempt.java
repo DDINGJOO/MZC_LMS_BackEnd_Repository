@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.assessment.entity;
+package com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

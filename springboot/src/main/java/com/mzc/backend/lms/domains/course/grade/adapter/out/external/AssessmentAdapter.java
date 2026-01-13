@@ -1,10 +1,10 @@
 package com.mzc.backend.lms.domains.course.grade.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.grade.application.port.out.AssessmentPort;
-import com.mzc.backend.lms.domains.assessment.entity.Assessment;
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
-import com.mzc.backend.lms.domains.assessment.repository.AssessmentRepository;
-import com.mzc.backend.lms.domains.assessment.repository.AssessmentAttemptRepository;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Assessment;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentJpaRepository;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentAttemptJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssessmentAdapter implements AssessmentPort {
 
-    private final AssessmentRepository assessmentRepository;
-    private final AssessmentAttemptRepository assessmentAttemptRepository;
+    private final AssessmentJpaRepository assessmentRepository;
+    private final AssessmentAttemptJpaRepository assessmentAttemptRepository;
 
     @Override
     public List<Assessment> findActiveByCourse(Long courseId, AssessmentType type) {

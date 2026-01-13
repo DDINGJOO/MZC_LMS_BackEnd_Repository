@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.assessment.enums;
+package com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums;
 
 /**
  * 시험/퀴즈 유형 (exams.exam_type)

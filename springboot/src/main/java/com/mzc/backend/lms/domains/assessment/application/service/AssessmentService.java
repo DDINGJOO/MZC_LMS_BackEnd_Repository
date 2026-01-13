@@ -1,20 +1,20 @@
-package com.mzc.backend.lms.domains.assessment.service;
+package com.mzc.backend.lms.domains.assessment.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mzc.backend.lms.domains.assessment.dto.request.AssessmentCreateRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AssessmentCreateRequestDto;
 import com.mzc.backend.lms.domains.assessment.exception.AssessmentException;
-import com.mzc.backend.lms.domains.assessment.dto.request.AssessmentUpdateRequestDto;
-import com.mzc.backend.lms.domains.assessment.dto.request.AttemptGradeRequestDto;
-import com.mzc.backend.lms.domains.assessment.dto.request.AttemptSubmitRequestDto;
-import com.mzc.backend.lms.domains.assessment.dto.response.*;
-import com.mzc.backend.lms.domains.assessment.entity.Assessment;
-import com.mzc.backend.lms.domains.assessment.entity.AssessmentAttempt;
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
-import com.mzc.backend.lms.domains.assessment.repository.AssessmentAttemptRepository;
-import com.mzc.backend.lms.domains.assessment.repository.AssessmentRepository;
-import com.mzc.backend.lms.domains.assessment.util.QuestionDataMasker;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AssessmentUpdateRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AttemptGradeRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AttemptSubmitRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.*;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Assessment;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.AssessmentAttempt;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentAttemptJpaRepository;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentJpaRepository;
+import com.mzc.backend.lms.domains.assessment.application.util.QuestionDataMasker;
 import com.mzc.backend.lms.domains.board.entity.BoardCategory;
 import com.mzc.backend.lms.domains.board.entity.Post;
 import com.mzc.backend.lms.domains.board.enums.BoardType;
@@ -50,8 +50,8 @@ public class AssessmentService {
     private static final Duration LATE_GRACE_PERIOD = Duration.ofMinutes(10);
     private static final BigDecimal LATE_PENALTY_RATE = new BigDecimal("0.10");
 
-    private final AssessmentRepository assessmentRepository;
-    private final AssessmentAttemptRepository attemptRepository;
+    private final AssessmentJpaRepository assessmentRepository;
+    private final AssessmentAttemptJpaRepository attemptRepository;
 
     private final PostRepository postRepository;
     private final BoardCategoryRepository boardCategoryRepository;

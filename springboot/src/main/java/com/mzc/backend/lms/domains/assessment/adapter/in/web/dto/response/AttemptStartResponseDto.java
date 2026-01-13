@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.assessment.dto.response;
+package com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

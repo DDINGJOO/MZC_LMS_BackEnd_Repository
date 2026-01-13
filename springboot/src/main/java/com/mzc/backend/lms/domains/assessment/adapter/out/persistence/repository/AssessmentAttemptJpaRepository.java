@@ -1,6 +1,6 @@
-package com.mzc.backend.lms.domains.assessment.repository;
+package com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository;
 
-import com.mzc.backend.lms.domains.assessment.entity.AssessmentAttempt;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.AssessmentAttempt;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AssessmentAttemptRepository extends JpaRepository<AssessmentAttempt, Long> {
+public interface AssessmentAttemptJpaRepository extends JpaRepository<AssessmentAttempt, Long> {
 
     @Query("""
         SELECT at FROM AssessmentAttempt at

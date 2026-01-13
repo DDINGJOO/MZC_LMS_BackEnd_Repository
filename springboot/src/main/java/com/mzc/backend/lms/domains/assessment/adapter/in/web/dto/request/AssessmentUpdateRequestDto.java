@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.assessment.dto.request;
+package com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
