@@ -1,7 +1,7 @@
-package com.mzc.backend.lms.domains.attendance.event;
+package com.mzc.backend.lms.domains.attendance.application.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mzc.backend.lms.domains.attendance.service.AttendanceService;
+import com.mzc.backend.lms.domains.attendance.application.service.AttendanceService;
 import com.mzc.backend.lms.util.lock.service.DistributedLockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

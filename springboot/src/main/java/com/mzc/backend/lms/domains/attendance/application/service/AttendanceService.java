@@ -1,11 +1,11 @@
-package com.mzc.backend.lms.domains.attendance.service;
+package com.mzc.backend.lms.domains.attendance.application.service;
 
-import com.mzc.backend.lms.domains.attendance.dto.*;
-import com.mzc.backend.lms.domains.attendance.entity.WeekAttendance;
-import com.mzc.backend.lms.domains.attendance.event.ContentCompletedEvent;
+import com.mzc.backend.lms.domains.attendance.adapter.in.web.dto.*;
+import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity.WeekAttendance;
+import com.mzc.backend.lms.domains.attendance.application.event.ContentCompletedEvent;
 import com.mzc.backend.lms.domains.attendance.exception.AttendanceException;
-import com.mzc.backend.lms.domains.attendance.repository.StudentContentProgressRepository;
-import com.mzc.backend.lms.domains.attendance.repository.WeekAttendanceRepository;
+import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.StudentContentProgressJpaRepository;
+import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.WeekAttendanceJpaRepository;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseWeek;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.WeekContent;
@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AttendanceService {
 
-    private final WeekAttendanceRepository weekAttendanceRepository;
-    private final StudentContentProgressRepository progressRepository;
+    private final WeekAttendanceJpaRepository weekAttendanceRepository;
+    private final StudentContentProgressJpaRepository progressRepository;
     private final WeekContentRepository weekContentRepository;
     private final CourseWeekRepository courseWeekRepository;
     private final CourseRepository courseRepository;
