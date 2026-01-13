@@ -1,11 +1,11 @@
-package com.mzc.backend.lms.domains.dashboard.student.controller;
+package com.mzc.backend.lms.domains.dashboard.student.adapter.in.web;
 
 import com.mzc.backend.lms.common.response.ApiResponse;
-import com.mzc.backend.lms.domains.dashboard.student.dto.EnrollmentSummaryDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.NoticeDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.PendingAssignmentDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.TodayCourseDto;
-import com.mzc.backend.lms.domains.dashboard.student.service.StudentDashboardService;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.EnrollmentSummaryDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.NoticeDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.PendingAssignmentDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.TodayCourseDto;
+import com.mzc.backend.lms.domains.dashboard.student.application.service.StudentDashboardService;
 import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

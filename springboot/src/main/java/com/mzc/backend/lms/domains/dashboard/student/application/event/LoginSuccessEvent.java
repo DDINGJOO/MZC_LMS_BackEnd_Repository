@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.dashboard.student.event;
+package com.mzc.backend.lms.domains.dashboard.student.application.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

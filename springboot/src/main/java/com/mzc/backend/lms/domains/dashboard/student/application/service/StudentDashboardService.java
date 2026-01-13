@@ -1,10 +1,10 @@
-package com.mzc.backend.lms.domains.dashboard.student.service;
+package com.mzc.backend.lms.domains.dashboard.student.application.service;
 
-import com.mzc.backend.lms.domains.dashboard.student.dto.EnrollmentSummaryDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.NoticeDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.PendingAssignmentDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.TodayCourseDto;
-import com.mzc.backend.lms.domains.dashboard.student.repository.DashboardQueryRepository;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.EnrollmentSummaryDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.NoticeDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.PendingAssignmentDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.TodayCourseDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.out.persistence.repository.DashboardQueryRepositoryJpa;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
@@ -32,7 +32,7 @@ public class StudentDashboardService {
     private static final int DEFAULT_PENDING_DAYS = 7;
     private static final int DEFAULT_NOTICE_LIMIT = 5;
 
-    private final DashboardQueryRepository dashboardQueryRepository;
+    private final DashboardQueryRepositoryJpa dashboardQueryRepository;
 
     /**
      * 미제출 과제 목록 조회 (기본 7일 이내)

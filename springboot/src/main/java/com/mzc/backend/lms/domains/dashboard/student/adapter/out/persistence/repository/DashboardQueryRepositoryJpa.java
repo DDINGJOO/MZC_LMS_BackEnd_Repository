@@ -1,9 +1,9 @@
-package com.mzc.backend.lms.domains.dashboard.student.repository;
+package com.mzc.backend.lms.domains.dashboard.student.adapter.out.persistence.repository;
 
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.BoardType;
-import com.mzc.backend.lms.domains.dashboard.student.dto.EnrollmentSummaryDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.NoticeDto;
-import com.mzc.backend.lms.domains.dashboard.student.dto.PendingAssignmentDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.EnrollmentSummaryDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.NoticeDto;
+import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.PendingAssignmentDto;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -21,7 +21,7 @@ import java.util.List;
  */
 @Repository
 @RequiredArgsConstructor
-public class DashboardQueryRepository {
+public class DashboardQueryRepositoryJpa {
 
     private final EntityManager em;
 

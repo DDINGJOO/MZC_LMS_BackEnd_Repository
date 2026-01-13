@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.dashboard.student.service;
+package com.mzc.backend.lms.domains.dashboard.student.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
