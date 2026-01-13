@@ -1,10 +1,10 @@
-package com.mzc.backend.lms.domains.assessment.controller;
+package com.mzc.backend.lms.domains.assessment.adapter.in.web;
 
 import com.mzc.backend.lms.common.response.ApiResponse;
-import com.mzc.backend.lms.domains.assessment.dto.request.AttemptSubmitRequestDto;
-import com.mzc.backend.lms.domains.assessment.dto.response.*;
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
-import com.mzc.backend.lms.domains.assessment.service.AssessmentService;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AttemptSubmitRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.*;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.application.service.AssessmentService;
 import com.mzc.backend.lms.domains.user.exception.AuthException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

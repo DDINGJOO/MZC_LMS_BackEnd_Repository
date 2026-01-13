@@ -1,16 +1,16 @@
-package com.mzc.backend.lms.domains.assessment.controller;
+package com.mzc.backend.lms.domains.assessment.adapter.in.web;
 
 import com.mzc.backend.lms.common.response.ApiResponse;
-import com.mzc.backend.lms.domains.assessment.dto.request.AssessmentCreateRequestDto;
-import com.mzc.backend.lms.domains.assessment.dto.request.AssessmentUpdateRequestDto;
-import com.mzc.backend.lms.domains.assessment.dto.request.AttemptGradeRequestDto;
-import com.mzc.backend.lms.domains.assessment.dto.response.AssessmentDetailResponseDto;
-import com.mzc.backend.lms.domains.assessment.dto.response.AssessmentListItemResponseDto;
-import com.mzc.backend.lms.domains.assessment.dto.response.AttemptGradeResponseDto;
-import com.mzc.backend.lms.domains.assessment.dto.response.ProfessorAttemptDetailResponseDto;
-import com.mzc.backend.lms.domains.assessment.dto.response.ProfessorAttemptListItemResponseDto;
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
-import com.mzc.backend.lms.domains.assessment.service.AssessmentService;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AssessmentCreateRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AssessmentUpdateRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request.AttemptGradeRequestDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.AssessmentDetailResponseDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.AssessmentListItemResponseDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.AttemptGradeResponseDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.ProfessorAttemptDetailResponseDto;
+import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.ProfessorAttemptListItemResponseDto;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.application.service.AssessmentService;
 import com.mzc.backend.lms.domains.board.enums.BoardType;
 import com.mzc.backend.lms.domains.user.exception.AuthException;
 import jakarta.validation.Valid;

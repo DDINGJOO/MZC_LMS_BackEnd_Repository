@@ -1,7 +1,7 @@
-package com.mzc.backend.lms.domains.assessment.dto.request;
+package com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.request;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

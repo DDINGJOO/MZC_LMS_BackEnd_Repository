@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.assessment.util;
+package com.mzc.backend.lms.domains.assessment.application.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

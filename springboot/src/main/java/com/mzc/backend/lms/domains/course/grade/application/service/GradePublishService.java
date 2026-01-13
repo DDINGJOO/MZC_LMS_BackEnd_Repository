@@ -1,8 +1,8 @@
 package com.mzc.backend.lms.domains.course.grade.application.service;
 
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.assessment.entity.Assessment;
-import com.mzc.backend.lms.domains.assessment.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Assessment;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
 import com.mzc.backend.lms.domains.board.assignment.entity.Assignment;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseGradingPolicy;
