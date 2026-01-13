@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.course.grade.application.port.out;
 
-import com.mzc.backend.lms.domains.board.assignment.entity.Assignment;
+import com.mzc.backend.lms.domains.board.assignment.adapter.out.persistence.entity.Assignment;
 
 import java.math.BigDecimal;
 import java.util.List;

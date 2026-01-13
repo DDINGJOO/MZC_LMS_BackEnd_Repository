@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.dashboard.student.repository;
 
-import com.mzc.backend.lms.domains.board.enums.BoardType;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.BoardType;
 import com.mzc.backend.lms.domains.dashboard.student.dto.EnrollmentSummaryDto;
 import com.mzc.backend.lms.domains.dashboard.student.dto.NoticeDto;
 import com.mzc.backend.lms.domains.dashboard.student.dto.PendingAssignmentDto;

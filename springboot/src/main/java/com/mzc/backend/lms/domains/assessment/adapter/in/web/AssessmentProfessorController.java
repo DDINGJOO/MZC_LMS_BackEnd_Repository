@@ -11,7 +11,7 @@ import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.Profes
 import com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response.ProfessorAttemptListItemResponseDto;
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
 import com.mzc.backend.lms.domains.assessment.application.service.AssessmentService;
-import com.mzc.backend.lms.domains.board.enums.BoardType;
+import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.BoardType;
 import com.mzc.backend.lms.domains.user.exception.AuthException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
