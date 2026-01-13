@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.course.grade.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.grade.application.port.out.AttendancePort;
-import com.mzc.backend.lms.domains.attendance.repository.WeekAttendanceRepository;
+import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.WeekAttendanceJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AttendanceAdapter implements AttendancePort {
 
-    private final WeekAttendanceRepository weekAttendanceRepository;
+    private final WeekAttendanceJpaRepository weekAttendanceRepository;
 
     @Override
     public int countCompletedByStudentAndCourse(Long studentId, Long courseId) {

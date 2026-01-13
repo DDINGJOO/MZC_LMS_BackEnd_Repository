@@ -1,6 +1,6 @@
-package com.mzc.backend.lms.domains.attendance.repository;
+package com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository;
 
-import com.mzc.backend.lms.domains.attendance.entity.StudentContentProgress;
+import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity.StudentContentProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +13,7 @@ import java.util.Optional;
  * 학생 콘텐츠 진행 상황 Repository
  */
 @Repository
-public interface StudentContentProgressRepository extends JpaRepository<StudentContentProgress, Long> {
+public interface StudentContentProgressJpaRepository extends JpaRepository<StudentContentProgress, Long> {
 
     /**
      * 학생 ID와 콘텐츠 ID로 진행 상황 조회

@@ -1,10 +1,10 @@
-package com.mzc.backend.lms.domains.attendance.controller;
+package com.mzc.backend.lms.domains.attendance.adapter.in.web;
 
 import com.mzc.backend.lms.common.response.ApiResponse;
-import com.mzc.backend.lms.domains.attendance.dto.CourseAttendanceOverviewDto;
-import com.mzc.backend.lms.domains.attendance.dto.StudentAttendanceDto;
-import com.mzc.backend.lms.domains.attendance.dto.WeekStudentAttendanceDto;
-import com.mzc.backend.lms.domains.attendance.service.AttendanceService;
+import com.mzc.backend.lms.domains.attendance.adapter.in.web.dto.CourseAttendanceOverviewDto;
+import com.mzc.backend.lms.domains.attendance.adapter.in.web.dto.StudentAttendanceDto;
+import com.mzc.backend.lms.domains.attendance.adapter.in.web.dto.WeekStudentAttendanceDto;
+import com.mzc.backend.lms.domains.attendance.application.service.AttendanceService;
 import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

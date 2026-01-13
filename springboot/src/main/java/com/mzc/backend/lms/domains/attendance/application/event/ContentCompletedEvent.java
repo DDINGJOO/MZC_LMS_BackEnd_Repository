@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.attendance.event;
+package com.mzc.backend.lms.domains.attendance.application.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

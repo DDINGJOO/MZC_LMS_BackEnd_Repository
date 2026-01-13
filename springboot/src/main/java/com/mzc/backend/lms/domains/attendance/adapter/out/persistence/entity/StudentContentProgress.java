@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.attendance.entity;
+package com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity;
 
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.WeekContent;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;

@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.attendance.dto;
+package com.mzc.backend.lms.domains.attendance.adapter.in.web.dto;
 
 import lombok.*;
 
