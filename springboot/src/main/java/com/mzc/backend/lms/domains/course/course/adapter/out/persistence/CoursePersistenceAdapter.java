@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.course.course.adapter.out.persistence;
 import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

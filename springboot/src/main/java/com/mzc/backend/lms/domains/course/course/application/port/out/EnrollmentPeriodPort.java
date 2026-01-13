@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.course.course.application.port.out;
 
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

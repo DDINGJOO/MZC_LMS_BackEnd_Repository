@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
 
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class EnrollmentPeriodAdapter implements EnrollmentPeriodPort {
 
-    private final EnrollmentPeriodRepository periodRepository;
+    private final EnrollmentPeriodJpaRepository periodRepository;
 
     @Override
     public boolean isEnrollmentPeriodActive() {

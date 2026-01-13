@@ -1,8 +1,8 @@
 package com.mzc.backend.lms.domains.course.grade.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.grade.application.port.out.GradeEnrollmentPeriodPort;
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GradeEnrollmentPeriodAdapter implements GradeEnrollmentPeriodPort {
 
-    private final EnrollmentPeriodRepository enrollmentPeriodRepository;
+    private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
 
     @Override
     public Optional<EnrollmentPeriod> findFirstActivePeriodByTypeCode(String typeCode, LocalDateTime now) {
