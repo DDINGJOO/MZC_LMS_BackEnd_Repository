@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.dashboard.student.dto;
+package com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto;
 
 import com.mzc.backend.lms.domains.user.encryption.annotation.Encrypted;
 import lombok.Builder;
