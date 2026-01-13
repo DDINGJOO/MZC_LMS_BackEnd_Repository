@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
 import com.mzc.backend.lms.domains.course.constants.CourseConstants;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
@@ -44,7 +44,7 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseCartRepository courseCartRepository;
-    private final EnrollmentPeriodRepository enrollmentPeriodRepository;
+    private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
     private final SubjectPrerequisitesRepository subjectPrerequisitesRepository;
     private final UserViewService userViewService;
 

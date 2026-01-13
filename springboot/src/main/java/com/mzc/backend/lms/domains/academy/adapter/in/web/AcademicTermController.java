@@ -1,9 +1,8 @@
-package com.mzc.backend.lms.domains.academy.controller;
+package com.mzc.backend.lms.domains.academy.adapter.in.web;
 
 import com.mzc.backend.lms.common.response.ApiResponse;
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
-import com.mzc.backend.lms.domains.academy.repository.AcademicTermRepository;
-import com.mzc.backend.lms.domains.course.course.adapter.in.web.dto.AcademicTermDto;
+import com.mzc.backend.lms.domains.academy.adapter.in.web.dto.AcademicTermResponseDto;
+import com.mzc.backend.lms.domains.academy.application.port.in.AcademicTermQueryUseCase;
 import com.mzc.backend.lms.domains.user.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,29 +23,18 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/v1/academic-terms")
 @RequiredArgsConstructor
-public class AcademicTermCurrentController {
+public class AcademicTermController {
 
-    private final AcademicTermRepository academicTermRepository;
+    private final AcademicTermQueryUseCase academicTermQueryUseCase;
 
     @GetMapping("/current")
-    public ResponseEntity<ApiResponse<AcademicTermDto>> getCurrentAcademicTerm(
+    public ResponseEntity<ApiResponse<AcademicTermResponseDto>> getCurrentAcademicTerm(
             @AuthenticationPrincipal Long userId) {
         if (userId == null) {
             throw AuthException.unauthorized();
         }
 
-        AcademicTerm t = academicTermRepository.findCurrentTerms(LocalDate.now()).stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("현재 날짜에 해당하는 학기가 없습니다."));
-
-        AcademicTermDto data = AcademicTermDto.builder()
-                .id(t.getId())
-                .year(t.getYear())
-                .termType(t.getTermType())
-                .startDate(t.getStartDate())
-                .endDate(t.getEndDate())
-                .build();
-
+        AcademicTermResponseDto data = academicTermQueryUseCase.getCurrentAcademicTerm(LocalDate.now());
         return ResponseEntity.ok(ApiResponse.success(data));
     }
 }

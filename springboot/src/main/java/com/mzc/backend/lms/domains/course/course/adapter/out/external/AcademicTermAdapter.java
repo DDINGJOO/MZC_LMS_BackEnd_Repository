@@ -1,8 +1,8 @@
 package com.mzc.backend.lms.domains.course.course.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.course.application.port.out.AcademicTermPort;
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
-import com.mzc.backend.lms.domains.academy.repository.AcademicTermRepository;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.AcademicTermJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AcademicTermAdapter implements AcademicTermPort {
 
-    private final AcademicTermRepository academicTermRepository;
+    private final AcademicTermJpaRepository academicTermRepository;
 
     @Override
     public Optional<AcademicTerm> findById(Long id) {

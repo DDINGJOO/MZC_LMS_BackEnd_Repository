@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.academy.entity;
+package com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -14,30 +14,31 @@ import jakarta.persistence.Column;
 
 import java.time.LocalDate;
 
-/*
-    AcademicTerm 엔티티
-    academic_terms 테이블과 매핑
-*/
-
+/**
+ * AcademicTerm 엔티티
+ * academic_terms 테이블과 매핑
+ */
 @Entity
 @Table(name = "academic_terms")
 @Getter
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class AcademicTerm {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 학기 식별자
-    
+    private Long id;
+
     @Column(name = "year", nullable = false)
-    private Integer year; // 학년도
+    private Integer year;
 
     @Column(name = "term_type", nullable = false)
-    private String termType; // 학기 구분 (1:봄학기/2:가을학기/SUMMER:여름학기/WINTER:겨울학기)
+    private String termType;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate; // 학기 시작일
+    private LocalDate startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDate endDate; // 학기 종료일
+    private LocalDate endDate;
 }

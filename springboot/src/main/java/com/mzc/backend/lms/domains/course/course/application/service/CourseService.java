@@ -14,8 +14,8 @@ import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseWeek;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.Subject;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
 import com.mzc.backend.lms.domains.course.exception.CourseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

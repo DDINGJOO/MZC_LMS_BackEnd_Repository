@@ -17,7 +17,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.Subject;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 

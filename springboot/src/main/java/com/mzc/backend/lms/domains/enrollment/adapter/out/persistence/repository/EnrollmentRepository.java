@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository;
 
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.repository.EnrollmentPeriodRepository;
-import com.mzc.backend.lms.domains.academy.repository.PeriodTypeRepository;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.PeriodTypeJpaRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.EnrollmentPeriodResponseDto;
 import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentPeriodUseCase;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
@@ -27,8 +27,8 @@ import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentExcepti
 @Transactional(readOnly = true)
 public class EnrollmentPeriodUseCaseImpl implements EnrollmentPeriodUseCase {
 
-    private final EnrollmentPeriodRepository enrollmentPeriodRepository;
-    private final PeriodTypeRepository periodTypeRepository;
+    private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
+    private final PeriodTypeJpaRepository periodTypeRepository;
 
     @Override
     public EnrollmentPeriodResponseDto getCurrentPeriod(String typeCode) {

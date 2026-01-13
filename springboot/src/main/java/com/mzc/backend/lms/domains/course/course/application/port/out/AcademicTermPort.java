@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.course.course.application.port.out;
 
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 
 import java.util.Optional;
 

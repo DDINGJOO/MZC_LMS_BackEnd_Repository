@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.course.course.application.service;
 
-import com.mzc.backend.lms.domains.academy.entity.AcademicTerm;
-import com.mzc.backend.lms.domains.academy.entity.EnrollmentPeriod;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
 import com.mzc.backend.lms.domains.course.course.application.port.in.ProfessorCourseUseCase;
 import com.mzc.backend.lms.domains.course.course.application.port.out.AcademicTermPort;
 import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
