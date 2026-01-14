@@ -17,6 +17,7 @@ import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.Boar
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.PostLikeRepositoryJpa;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.PostRepositoryJpa;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.UserTypeQueryRepositoryJpa;
+import com.mzc.backend.lms.domains.board.application.port.in.PostUseCase;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
 import com.mzc.backend.lms.domains.user.application.port.in.GetUserInfoCacheUseCase;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
@@ -42,7 +43,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class PostService {
+public class PostService implements PostUseCase {
 
     private final PostRepositoryJpa postRepository;
     private final BoardCategoryRepositoryJpa boardCategoryRepository;

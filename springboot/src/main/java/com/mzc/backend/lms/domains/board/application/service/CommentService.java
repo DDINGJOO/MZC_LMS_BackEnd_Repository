@@ -8,6 +8,7 @@ import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Attachme
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.BoardCategory;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Comment;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Post;
+import com.mzc.backend.lms.domains.board.application.port.in.CommentUseCase;
 import com.mzc.backend.lms.domains.board.exception.BoardErrorCode;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.AttachmentRepositoryJpa;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CommentService {
+public class CommentService implements CommentUseCase {
 
     private final CommentRepositoryJpa commentRepository;
     private final PostRepositoryJpa postRepository;
