@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.course.subject.adapter.in.web;
 import com.mzc.backend.lms.domains.course.subject.adapter.in.web.dto.SubjectDetailResponse;
 import com.mzc.backend.lms.domains.course.subject.adapter.in.web.dto.SubjectResponse;
 import com.mzc.backend.lms.domains.course.subject.adapter.in.web.dto.SubjectSearchResponse;
-import com.mzc.backend.lms.domains.course.subject.adapter.in.web.dto.PageResponse;
+import com.mzc.backend.lms.common.dto.PageResponse;
 import com.mzc.backend.lms.domains.course.subject.application.port.in.SubjectUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
