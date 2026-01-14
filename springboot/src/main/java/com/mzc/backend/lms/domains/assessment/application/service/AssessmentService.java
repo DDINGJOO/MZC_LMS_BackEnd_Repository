@@ -129,22 +129,13 @@ public class AssessmentService implements AssessmentProfessorUseCase, Assessment
         List<ProfessorAttemptListItemResponseDto> result = new ArrayList<>(attempts.size());
         for (AssessmentAttempt at : attempts) {
             Long uid = at.getUserId();
-            result.add(ProfessorAttemptListItemResponseDto.builder()
-                    .attemptId(at.getId())
-                    .examId(assessment.getId())
-                    .courseId(assessment.getCourseId())
-                    .student(ProfessorAttemptListItemResponseDto.StudentInfo.builder()
+            ProfessorAttemptListItemResponseDto.StudentInfo studentInfo =
+                    ProfessorAttemptListItemResponseDto.StudentInfo.builder()
                             .id(uid)
                             .studentNumber(uid != null ? uid.toString() : null)
                             .name(uid != null ? nameMap.get(uid.toString()) : null)
-                            .build())
-                    .startedAt(at.getStartedAt())
-                    .submittedAt(at.getSubmittedAt())
-                    .isLate(at.getIsLate())
-                    .latePenaltyRate(at.getLatePenaltyRate())
-                    .score(at.getScore())
-                    .feedback(at.getFeedback())
-                    .build());
+                            .build();
+            result.add(ProfessorAttemptListItemResponseDto.from(at, studentInfo));
         }
         return result;
     }
@@ -179,24 +170,14 @@ public class AssessmentService implements AssessmentProfessorUseCase, Assessment
 
         JsonNode questionNode = readJsonOrNull(assessment.getQuestionData());
 
-        return ProfessorAttemptDetailResponseDto.builder()
-                .attemptId(attempt.getId())
-                .examId(assessment.getId())
-                .courseId(assessment.getCourseId())
-                .student(ProfessorAttemptListItemResponseDto.StudentInfo.builder()
+        ProfessorAttemptListItemResponseDto.StudentInfo studentInfo =
+                ProfessorAttemptListItemResponseDto.StudentInfo.builder()
                         .id(uid)
                         .studentNumber(uid != null ? uid.toString() : null)
                         .name(name)
-                        .build())
-                .startedAt(attempt.getStartedAt())
-                .submittedAt(attempt.getSubmittedAt())
-                .isLate(attempt.getIsLate())
-                .latePenaltyRate(attempt.getLatePenaltyRate())
-                .score(attempt.getScore())
-                .feedback(attempt.getFeedback())
-                .answerData(answerWrapper)
-                .questionData(questionNode)
-                .build();
+                        .build();
+
+        return ProfessorAttemptDetailResponseDto.from(attempt, studentInfo, answerWrapper, questionNode);
     }
 
     @Override
@@ -406,14 +387,8 @@ public class AssessmentService implements AssessmentProfessorUseCase, Assessment
         }
 
         LocalDateTime endAt = attempt.getStartedAt().plusMinutes(assessment.getDurationMinutes());
-        long remainingSeconds = Math.max(0, Duration.between(now, endAt).getSeconds());
 
-        return AttemptStartResponseDto.builder()
-                .attemptId(attempt.getId())
-                .startedAt(attempt.getStartedAt())
-                .endAt(endAt)
-                .remainingSeconds(remainingSeconds)
-                .build();
+        return AttemptStartResponseDto.from(attempt, endAt);
     }
 
     @Override
@@ -462,13 +437,7 @@ public class AssessmentService implements AssessmentProfessorUseCase, Assessment
 
         attempt.submit(writeJson(req.getAnswers()), now, score);
 
-        return AttemptSubmitResponseDto.builder()
-                .attemptId(attempt.getId())
-                .submittedAt(now)
-                .isLate(isLate)
-                .latePenaltyRate(penaltyRate)
-                .score(score)
-                .build();
+        return AttemptSubmitResponseDto.from(attempt);
     }
 
     /**
@@ -500,14 +469,7 @@ public class AssessmentService implements AssessmentProfessorUseCase, Assessment
         BigDecimal finalScore = applyRatePenalty(rawScore, attempt.getLatePenaltyRate());
         attempt.grade(finalScore, req.getFeedback(), professorId);
 
-        return AttemptGradeResponseDto.builder()
-                .attemptId(attempt.getId())
-                .score(attempt.getScore())
-                .isLate(attempt.getIsLate())
-                .latePenaltyRate(attempt.getLatePenaltyRate())
-                .gradedAt(attempt.getGradedAt())
-                .gradedBy(attempt.getGradedBy())
-                .build();
+        return AttemptGradeResponseDto.from(attempt);
     }
 
     private String writeJson(Object value) {
