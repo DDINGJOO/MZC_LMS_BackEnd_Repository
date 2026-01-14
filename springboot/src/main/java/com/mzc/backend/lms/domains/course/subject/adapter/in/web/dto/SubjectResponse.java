@@ -1,5 +1,7 @@
 package com.mzc.backend.lms.domains.course.subject.adapter.in.web.dto;
 
+import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.Subject;
+import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +40,21 @@ public class SubjectResponse {
         private String code;
         private String name;
         private String color;
+
+        /**
+         * Entity -> DTO 변환
+         */
+        public static CourseTypeDto from(com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType courseType) {
+            if (courseType == null) {
+                return null;
+            }
+            return CourseTypeDto.builder()
+                    .id(courseType.getId())
+                    .code(courseType.getTypeCodeString())
+                    .name(courseType.getTypeName())
+                    .color(courseType.getColor())
+                    .build();
+        }
     }
 
     @Getter
@@ -48,6 +65,20 @@ public class SubjectResponse {
         private Long id;
         private String name;
         private String college;
+
+        /**
+         * Entity -> DTO 변환
+         */
+        public static DepartmentDto from(com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Department department) {
+            if (department == null) {
+                return null;
+            }
+            return DepartmentDto.builder()
+                    .id(department.getId())
+                    .name(department.getDepartmentName())
+                    .college(department.getCollege() != null ? department.getCollege().getCollegeName() : null)
+                    .build();
+        }
     }
 
     @Getter
@@ -60,6 +91,55 @@ public class SubjectResponse {
         private String subjectName;
         private Integer credits;
         private Boolean isMandatory;
+
+        /**
+         * Entity -> DTO 변환
+         */
+        public static PrerequisiteDto from(SubjectPrerequisites prerequisiteRelation) {
+            if (prerequisiteRelation == null || prerequisiteRelation.getPrerequisite() == null) {
+                return null;
+            }
+            Subject prereq = prerequisiteRelation.getPrerequisite();
+            return PrerequisiteDto.builder()
+                    .id(prereq.getId())
+                    .subjectCode(prereq.getSubjectCode())
+                    .subjectName(prereq.getSubjectName())
+                    .credits(prereq.getCredits())
+                    .isMandatory(prerequisiteRelation.getIsMandatory())
+                    .build();
+        }
+    }
+
+    /**
+     * Entity -> DTO 변환
+     */
+    public static SubjectResponse from(Subject subject) {
+        return SubjectResponse.builder()
+                .id(subject.getId())
+                .subjectCode(subject.getSubjectCode())
+                .subjectName(subject.getSubjectName())
+                .englishName(null)  // 영문명은 아직 DB에 없음
+                .credits(subject.getCredits())
+                .courseType(CourseTypeDto.from(subject.getCourseType()))
+                .department(DepartmentDto.from(subject.getDepartment()))
+                .description(subject.getDescription())
+                .prerequisites(subject.getPrerequisites() != null ?
+                        subject.getPrerequisites().stream()
+                                .map(PrerequisiteDto::from)
+                                .toList() : List.of())
+                .currentTermSections(null)  // 이 값은 서비스 레이어에서 계산 필요
+                .isActive(true)  // 기본값, 필요시 서비스 레이어에서 설정
+                .createdAt(subject.getCreatedAt())
+                .build();
+    }
+
+    /**
+     * Entity List -> DTO List 변환
+     */
+    public static List<SubjectResponse> from(List<Subject> subjects) {
+        return subjects.stream()
+                .map(SubjectResponse::from)
+                .toList();
     }
 }
 
