@@ -3,6 +3,9 @@ package com.mzc.backend.lms.domains.attendance.application.service;
 import com.mzc.backend.lms.domains.attendance.adapter.in.web.dto.*;
 import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity.WeekAttendance;
 import com.mzc.backend.lms.domains.attendance.application.event.ContentCompletedEvent;
+import com.mzc.backend.lms.domains.attendance.application.port.in.AttendanceEventUseCase;
+import com.mzc.backend.lms.domains.attendance.application.port.in.ProfessorAttendanceUseCase;
+import com.mzc.backend.lms.domains.attendance.application.port.in.StudentAttendanceUseCase;
 import com.mzc.backend.lms.domains.attendance.exception.AttendanceException;
 import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.StudentContentProgressJpaRepository;
 import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.WeekAttendanceJpaRepository;
@@ -30,7 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AttendanceService {
+public class AttendanceService implements StudentAttendanceUseCase, ProfessorAttendanceUseCase, AttendanceEventUseCase {
 
     private final WeekAttendanceJpaRepository weekAttendanceRepository;
     private final StudentContentProgressJpaRepository progressRepository;
@@ -45,6 +48,7 @@ public class AttendanceService {
      * 콘텐츠 완료 이벤트 처리
      * Video Server에서 발행한 이벤트를 수신하여 출석 상태 갱신
      */
+    @Override
     @Transactional
     public void processContentCompleted(ContentCompletedEvent event) {
         log.info("Processing content completed event: studentId={}, weekId={}, contentId={}",
@@ -111,6 +115,7 @@ public class AttendanceService {
     /**
      * 학생의 특정 강의 출석 현황 조회
      */
+    @Override
     @Transactional(readOnly = true)
     public CourseAttendanceDto getStudentCourseAttendance(Long studentId, Long courseId) {
         // 수강 여부 확인
@@ -174,6 +179,7 @@ public class AttendanceService {
     /**
      * 학생의 전체 출석 현황 조회
      */
+    @Override
     @Transactional(readOnly = true)
     public List<CourseAttendanceSummaryDto> getStudentAllAttendance(Long studentId) {
         // 학생이 수강 중인 강의 목록 조회
@@ -216,6 +222,7 @@ public class AttendanceService {
     /**
      * 교수의 강의 전체 출석 현황 조회
      */
+    @Override
     @Transactional(readOnly = true)
     public CourseAttendanceOverviewDto getProfessorCourseAttendance(Long professorId, Long courseId) {
         // 교수 권한 확인
@@ -268,6 +275,7 @@ public class AttendanceService {
     /**
      * 교수의 강의 학생별 출석 목록 조회
      */
+    @Override
     @Transactional(readOnly = true)
     public List<StudentAttendanceDto> getProfessorStudentAttendances(Long professorId, Long courseId) {
         // 교수 권한 확인
@@ -301,6 +309,7 @@ public class AttendanceService {
     /**
      * 교수의 주차별 학생 출석 현황 조회
      */
+    @Override
     @Transactional(readOnly = true)
     public List<WeekStudentAttendanceDto> getProfessorWeekAttendances(Long professorId, Long courseId, Long weekId) {
         // 교수 권한 확인
