@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseIdsRequestDto {
+
+    @NotEmpty(message = "강의 ID 목록은 필수입니다")
     private List<Long> courseIds;
 }

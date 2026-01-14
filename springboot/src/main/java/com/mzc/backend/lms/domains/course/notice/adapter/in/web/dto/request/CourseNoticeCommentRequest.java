@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.course.notice.adapter.in.web.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class CourseNoticeCommentRequest {
 
     @NotBlank(message = "댓글 내용은 필수입니다.")
+    @Size(max = 2000, message = "댓글 내용은 2000자 이하여야 합니다.")
     private String content;
 }
