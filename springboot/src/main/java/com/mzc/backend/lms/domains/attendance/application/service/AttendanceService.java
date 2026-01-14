@@ -7,18 +7,18 @@ import com.mzc.backend.lms.domains.attendance.application.port.in.AttendanceEven
 import com.mzc.backend.lms.domains.attendance.application.port.in.ProfessorAttendanceUseCase;
 import com.mzc.backend.lms.domains.attendance.application.port.in.StudentAttendanceUseCase;
 import com.mzc.backend.lms.domains.attendance.exception.AttendanceException;
-import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.StudentContentProgressJpaRepository;
-import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.WeekAttendanceJpaRepository;
+import com.mzc.backend.lms.domains.attendance.application.port.out.StudentContentProgressRepositoryPort;
+import com.mzc.backend.lms.domains.attendance.application.port.out.WeekAttendanceRepositoryPort;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseWeek;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.WeekContent;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseWeekRepository;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.WeekContentRepository;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
+import com.mzc.backend.lms.domains.course.course.application.port.out.CourseWeekRepositoryPort;
+import com.mzc.backend.lms.domains.course.course.application.port.out.WeekContentRepositoryPort;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort;
 import com.mzc.backend.lms.domains.user.application.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
+import com.mzc.backend.lms.domains.user.application.port.out.StudentQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,13 +35,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AttendanceService implements StudentAttendanceUseCase, ProfessorAttendanceUseCase, AttendanceEventUseCase {
 
-    private final WeekAttendanceJpaRepository weekAttendanceRepository;
-    private final StudentContentProgressJpaRepository progressRepository;
-    private final WeekContentRepository weekContentRepository;
-    private final CourseWeekRepository courseWeekRepository;
-    private final CourseRepository courseRepository;
-    private final StudentRepository studentRepository;
-    private final EnrollmentRepository enrollmentRepository;
+    private final WeekAttendanceRepositoryPort weekAttendanceRepository;
+    private final StudentContentProgressRepositoryPort progressRepository;
+    private final WeekContentRepositoryPort weekContentRepository;
+    private final CourseWeekRepositoryPort courseWeekRepository;
+    private final CourseRepositoryPort courseRepository;
+    private final StudentQueryPort studentRepository;
+    private final EnrollmentRepositoryPort enrollmentRepository;
     private final EncryptionService encryptionService;
 
     /**
@@ -106,7 +106,7 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
      * 주차의 VIDEO 콘텐츠 수 조회
      */
     private int countVideoContentsByWeek(Long weekId) {
-        List<WeekContent> contents = weekContentRepository.findByWeekId(weekId);
+        List<WeekContent> contents = weekContentRepository.findByWeekIdOrderByDisplayOrder(weekId);
         return (int) contents.stream()
                 .filter(c -> "VIDEO".equals(c.getContentType()))
                 .count();
@@ -392,7 +392,7 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
      * 주차별 콘텐츠 진행 상황 조회
      */
     private List<ContentProgressDto> getContentProgressForWeek(Long studentId, Long weekId) {
-        List<WeekContent> contents = weekContentRepository.findByWeekId(weekId);
+        List<WeekContent> contents = weekContentRepository.findByWeekIdOrderByDisplayOrder(weekId);
 
         return contents.stream()
                 .map(content -> {

@@ -26,6 +26,11 @@ public interface EnrollmentRepositoryPort {
     List<Enrollment> findByStudentId(Long studentId);
 
     /**
+     * 강의 ID로 수강신청 목록 조회
+     */
+    List<Enrollment> findByCourseId(Long courseId);
+
+    /**
      * 학생 ID와 학기 ID로 수강신청 목록 조회
      */
     List<Enrollment> findByStudentIdAndAcademicTermId(Long studentId, Long academicTermId);

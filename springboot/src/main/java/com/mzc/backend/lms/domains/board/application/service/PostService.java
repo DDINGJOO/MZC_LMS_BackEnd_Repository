@@ -12,16 +12,18 @@ import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.BoardType
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.PostType;
 import com.mzc.backend.lms.domains.board.exception.BoardErrorCode;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.AttachmentRepositoryJpa;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.BoardCategoryRepositoryJpa;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.PostLikeRepositoryJpa;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.PostRepositoryJpa;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.UserTypeQueryRepositoryJpa;
 import com.mzc.backend.lms.domains.board.application.port.in.PostUseCase;
+import com.mzc.backend.lms.domains.board.application.port.out.AttachmentRepositoryPort;
+import com.mzc.backend.lms.domains.board.application.port.out.BoardCategoryRepositoryPort;
+import com.mzc.backend.lms.domains.board.application.port.out.PostLikeRepositoryPort;
+import com.mzc.backend.lms.domains.board.application.port.out.PostRepositoryPort;
+import com.mzc.backend.lms.domains.board.application.port.out.UserTypeQueryPort;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
 import com.mzc.backend.lms.domains.user.application.port.in.GetUserInfoCacheUseCase;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserRepository;
+import com.mzc.backend.lms.domains.user.application.port.out.UserRepositoryPort;
+import com.mzc.backend.lms.domains.user.application.port.out.StudentDepartmentQueryPort;
+import com.mzc.backend.lms.domains.user.application.port.out.ProfessorDepartmentQueryPort;
 import com.mzc.backend.lms.util.file.FileUploadUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -45,18 +47,18 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public class PostService implements PostUseCase {
 
-    private final PostRepositoryJpa postRepository;
-    private final BoardCategoryRepositoryJpa boardCategoryRepository;
-    private final PostLikeRepositoryJpa postLikeRepository;
-    private final UserRepository userRepository;
-    private final UserTypeQueryRepositoryJpa userTypeQueryRepository;
+    private final PostRepositoryPort postRepository;
+    private final BoardCategoryRepositoryPort boardCategoryRepository;
+    private final PostLikeRepositoryPort postLikeRepository;
+    private final UserRepositoryPort userRepository;
+    private final UserTypeQueryPort userTypeQueryPort;
     private final GetUserInfoCacheUseCase getUserInfoCacheUseCase;
     private final FileUploadUtils fileStorageService;
-    private final AttachmentRepositoryJpa attachmentRepository;
+    private final AttachmentRepositoryPort attachmentRepository;
     private final HashtagService hashtagService;
     private final EntityManager entityManager;
-    private final com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentDepartmentRepository studentDepartmentRepository;
-    private final com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.ProfessorDepartmentRepository professorDepartmentRepository;
+    private final StudentDepartmentQueryPort studentDepartmentQueryPort;
+    private final ProfessorDepartmentQueryPort professorDepartmentQueryPort;
 
     /**
      * 게시글 생성 (boardType 기반, 2단계 업로드)
@@ -523,8 +525,8 @@ public class PostService implements PostUseCase {
             log.warn("UserInfoCacheService 조회 실패, UserTypeQueryRepositoryJpa 사용: userId={}", userId, e);
         }
         
-        // Fallback: UserTypeQueryRepositoryJpa 사용
-        Optional<String> userTypeOpt = userTypeQueryRepository.findUserTypeCodeByUserId(userId);
+        // Fallback: UserTypeQueryPort 사용
+        Optional<String> userTypeOpt = userTypeQueryPort.findUserTypeCodeByUserId(userId);
         String userType = userTypeOpt.orElseGet(() -> {
             log.warn("사용자 타입 매핑이 없습니다. 기본값(STUDENT) 반환: userId={}", userId);
             return "STUDENT";
@@ -569,18 +571,18 @@ public class PostService implements PostUseCase {
         if (userId == null) {
             return null;
         }
-        
+
         try {
             // 1. 학생 학과 조회
-            Optional<Long> studentDept = studentDepartmentRepository.findByStudentId(userId)
+            Optional<Long> studentDept = studentDepartmentQueryPort.findByStudentId(userId)
                     .map(sd -> sd.getDepartment().getId());
-            
+
             if (studentDept.isPresent()) {
                 return studentDept.get();
             }
-            
+
             // 2. 교수 학과 조회
-            return professorDepartmentRepository.findByProfessorId(userId)
+            return professorDepartmentQueryPort.findByProfessorId(userId)
                     .map(pd -> pd.getDepartment().getId())
                     .orElse(null);
 
@@ -599,9 +601,9 @@ public class PostService implements PostUseCase {
         if (userId == null) {
             return null;
         }
-        
+
         try {
-            return studentDepartmentRepository.findByStudentId(userId)
+            return studentDepartmentQueryPort.findByStudentId(userId)
                     .map(sd -> sd.getDepartment().getDepartmentName())
                     .orElse(null);
         } catch (Exception e) {

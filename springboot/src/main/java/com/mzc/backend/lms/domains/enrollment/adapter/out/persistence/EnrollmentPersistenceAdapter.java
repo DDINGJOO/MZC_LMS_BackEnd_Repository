@@ -34,6 +34,11 @@ public class EnrollmentPersistenceAdapter implements EnrollmentRepositoryPort {
     }
 
     @Override
+    public List<Enrollment> findByCourseId(Long courseId) {
+        return enrollmentRepository.findByCourseId(courseId);
+    }
+
+    @Override
     public List<Enrollment> findByStudentIdAndAcademicTermId(Long studentId, Long academicTermId) {
         return enrollmentRepository.findByStudentId(studentId).stream()
                 .filter(e -> e.getCourse().getAcademicTerm().getId().equals(academicTermId))
