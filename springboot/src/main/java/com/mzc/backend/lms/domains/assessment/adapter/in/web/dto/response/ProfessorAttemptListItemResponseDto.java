@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response;
 
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.AssessmentAttempt;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +35,24 @@ public class ProfessorAttemptListItemResponseDto {
         private Long id;
         private String studentNumber;
         private String name;
+    }
+
+    public static ProfessorAttemptListItemResponseDto from(
+            AssessmentAttempt attempt,
+            StudentInfo studentInfo
+    ) {
+        return ProfessorAttemptListItemResponseDto.builder()
+                .attemptId(attempt.getId())
+                .examId(attempt.getAssessment().getId())
+                .courseId(attempt.getAssessment().getCourseId())
+                .student(studentInfo)
+                .startedAt(attempt.getStartedAt())
+                .submittedAt(attempt.getSubmittedAt())
+                .isLate(attempt.getIsLate())
+                .latePenaltyRate(attempt.getLatePenaltyRate())
+                .score(attempt.getScore())
+                .feedback(attempt.getFeedback())
+                .build();
     }
 }
 

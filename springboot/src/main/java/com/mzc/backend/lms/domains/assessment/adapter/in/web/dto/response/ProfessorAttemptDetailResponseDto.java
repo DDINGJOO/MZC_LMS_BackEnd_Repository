@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.AssessmentAttempt;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +39,28 @@ public class ProfessorAttemptDetailResponseDto {
      * 교수 조회는 정답 포함 원본 제공
      */
     private JsonNode questionData;
+
+    public static ProfessorAttemptDetailResponseDto from(
+            AssessmentAttempt attempt,
+            ProfessorAttemptListItemResponseDto.StudentInfo studentInfo,
+            JsonNode answerData,
+            JsonNode questionData
+    ) {
+        return ProfessorAttemptDetailResponseDto.builder()
+                .attemptId(attempt.getId())
+                .examId(attempt.getAssessment().getId())
+                .courseId(attempt.getAssessment().getCourseId())
+                .student(studentInfo)
+                .startedAt(attempt.getStartedAt())
+                .submittedAt(attempt.getSubmittedAt())
+                .isLate(attempt.getIsLate())
+                .latePenaltyRate(attempt.getLatePenaltyRate())
+                .score(attempt.getScore())
+                .feedback(attempt.getFeedback())
+                .answerData(answerData)
+                .questionData(questionData)
+                .build();
+    }
 }
 
 
