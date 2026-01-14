@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.board.adapter.in.web;
 
+import com.mzc.backend.lms.common.dto.PageResponse;
 import com.mzc.backend.lms.domains.board.adapter.in.web.dto.request.PostCreateRequestDto;
 import com.mzc.backend.lms.domains.board.adapter.in.web.dto.request.PostUpdateRequestDto;
 import com.mzc.backend.lms.domains.board.adapter.in.web.dto.response.LikeCheckResponseDto;
@@ -10,7 +11,6 @@ import com.mzc.backend.lms.domains.board.application.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -64,17 +64,17 @@ public class PostController {
     
     // 게시글 목록 조회 (검색어 + 해시태그 필터링 지원)
     @GetMapping("/{boardType}/posts")
-    public ResponseEntity<Page<PostListResponseDto>> getPostList(
+    public ResponseEntity<PageResponse<PostListResponseDto>> getPostList(
             @PathVariable String boardType,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String hashtag,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             Authentication authentication) {
         Long currentUserId = authentication != null ? (Long) authentication.getPrincipal() : null;
-        log.info("게시글 목록 조회 API 호출: boardType={}, search={}, hashtag={}, page={}, userId={}", 
+        log.info("게시글 목록 조회 API 호출: boardType={}, search={}, hashtag={}, page={}, userId={}",
                 boardType, search, hashtag, pageable.getPageNumber(), currentUserId);
-        Page<PostListResponseDto> response = postService.getPostListByBoardType(boardType, search, hashtag, pageable, currentUserId);
-        return ResponseEntity.ok(response);
+        var page = postService.getPostListByBoardType(boardType, search, hashtag, pageable, currentUserId);
+        return ResponseEntity.ok(PageResponse.from(page));
     }
 
     // 게시글 수정 (Multipart - 파일 포함)

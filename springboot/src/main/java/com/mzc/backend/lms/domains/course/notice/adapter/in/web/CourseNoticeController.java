@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.course.notice.adapter.in.web;
 
+import com.mzc.backend.lms.common.dto.PageResponse;
 import com.mzc.backend.lms.common.response.ApiResponse;
 import com.mzc.backend.lms.domains.course.notice.adapter.in.web.dto.request.CourseNoticeCommentRequest;
 import com.mzc.backend.lms.domains.course.notice.adapter.in.web.dto.request.CourseNoticeCreateRequest;
@@ -12,7 +13,6 @@ import com.mzc.backend.lms.domains.user.exception.AuthException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -58,7 +58,7 @@ public class CourseNoticeController {
      * 공지사항 목록 조회 (수강생 + 담당 교수)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<CourseNoticeResponse>>> getNotices(
+    public ResponseEntity<ApiResponse<PageResponse<CourseNoticeResponse>>> getNotices(
             @PathVariable Long courseId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal Long userId) {
@@ -68,8 +68,8 @@ public class CourseNoticeController {
 
         log.debug("공지사항 목록 조회: courseId={}, userId={}", courseId, userId);
 
-        Page<CourseNoticeResponse> response = courseNoticeService.getNotices(courseId, userId, pageable);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        var page = courseNoticeService.getNotices(courseId, userId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.from(page)));
     }
 
     /**
