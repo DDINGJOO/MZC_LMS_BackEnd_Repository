@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.assessment.adapter.in.web.dto.response;
 
+import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.AssessmentAttempt;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,17 @@ public class AttemptGradeResponseDto {
     private BigDecimal latePenaltyRate;
     private LocalDateTime gradedAt;
     private Long gradedBy;
+
+    public static AttemptGradeResponseDto from(AssessmentAttempt attempt) {
+        return AttemptGradeResponseDto.builder()
+                .attemptId(attempt.getId())
+                .score(attempt.getScore())
+                .isLate(attempt.getIsLate())
+                .latePenaltyRate(attempt.getLatePenaltyRate())
+                .gradedAt(attempt.getGradedAt())
+                .gradedBy(attempt.getGradedBy())
+                .build();
+    }
 }
 
 
