@@ -14,6 +14,8 @@ import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Ass
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentAttemptJpaRepository;
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repository.AssessmentJpaRepository;
+import com.mzc.backend.lms.domains.assessment.application.port.in.AssessmentProfessorUseCase;
+import com.mzc.backend.lms.domains.assessment.application.port.in.AssessmentStudentUseCase;
 import com.mzc.backend.lms.domains.assessment.application.util.QuestionDataMasker;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.BoardCategory;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Post;
@@ -44,7 +46,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @SuppressWarnings("null")
-public class AssessmentService {
+public class AssessmentService implements AssessmentProfessorUseCase, AssessmentStudentUseCase {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Duration LATE_GRACE_PERIOD = Duration.ofMinutes(10);
@@ -64,6 +66,7 @@ public class AssessmentService {
     // 교수
     // ---------------------------
 
+    @Override
     public List<AssessmentListItemResponseDto> listForProfessor(Long courseId, AssessmentType type, long professorId) {
         Objects.requireNonNull(courseId, "courseId");
 
@@ -80,6 +83,7 @@ public class AssessmentService {
                 .toList();
     }
 
+    @Override
     public AssessmentDetailResponseDto getDetailForProfessor(Long assessmentId, long professorId) {
         Assessment assessment = assessmentRepository.findActiveWithPost(assessmentId)
                 .orElseThrow(() -> new IllegalArgumentException("퀴즈/시험을 찾을 수 없습니다."));
@@ -99,6 +103,7 @@ public class AssessmentService {
      * 응시자/응시 결과 목록 조회 (교수)
      * - 명세서 6.10
      */
+    @Override
     public List<ProfessorAttemptListItemResponseDto> listAttemptsForProfessor(Long assessmentId, String status, long professorId) {
         Assessment assessment = assessmentRepository.findActiveWithPost(assessmentId)
                 .orElseThrow(() -> new IllegalArgumentException("퀴즈/시험을 찾을 수 없습니다."));
@@ -148,6 +153,7 @@ public class AssessmentService {
      * 응시 결과 상세 조회(답안 포함) (교수)
      * - 명세서 6.11
      */
+    @Override
     public ProfessorAttemptDetailResponseDto getAttemptDetailForProfessor(Long attemptId, long professorId) {
         AssessmentAttempt attempt = attemptRepository.findActiveWithAssessment(attemptId)
                 .orElseThrow(() -> new IllegalArgumentException("응시 정보를 찾을 수 없습니다."));
@@ -193,6 +199,7 @@ public class AssessmentService {
                 .build();
     }
 
+    @Override
     @Transactional
     public AssessmentDetailResponseDto create(BoardType boardType, AssessmentCreateRequestDto req, long professorId) {
         Long courseId = Objects.requireNonNull(req.getCourseId(), "courseId");
@@ -256,6 +263,7 @@ public class AssessmentService {
         return AssessmentDetailResponseDto.from(saved, saved.getQuestionData());
     }
 
+    @Override
     @Transactional
     public AssessmentDetailResponseDto update(Long assessmentId, AssessmentUpdateRequestDto req, long professorId) {
         Assessment assessment = assessmentRepository.findActiveWithPost(assessmentId)
@@ -297,6 +305,7 @@ public class AssessmentService {
         return AssessmentDetailResponseDto.from(assessment, assessment.getQuestionData());
     }
 
+    @Override
     @Transactional
     public void delete(Long assessmentId, long professorId) {
         Assessment assessment = assessmentRepository.findActiveWithPost(assessmentId)
@@ -317,6 +326,7 @@ public class AssessmentService {
     // 학생
     // ---------------------------
 
+    @Override
     public List<AssessmentListItemResponseDto> listForStudent(Long courseId, AssessmentType type, long studentId) {
         Objects.requireNonNull(courseId, "courseId");
         // 수강 중인지 확인
@@ -330,6 +340,7 @@ public class AssessmentService {
                 .toList();
     }
 
+    @Override
     public AssessmentDetailResponseDto getDetailForStudent(Long assessmentId, long studentId) {
         Assessment assessment = assessmentRepository.findActiveWithPost(assessmentId)
                 .orElseThrow(() -> new IllegalArgumentException("퀴즈/시험을 찾을 수 없습니다."));
@@ -348,6 +359,7 @@ public class AssessmentService {
         return AssessmentDetailResponseDto.from(assessment, masked);
     }
 
+    @Override
     @Transactional
     public AttemptStartResponseDto startAttempt(Long assessmentId, long studentId) {
         Assessment assessment = assessmentRepository.findActiveWithPost(assessmentId)
@@ -404,6 +416,7 @@ public class AssessmentService {
                 .build();
     }
 
+    @Override
     @Transactional
     public AttemptSubmitResponseDto submitAttempt(Long attemptId, AttemptSubmitRequestDto req, long studentId) {
         AssessmentAttempt attempt = attemptRepository.findActiveWithAssessment(attemptId)
@@ -463,6 +476,7 @@ public class AssessmentService {
      * - 시험은 주관식 가능 → 제출 즉시 자동채점 X
      * - 교수는 원점수(raw)만 보내고, 서버에서 latePenaltyRate만큼 감점 적용 후 저장
      */
+    @Override
     @Transactional
     public AttemptGradeResponseDto gradeAttempt(Long attemptId, AttemptGradeRequestDto req, long professorId) {
         AssessmentAttempt attempt = attemptRepository.findActiveWithAssessment(attemptId)
