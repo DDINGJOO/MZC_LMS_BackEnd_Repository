@@ -5,6 +5,7 @@ import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Attachme
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Comment;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Post;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.AttachmentType;
+import com.mzc.backend.lms.domains.board.application.port.in.AttachmentUseCase;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.AttachmentRepositoryJpa;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AttachmentService {
+public class AttachmentService implements AttachmentUseCase {
 
     private final AttachmentRepositoryJpa attachmentRepository;
 

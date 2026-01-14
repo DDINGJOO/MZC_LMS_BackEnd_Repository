@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.board.application.service;
 
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Hashtag;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Post;
+import com.mzc.backend.lms.domains.board.application.port.in.HashtagUseCase;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.HashtagRepositoryJpa;
 import jakarta.persistence.EntityManager;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class HashtagService {
+public class HashtagService implements HashtagUseCase {
 
     private final HashtagRepositoryJpa hashtagRepository;
     private final EntityManager entityManager;
