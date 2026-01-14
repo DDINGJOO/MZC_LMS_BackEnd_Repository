@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.board.adapter.in.web.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class CommentCreateRequestDto {
     private Long parentCommentId; // null이면 일반 댓글, 값이 있으면 대댓글
 
     @NotBlank(message = "내용은 필수입니다")
+    @Size(max = 2000, message = "댓글 내용은 2000자 이하여야 합니다")
     private String content;
 
     private List<Long> attachmentIds; // 첨부파일 ID 목록
