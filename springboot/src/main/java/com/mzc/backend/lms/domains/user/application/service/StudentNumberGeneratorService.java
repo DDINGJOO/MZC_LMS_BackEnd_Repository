@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.user.domain.service;
+package com.mzc.backend.lms.domains.user.application.service;
 
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.StudentNumberSequence;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentNumberSequenceRepository;
@@ -26,7 +26,7 @@ import java.time.Year;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class StudentNumberGenerator {
+public class StudentNumberGeneratorService {
 
     private final StudentNumberSequenceRepository sequenceRepository;
     private final UserRepository userRepository;

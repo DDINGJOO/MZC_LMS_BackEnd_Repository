@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.user.adapter.out.security;
 
-import com.mzc.backend.lms.domains.user.encryption.service.EncryptionService;
+import com.mzc.backend.lms.domains.user.application.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.application.port.out.DataEncryptionPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

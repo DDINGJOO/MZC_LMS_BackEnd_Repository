@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.user.jwt.service;
+package com.mzc.backend.lms.domains.user.application.service;
 
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;

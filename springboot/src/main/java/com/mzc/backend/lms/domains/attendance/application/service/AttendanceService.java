@@ -16,7 +16,7 @@ import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.reposit
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseWeekRepository;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.WeekContentRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
-import com.mzc.backend.lms.domains.user.encryption.service.EncryptionService;
+import com.mzc.backend.lms.domains.user.application.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
