@@ -11,9 +11,9 @@ import com.mzc.backend.lms.domains.board.adapter.out.persistence.entity.Post;
 import com.mzc.backend.lms.domains.board.application.port.in.CommentUseCase;
 import com.mzc.backend.lms.domains.board.exception.BoardErrorCode;
 import com.mzc.backend.lms.domains.board.exception.BoardException;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.AttachmentRepositoryJpa;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.CommentRepositoryJpa;
-import com.mzc.backend.lms.domains.board.adapter.out.persistence.repository.PostRepositoryJpa;
+import com.mzc.backend.lms.domains.board.application.port.out.AttachmentRepositoryPort;
+import com.mzc.backend.lms.domains.board.application.port.out.CommentRepositoryPort;
+import com.mzc.backend.lms.domains.board.application.port.out.PostRepositoryPort;
 import com.mzc.backend.lms.domains.notification.aop.annotation.NotifyEvent;
 import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.profile.UserBasicInfoDto;
@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CommentService implements CommentUseCase {
 
-    private final CommentRepositoryJpa commentRepository;
-    private final PostRepositoryJpa postRepository;
-    private final AttachmentRepositoryJpa attachmentRepository;
+    private final CommentRepositoryPort commentRepository;
+    private final PostRepositoryPort postRepository;
+    private final AttachmentRepositoryPort attachmentRepository;
     private final GetUserInfoCacheUseCase getUserInfoCacheUseCase;
 
     private static final int MAX_COMMENT_DEPTH = 1; // 대댓글까지만 허용 (depth 0, 1)
