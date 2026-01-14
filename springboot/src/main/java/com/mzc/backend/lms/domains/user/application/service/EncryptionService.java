@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.user.encryption.service;
+package com.mzc.backend.lms.domains.user.application.service;
 
 import com.mzc.backend.lms.domains.user.encryption.strategy.AES256EncryptionStrategy;
 import com.mzc.backend.lms.domains.user.encryption.strategy.BCryptEncryptionStrategy;

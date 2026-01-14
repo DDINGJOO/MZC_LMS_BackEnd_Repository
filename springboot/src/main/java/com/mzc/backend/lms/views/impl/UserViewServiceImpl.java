@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.views.impl;
 
-import com.mzc.backend.lms.domains.user.encryption.service.EncryptionService;
+import com.mzc.backend.lms.domains.user.application.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.ProfessorRepository;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfile;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfileImage;

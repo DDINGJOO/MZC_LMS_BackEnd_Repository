@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.user.jwt.filter;
 
-import com.mzc.backend.lms.domains.user.jwt.service.JwtTokenService;
+import com.mzc.backend.lms.domains.user.application.service.JwtTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

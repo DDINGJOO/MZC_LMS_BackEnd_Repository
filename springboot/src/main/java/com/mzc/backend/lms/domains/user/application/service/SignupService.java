@@ -14,7 +14,7 @@ import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfi
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.UserPrimaryContactRepository;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.StudentDepartment;
-import com.mzc.backend.lms.domains.user.domain.service.StudentNumberGenerator;
+import com.mzc.backend.lms.domains.user.application.service.StudentNumberGeneratorService;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class SignupService implements SignupUseCase {
     private final DepartmentRepository departmentRepository;
     private final UserPrimaryContactRepository userPrimaryContactRepository;
     private final ProfessorDepartmentRepository professorDepartmentRepository;
-    private final StudentNumberGenerator studentNumberGenerator;
+    private final StudentNumberGeneratorService studentNumberGenerator;
     private final EmailVerificationServiceImpl emailVerificationService;
 
     @Override

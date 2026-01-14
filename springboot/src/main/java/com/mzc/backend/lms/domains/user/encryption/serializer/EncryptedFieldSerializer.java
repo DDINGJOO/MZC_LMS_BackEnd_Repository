@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.user.encryption.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.mzc.backend.lms.domains.user.encryption.service.EncryptionService;
+import com.mzc.backend.lms.domains.user.application.service.EncryptionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
