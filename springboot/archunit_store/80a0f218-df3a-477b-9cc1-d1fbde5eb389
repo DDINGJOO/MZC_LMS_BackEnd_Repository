@@ -1,0 +1,7 @@
+Class <com.mzc.backend.lms.domains.notification.adapter.out.queue.service.NotificationQueueServiceImpl> does not reside in a package '..application.service..' in (NotificationQueueServiceImpl.java:0)
+Class <com.mzc.backend.lms.domains.user.domain.service.StudentNumberGenerator> does not reside in a package '..application.service..' in (StudentNumberGenerator.java:0)
+Class <com.mzc.backend.lms.domains.user.email.service.EmailSenderService> does not reside in a package '..application.service..' in (EmailSenderService.java:0)
+Class <com.mzc.backend.lms.domains.user.email.service.EmailService> does not reside in a package '..application.service..' in (EmailService.java:0)
+Class <com.mzc.backend.lms.domains.user.email.service.EmailVerificationService> does not reside in a package '..application.service..' in (EmailVerificationService.java:0)
+Class <com.mzc.backend.lms.domains.user.encryption.service.EncryptionService> does not reside in a package '..application.service..' in (EncryptionService.java:0)
+Class <com.mzc.backend.lms.domains.user.jwt.service.JwtTokenService> does not reside in a package '..application.service..' in (JwtTokenService.java:0)
