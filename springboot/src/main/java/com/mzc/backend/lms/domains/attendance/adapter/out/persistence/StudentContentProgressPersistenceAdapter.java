@@ -1,8 +1,9 @@
 package com.mzc.backend.lms.domains.attendance.adapter.out.persistence;
 
-import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity.StudentContentProgress;
+import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.mapper.StudentContentProgressMapper;
 import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.StudentContentProgressJpaRepository;
 import com.mzc.backend.lms.domains.attendance.application.port.out.StudentContentProgressRepositoryPort;
+import com.mzc.backend.lms.domains.attendance.domain.model.StudentContentProgressDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,28 +20,34 @@ public class StudentContentProgressPersistenceAdapter implements StudentContentP
     private final StudentContentProgressJpaRepository studentContentProgressJpaRepository;
 
     @Override
-    public StudentContentProgress save(StudentContentProgress progress) {
-        return studentContentProgressJpaRepository.save(progress);
+    public StudentContentProgressDomain save(StudentContentProgressDomain progress) {
+        throw new UnsupportedOperationException("StudentContentProgress save operation requires Entity conversion - not yet implemented");
     }
 
     @Override
-    public Optional<StudentContentProgress> findById(Long id) {
-        return studentContentProgressJpaRepository.findById(id);
+    public Optional<StudentContentProgressDomain> findById(Long id) {
+        return studentContentProgressJpaRepository.findById(id)
+                .map(StudentContentProgressMapper::toDomain);
     }
 
     @Override
-    public Optional<StudentContentProgress> findByStudentStudentIdAndContent_Id(Long studentId, Long contentId) {
-        return studentContentProgressJpaRepository.findByStudentStudentIdAndContent_Id(studentId, contentId);
+    public Optional<StudentContentProgressDomain> findByStudentIdAndContentId(Long studentId, Long contentId) {
+        return studentContentProgressJpaRepository.findByStudentStudentIdAndContent_Id(studentId, contentId)
+                .map(StudentContentProgressMapper::toDomain);
     }
 
     @Override
-    public List<StudentContentProgress> findByStudentStudentIdAndContent_IdIn(Long studentId, List<Long> contentIds) {
-        return studentContentProgressJpaRepository.findByStudentStudentIdAndContent_IdIn(studentId, contentIds);
+    public List<StudentContentProgressDomain> findByStudentIdAndContentIdIn(Long studentId, List<Long> contentIds) {
+        return studentContentProgressJpaRepository.findByStudentStudentIdAndContent_IdIn(studentId, contentIds).stream()
+                .map(StudentContentProgressMapper::toDomain)
+                .toList();
     }
 
     @Override
-    public List<StudentContentProgress> findCompletedByStudentAndContentIds(Long studentId, List<Long> contentIds) {
-        return studentContentProgressJpaRepository.findCompletedByStudentAndContentIds(studentId, contentIds);
+    public List<StudentContentProgressDomain> findCompletedByStudentAndContentIds(Long studentId, List<Long> contentIds) {
+        return studentContentProgressJpaRepository.findCompletedByStudentAndContentIds(studentId, contentIds).stream()
+                .map(StudentContentProgressMapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -49,7 +56,9 @@ public class StudentContentProgressPersistenceAdapter implements StudentContentP
     }
 
     @Override
-    public List<StudentContentProgress> findByStudentAndCourse(Long studentId, Long courseId) {
-        return studentContentProgressJpaRepository.findByStudentAndCourse(studentId, courseId);
+    public List<StudentContentProgressDomain> findByStudentAndCourse(Long studentId, Long courseId) {
+        return studentContentProgressJpaRepository.findByStudentAndCourse(studentId, courseId).stream()
+                .map(StudentContentProgressMapper::toDomain)
+                .toList();
     }
 }
