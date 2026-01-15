@@ -76,25 +76,30 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
             throw EnrollmentException.courseNotExists(null);
         }
 
-        // 4. 기존 수강신청 정보 조회
+        // 4. 기존 수강신청 정보 조회 - MSA 대비: ID만 사용
         List<Enrollment> existingEnrollments = enrollmentRepository.findByStudentId(studentId);
         Set<Long> enrolledCourseIds = existingEnrollments.stream()
-                .map(e -> e.getCourse().getId())
+                .map(Enrollment::getCourseId)
                 .collect(Collectors.toSet());
-        Set<Long> enrolledSubjectIds = existingEnrollments.stream()
-                .map(e -> e.getCourse().getSubject().getId())
+
+        // CoursePort를 통해 Course 정보 일괄 조회
+        List<CourseInfo> enrolledCourses = coursePort.getCourses(new ArrayList<>(enrolledCourseIds));
+        Map<Long, CourseInfo> enrolledCourseMap = enrolledCourses.stream()
+                .collect(Collectors.toMap(CourseInfo::id, c -> c));
+
+        Set<Long> enrolledSubjectIds = enrolledCourses.stream()
+                .map(CourseInfo::subjectId)
                 .collect(Collectors.toSet());
 
         // 5. 현재 수강 학점 계산
-        int currentCredits = existingEnrollments.stream()
-                .mapToInt(e -> e.getCourse().getSubject().getCredits())
+        int currentCredits = enrolledCourses.stream()
+                .mapToInt(CourseInfo::credits)
                 .sum();
 
         // 6. 기존 스케줄 수집
         List<ScheduleInfo> existingSchedules = new ArrayList<>();
-        for (Enrollment enrollment : existingEnrollments) {
-            CourseInfo info = coursePort.getCourse(enrollment.getCourse().getId());
-            existingSchedules.addAll(info.schedules());
+        for (CourseInfo courseInfo : enrolledCourses) {
+            existingSchedules.addAll(courseInfo.schedules());
         }
 
         // 7. 각 강의에 대해 검증 및 수강신청
@@ -123,15 +128,8 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
                     continue;
                 }
 
-                // 수강신청 처리
-                var courseEntity = courseJpaRepository.findById(courseId)
-                        .orElseThrow(() -> EnrollmentException.courseNotExists(courseId));
-
-                Enrollment enrollment = Enrollment.builder()
-                        .student(student)
-                        .course(courseEntity)
-                        .enrolledAt(now)
-                        .build();
+                // 수강신청 처리 - MSA 대비: ID만 사용
+                Enrollment enrollment = Enrollment.create(courseId, studentId);
 
                 Enrollment saved = enrollmentRepository.save(enrollment);
 
@@ -198,6 +196,12 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
         List<Enrollment> enrollments = enrollmentRepository
                 .findByStudentIdAndAcademicTermId(studentId, period.academicTermId());
 
+        // MSA 대비: Course 정보 일괄 조회
+        List<Long> myCourseIds = enrollments.stream().map(Enrollment::getCourseId).toList();
+        List<CourseInfo> myCourses = coursePort.getCourses(myCourseIds);
+        Map<Long, CourseInfo> myCourseMap = myCourses.stream()
+                .collect(Collectors.toMap(CourseInfo::id, c -> c));
+
         // 3. 학기 정보
         String termName = String.format("%d학년도 %s", period.year(), getTermTypeName(period.termType()));
         MyEnrollmentsResponseDto.TermDto termDto = MyEnrollmentsResponseDto.TermDto.builder()
@@ -207,9 +211,9 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
                 .termName(termName)
                 .build();
 
-        // 4. 요약 정보
-        int totalCredits = enrollments.stream()
-                .mapToInt(e -> e.getCourse().getSubject().getCredits())
+        // 4. 요약 정보 - MSA 대비: CoursePort 사용
+        int totalCredits = myCourses.stream()
+                .mapToInt(CourseInfo::credits)
                 .sum();
 
         MyEnrollmentsResponseDto.SummaryDto summary = MyEnrollmentsResponseDto.SummaryDto.builder()
@@ -222,9 +226,9 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
         // 5. 취소 가능 여부
         boolean canCancel = periodPort.isCancelPeriodActive();
 
-        // 6. 수강신청 목록 변환
+        // 6. 수강신청 목록 변환 - MSA 대비: CourseInfo Map 전달
         List<MyEnrollmentsResponseDto.EnrollmentItemDto> items = enrollments.stream()
-                .map(e -> convertToEnrollmentItem(e, canCancel))
+                .map(e -> convertToEnrollmentItem(e, canCancel, myCourseMap))
                 .toList();
 
         return MyEnrollmentsResponseDto.builder()
@@ -255,18 +259,18 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
                 Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                         .orElseThrow(() -> EnrollmentException.enrollmentNotFound(enrollmentId));
 
-                // 본인 확인
-                if (!enrollment.getStudent().getId().equals(studentId)) {
+                // 본인 확인 - MSA 대비: studentId 직접 사용
+                if (!enrollment.getStudentId().equals(studentId)) {
                     failed.add(EnrollmentBulkCancelResponseDto.FailedCancelDto.builder()
                             .enrollmentId(enrollmentId)
-                            .courseId(enrollment.getCourse().getId())
+                            .courseId(enrollment.getCourseId())
                             .errorCode("UNAUTHORIZED")
                             .message("본인의 수강신청만 취소할 수 있습니다")
                             .build());
                     continue;
                 }
 
-                Long courseId = enrollment.getCourse().getId();
+                Long courseId = enrollment.getCourseId();
                 CourseInfo course = coursePort.getCourse(courseId);
 
                 // 정원 감소
@@ -298,10 +302,11 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
             }
         }
 
-        // 남은 수강신청 요약
+        // 남은 수강신청 요약 - MSA 대비: CoursePort 사용
         List<Enrollment> remaining = enrollmentRepository.findByStudentId(studentId);
-        int totalCredits = remaining.stream()
-                .mapToInt(e -> e.getCourse().getSubject().getCredits())
+        List<Long> remainingCourseIds = remaining.stream().map(Enrollment::getCourseId).toList();
+        int totalCredits = coursePort.getCourses(remainingCourseIds).stream()
+                .mapToInt(CourseInfo::credits)
                 .sum();
 
         return EnrollmentBulkCancelResponseDto.builder()
@@ -386,8 +391,9 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
         };
     }
 
-    private MyEnrollmentsResponseDto.EnrollmentItemDto convertToEnrollmentItem(Enrollment enrollment, boolean canCancel) {
-        CourseInfo course = coursePort.getCourse(enrollment.getCourse().getId());
+    private MyEnrollmentsResponseDto.EnrollmentItemDto convertToEnrollmentItem(Enrollment enrollment, boolean canCancel, Map<Long, CourseInfo> courseMap) {
+        // MSA 대비: CourseInfo는 미리 조회한 Map에서 가져옴
+        CourseInfo course = courseMap.get(enrollment.getCourseId());
         String professorName = studentPort.getUserName(course.professorId());
 
         List<ScheduleDto> schedules = course.schedules().stream()

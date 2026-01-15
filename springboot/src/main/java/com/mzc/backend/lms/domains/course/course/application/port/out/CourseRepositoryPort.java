@@ -59,6 +59,11 @@ public interface CourseRepositoryPort {
     List<AcademicTerm> findDistinctAcademicTermsByProfessorId(Long professorId);
 
     /**
+     * Course ID 목록으로 조회
+     */
+    List<Course> findAllById(List<Long> ids);
+
+    /**
      * Course ID 목록으로 Subject 포함 조회
      */
     List<Course> findByIdInWithSubject(List<Long> ids);

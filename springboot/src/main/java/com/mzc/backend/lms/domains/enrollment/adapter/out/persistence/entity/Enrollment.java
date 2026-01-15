@@ -10,16 +10,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
-
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 
 import java.time.LocalDateTime;
 
+/**
+ * 수강신청 엔티티
+ * MSA 전환을 위해 다른 도메인 Entity 직접 참조 대신 ID만 저장
+ */
 @Entity
 @Table(name = "enrollments")
 @Getter
@@ -30,14 +28,23 @@ public class Enrollment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course; // 강의 ID
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student; // 학생 ID
+    @Column(name = "student_id", nullable = false)
+    private Long studentId;
 
     @Column(name = "enrolled_at", nullable = false)
-    private LocalDateTime enrolledAt; // 수강신청 일시
+    private LocalDateTime enrolledAt;
+
+    /**
+     * 팩토리 메서드
+     */
+    public static Enrollment create(Long courseId, Long studentId) {
+        return Enrollment.builder()
+                .courseId(courseId)
+                .studentId(studentId)
+                .enrolledAt(LocalDateTime.now())
+                .build();
+    }
 }       

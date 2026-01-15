@@ -201,9 +201,9 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
     @Override
     @Transactional(readOnly = true)
     public List<CourseAttendanceSummaryDto> getStudentAllAttendance(Long studentId) {
-        // 학생이 수강 중인 강의 목록 조회
+        // 학생이 수강 중인 강의 목록 조회 (ID만 사용)
         List<Long> courseIds = enrollmentRepository.findByStudentId(studentId).stream()
-                .map(e -> e.getCourse().getId())
+                .map(e -> e.getCourseId())
                 .collect(Collectors.toList());
 
         return courseIds.stream()
@@ -306,16 +306,17 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
 
         return enrollments.stream()
                 .map(enrollment -> {
-                    Student student = enrollment.getStudent();
+                    // ID로 학생 조회 (MSA 전환 대비)
+                    Long studentId = enrollment.getStudentId();
                     int completedWeeks = weekAttendanceRepository
-                            .countCompletedByStudentAndCourse(student.getStudentId(), courseId);
+                            .countCompletedByStudentAndCourse(studentId, courseId);
                     double attendanceRate = totalWeeks > 0 ? (completedWeeks * 100.0 / totalWeeks) : 0;
 
                     // 학생 이름 조회 (UserProfile에서)
-                    String studentName = getStudentName(student.getStudentId());
+                    String studentName = getStudentName(studentId);
 
                     return StudentAttendanceDto.builder()
-                            .studentId(student.getStudentId())
+                            .studentId(studentId)
                             .studentName(studentName)
                             .completedWeeks(completedWeeks)
                             .totalWeeks(totalWeeks)
@@ -351,16 +352,17 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
 
         return enrollments.stream()
                 .map(enrollment -> {
-                    Student student = enrollment.getStudent();
+                    // ID로 학생 조회 (MSA 전환 대비)
+                    Long studentId = enrollment.getStudentId();
                     WeekAttendanceDomain attendance = attendances.stream()
-                            .filter(a -> a.getStudentId().equals(student.getStudentId()))
+                            .filter(a -> a.getStudentId().equals(studentId))
                             .findFirst()
                             .orElse(null);
 
-                    String studentName = getStudentName(student.getStudentId());
+                    String studentName = getStudentName(studentId);
 
                     return WeekStudentAttendanceDto.builder()
-                            .studentId(student.getStudentId())
+                            .studentId(studentId)
                             .studentName(studentName)
                             .isCompleted(attendance != null && attendance.isAttendanceCompleted())
                             .completedVideoCount(attendance != null ? attendance.getCompletedVideoCount() : 0)

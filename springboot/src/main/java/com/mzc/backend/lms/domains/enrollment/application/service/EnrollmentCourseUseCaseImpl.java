@@ -19,7 +19,7 @@ import com.mzc.backend.lms.domains.course.constants.CourseConstants;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
+import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
@@ -41,7 +41,7 @@ import com.mzc.backend.lms.views.UserViewService;
 @Transactional(readOnly = true)
 public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
 
-    private final CourseRepository courseRepository;
+    private final CourseRepositoryPort courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseCartRepository courseCartRepository;
     private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
@@ -369,10 +369,13 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
             return true; // 선수과목이 없으면 true
         }
 
-        // 학생이 수강신청한 강의 목록 조회
+        // 학생이 수강신청한 강의 목록 조회 (MSA 전환 대비: courseId로 Course 별도 조회)
         List<Enrollment> studentEnrollments = enrollmentRepository.findByStudentId(studentId);
-        Set<Long> enrolledSubjectIds = studentEnrollments.stream()
-                .map(enrollment -> enrollment.getCourse().getSubject().getId())
+        List<Long> enrolledCourseIds = studentEnrollments.stream()
+                .map(Enrollment::getCourseId)
+                .toList();
+        Set<Long> enrolledSubjectIds = courseRepository.findAllById(enrolledCourseIds).stream()
+                .map(c -> c.getSubject().getId())
                 .collect(Collectors.toSet());
 
         log.debug("학생 ID: {}, 수강신청한 과목 수: {}, 과목 IDs: {}", studentId, enrolledSubjectIds.size(), enrolledSubjectIds);
