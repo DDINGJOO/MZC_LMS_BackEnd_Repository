@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.dashboard.student.application.event;
 
 import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.TodayCourseDto;
+import com.mzc.backend.lms.domains.user.application.event.LoginSuccessEvent;
 import com.mzc.backend.lms.domains.dashboard.student.application.service.DailyLoginService;
 import com.mzc.backend.lms.domains.dashboard.student.application.service.StudentDashboardService;
 import com.mzc.backend.lms.domains.notification.adapter.out.persistence.entity.NotificationType;

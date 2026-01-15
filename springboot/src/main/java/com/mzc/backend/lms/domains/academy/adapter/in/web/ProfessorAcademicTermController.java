@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.academy.adapter.in.web;
 import com.mzc.backend.lms.common.response.ApiResponse;
 import com.mzc.backend.lms.domains.academy.adapter.in.web.dto.AcademicTermResponseDto;
 import com.mzc.backend.lms.domains.academy.application.port.in.ProfessorAcademicTermQueryUseCase;
-import com.mzc.backend.lms.domains.user.exception.AuthException;
+import com.mzc.backend.lms.common.exceptions.application.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ public class ProfessorAcademicTermController {
     public ResponseEntity<ApiResponse<List<AcademicTermResponseDto>>> listMyAcademicTerms(
             @AuthenticationPrincipal Long professorId) {
         if (professorId == null) {
-            throw AuthException.unauthorized();
+            throw new UnauthorizedException();
         }
         List<AcademicTermResponseDto> data = professorAcademicTermQueryUseCase.getMyAcademicTerms(professorId);
         return ResponseEntity.ok(ApiResponse.success(data));

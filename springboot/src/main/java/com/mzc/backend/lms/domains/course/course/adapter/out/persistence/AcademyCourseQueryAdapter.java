@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.academy.adapter.out.external;
+package com.mzc.backend.lms.domains.course.course.adapter.out.persistence;
 
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.mapper.AcademicTermMapper;
 import com.mzc.backend.lms.domains.academy.application.port.out.CourseQueryPort;
@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Course 도메인 연동 Adapter
+ * academy 도메인의 CourseQueryPort 구현체
+ * course 도메인이 academy에 데이터를 제공하는 Adapter
  */
 @Component
 @RequiredArgsConstructor
-public class CourseAdapter implements CourseQueryPort {
+public class AcademyCourseQueryAdapter implements CourseQueryPort {
 
     private final CourseRepository courseRepository;
 

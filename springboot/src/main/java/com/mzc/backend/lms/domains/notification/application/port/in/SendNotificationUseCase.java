@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.notification.application.port.in;
 
-import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
+import com.mzc.backend.lms.common.notification.event.NotificationEventType;
 
 import java.util.List;
 
