@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.notification.adapter.out.queue.dto;
+package com.mzc.backend.lms.domains.notification.domain.model;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 대량 알림 발송을 위한 배치 메시지 DTO
+ * 대량 알림 발송을 위한 배치 메시지 Domain Model
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

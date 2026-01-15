@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.notification.adapter.out.queue.dto;
+package com.mzc.backend.lms.domains.notification.domain.model;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Redis 큐에서 사용하는 알림 메시지 DTO
+ * 알림 메시지 Domain Model
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
