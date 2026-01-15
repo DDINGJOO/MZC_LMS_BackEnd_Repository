@@ -5,7 +5,7 @@ import com.mzc.backend.lms.domains.user.application.event.LoginSuccessEvent;
 import com.mzc.backend.lms.domains.dashboard.student.application.service.DailyLoginService;
 import com.mzc.backend.lms.domains.dashboard.student.application.service.StudentDashboardService;
 import com.mzc.backend.lms.domains.notification.adapter.out.persistence.entity.NotificationType;
-import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.NotificationMessage;
+import com.mzc.backend.lms.domains.notification.domain.model.NotificationMessage;
 import com.mzc.backend.lms.domains.notification.application.port.out.NotificationQueuePort;
 import com.mzc.backend.lms.domains.notification.application.port.out.NotificationTypeRepositoryPort;
 import lombok.RequiredArgsConstructor;
