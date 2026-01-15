@@ -2,8 +2,8 @@ package com.mzc.backend.lms.domains.notification.adapter.out.queue.consumer;
 
 import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.BatchNotificationMessage;
 import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.NotificationMessage;
-import com.mzc.backend.lms.domains.notification.adapter.out.queue.service.NotificationQueueService;
 import com.mzc.backend.lms.domains.notification.application.port.in.NotificationProcessor;
+import com.mzc.backend.lms.domains.notification.application.port.out.NotificationQueuePort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.SmartLifecycle;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @EnableAsync
 public class NotificationQueueConsumer implements SmartLifecycle {
 
-    private final NotificationQueueService queueService;
+    private final NotificationQueuePort queuePort;
     private final NotificationProcessor processor;
 
     @Value("${notification.queue.consumer.enabled:true}")
@@ -41,8 +41,8 @@ public class NotificationQueueConsumer implements SmartLifecycle {
     private ExecutorService executorService;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    public NotificationQueueConsumer(NotificationQueueService queueService, NotificationProcessor processor) {
-        this.queueService = queueService;
+    public NotificationQueueConsumer(NotificationQueuePort queuePort, NotificationProcessor processor) {
+        this.queuePort = queuePort;
         this.processor = processor;
     }
 
@@ -141,7 +141,7 @@ public class NotificationQueueConsumer implements SmartLifecycle {
 
         while (running.get()) {
             try {
-                Optional<NotificationMessage> messageOpt = queueService.dequeue(pollTimeoutSeconds);
+                Optional<NotificationMessage> messageOpt = queuePort.dequeue(pollTimeoutSeconds);
 
                 if (messageOpt.isPresent()) {
                     processWithRetry(messageOpt.get());
@@ -164,7 +164,7 @@ public class NotificationQueueConsumer implements SmartLifecycle {
 
         while (running.get()) {
             try {
-                Optional<BatchNotificationMessage> messageOpt = queueService.dequeueBatch(pollTimeoutSeconds);
+                Optional<BatchNotificationMessage> messageOpt = queuePort.dequeueBatch(pollTimeoutSeconds);
 
                 if (messageOpt.isPresent()) {
                     processWithRetry(messageOpt.get());

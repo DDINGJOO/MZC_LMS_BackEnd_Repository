@@ -6,8 +6,8 @@ import com.mzc.backend.lms.domains.dashboard.student.application.service.DailyLo
 import com.mzc.backend.lms.domains.dashboard.student.application.service.StudentDashboardService;
 import com.mzc.backend.lms.domains.notification.adapter.out.persistence.entity.NotificationType;
 import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.NotificationMessage;
-import com.mzc.backend.lms.domains.notification.adapter.out.queue.service.NotificationQueueService;
-import com.mzc.backend.lms.domains.notification.adapter.out.persistence.repository.NotificationTypeRepository;
+import com.mzc.backend.lms.domains.notification.application.port.out.NotificationQueuePort;
+import com.mzc.backend.lms.domains.notification.application.port.out.NotificationTypeRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -30,8 +30,8 @@ public class LoginEventListener {
 
     private final DailyLoginService dailyLoginService;
     private final StudentDashboardService studentDashboardService;
-    private final NotificationQueueService notificationQueueService;
-    private final NotificationTypeRepository notificationTypeRepository;
+    private final NotificationQueuePort notificationQueuePort;
+    private final NotificationTypeRepositoryPort notificationTypeRepositoryPort;
 
     @Async
     @EventListener
@@ -61,7 +61,7 @@ public class LoginEventListener {
     }
 
     private void sendTodayCoursesNotification(Long studentId, List<TodayCourseDto> courses) {
-        NotificationType notificationType = notificationTypeRepository
+        NotificationType notificationType = notificationTypeRepositoryPort
                 .findByTypeCode(NOTIFICATION_TYPE_CODE)
                 .orElse(null);
 
@@ -92,7 +92,7 @@ public class LoginEventListener {
                 .actionUrl("/dashboard")
                 .build();
 
-        notificationQueueService.enqueue(notificationMessage);
+        notificationQueuePort.publish(notificationMessage);
 
         log.info("오늘의 수업 알림 발송: studentId={}, courseCount={}", studentId, courses.size());
     }
