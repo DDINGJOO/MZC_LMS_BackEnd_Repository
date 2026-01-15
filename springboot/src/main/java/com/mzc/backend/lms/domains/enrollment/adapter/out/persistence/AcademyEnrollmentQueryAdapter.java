@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.academy.adapter.out.external;
+package com.mzc.backend.lms.domains.enrollment.adapter.out.persistence;
 
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.mapper.AcademicTermMapper;
 import com.mzc.backend.lms.domains.academy.application.port.out.EnrollmentQueryPort;
@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Enrollment 도메인 연동 Adapter
+ * academy 도메인의 EnrollmentQueryPort 구현체
+ * enrollment 도메인이 academy에 데이터를 제공하는 Adapter
  */
 @Component
 @RequiredArgsConstructor
-public class EnrollmentAdapter implements EnrollmentQueryPort {
+public class AcademyEnrollmentQueryAdapter implements EnrollmentQueryPort {
 
     private final EnrollmentRepository enrollmentRepository;
 

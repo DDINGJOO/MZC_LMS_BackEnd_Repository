@@ -1,8 +1,8 @@
 package com.mzc.backend.lms.domains.course.grade.application.service;
 
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Assessment;
-import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
+import com.mzc.backend.lms.domains.course.grade.domain.enums.GradeAssessmentType;
+import com.mzc.backend.lms.domains.course.grade.domain.model.AssessmentInfo;
 import com.mzc.backend.lms.domains.board.assignment.adapter.out.persistence.entity.Assignment;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseGradingPolicy;
@@ -203,13 +203,13 @@ public class GradePublishService implements GradePublishUseCase {
                 .orElseThrow(() -> CourseException.gradingPolicyNotFound(courseId));
 
         // 평가 항목별 Assessment 목록/만점합
-        List<Assessment> quizzes = assessmentPort.findActiveByCourse(courseId, AssessmentType.QUIZ);
-        List<Assessment> midterms = assessmentPort.findActiveByCourse(courseId, AssessmentType.MIDTERM);
-        List<Assessment> finals = assessmentPort.findActiveByCourse(courseId, AssessmentType.FINAL);
+        List<AssessmentInfo> quizzes = assessmentPort.findActiveByCourse(courseId, GradeAssessmentType.QUIZ);
+        List<AssessmentInfo> midterms = assessmentPort.findActiveByCourse(courseId, GradeAssessmentType.MIDTERM);
+        List<AssessmentInfo> finals = assessmentPort.findActiveByCourse(courseId, GradeAssessmentType.FINAL);
 
-        List<Long> quizIds = quizzes.stream().map(Assessment::getId).toList();
-        List<Long> midtermIds = midterms.stream().map(Assessment::getId).toList();
-        List<Long> finalIds = finals.stream().map(Assessment::getId).toList();
+        List<Long> quizIds = quizzes.stream().map(AssessmentInfo::getId).toList();
+        List<Long> midtermIds = midterms.stream().map(AssessmentInfo::getId).toList();
+        List<Long> finalIds = finals.stream().map(AssessmentInfo::getId).toList();
 
         // "채점 미완료 제출"이 하나라도 있으면 강의 전체 스킵
         if (!midtermIds.isEmpty() && assessmentPort.existsUngradedSubmittedByAssessmentIds(midtermIds)) {
@@ -326,10 +326,10 @@ public class GradePublishService implements GradePublishUseCase {
                 .orElseThrow(() -> CourseException.gradingPolicyNotFound(courseId));
 
         // 시험 채점 미완료가 있으면 공개 불가
-        List<Assessment> midterms = assessmentPort.findActiveByCourse(courseId, AssessmentType.MIDTERM);
-        List<Assessment> finals = assessmentPort.findActiveByCourse(courseId, AssessmentType.FINAL);
-        List<Long> midtermIds = midterms.stream().map(Assessment::getId).toList();
-        List<Long> finalIds = finals.stream().map(Assessment::getId).toList();
+        List<AssessmentInfo> midterms = assessmentPort.findActiveByCourse(courseId, GradeAssessmentType.MIDTERM);
+        List<AssessmentInfo> finals = assessmentPort.findActiveByCourse(courseId, GradeAssessmentType.FINAL);
+        List<Long> midtermIds = midterms.stream().map(AssessmentInfo::getId).toList();
+        List<Long> finalIds = finals.stream().map(AssessmentInfo::getId).toList();
         if (!midtermIds.isEmpty() && assessmentPort.existsUngradedSubmittedByAssessmentIds(midtermIds)) {
             String msg = "성적 공개 스킵/불가(중간 채점 미완료)";
             if (strict) throw CourseException.gradePublishBlocked(msg, courseId);
@@ -427,9 +427,9 @@ public class GradePublishService implements GradePublishUseCase {
         log.info("성적 공개 완료 courseId={}, publishedAt={}", courseId, now);
     }
 
-    private BigDecimal sumTotalScore(List<Assessment> list) {
+    private BigDecimal sumTotalScore(List<AssessmentInfo> list) {
         BigDecimal sum = BigDecimal.ZERO;
-        for (Assessment a : list) {
+        for (AssessmentInfo a : list) {
             if (a.getTotalScore() != null) sum = sum.add(a.getTotalScore());
         }
         return sum;

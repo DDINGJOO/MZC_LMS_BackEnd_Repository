@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.notification.aop.event;
+package com.mzc.backend.lms.common.notification.event;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

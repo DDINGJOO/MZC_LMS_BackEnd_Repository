@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.user.application.service;
 
-import com.mzc.backend.lms.domains.dashboard.student.application.event.LoginSuccessEvent;
+import com.mzc.backend.lms.domains.user.application.event.LoginSuccessEvent;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.auth.LoginRequestDto;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.auth.LoginResponseDto;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.RefreshToken;

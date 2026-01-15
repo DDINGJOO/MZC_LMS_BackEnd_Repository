@@ -3,7 +3,7 @@ package com.mzc.backend.lms.domains.academy.adapter.in.web;
 import com.mzc.backend.lms.common.response.ApiResponse;
 import com.mzc.backend.lms.domains.academy.adapter.in.web.dto.AcademicTermResponseDto;
 import com.mzc.backend.lms.domains.academy.application.port.in.AcademicTermQueryUseCase;
-import com.mzc.backend.lms.domains.user.exception.AuthException;
+import com.mzc.backend.lms.common.exceptions.application.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class AcademicTermController {
     public ResponseEntity<ApiResponse<AcademicTermResponseDto>> getCurrentAcademicTerm(
             @AuthenticationPrincipal Long userId) {
         if (userId == null) {
-            throw AuthException.unauthorized();
+            throw new UnauthorizedException();
         }
 
         AcademicTermResponseDto data = academicTermQueryUseCase.getCurrentAcademicTerm(LocalDate.now());

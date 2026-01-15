@@ -1,6 +1,6 @@
-package com.mzc.backend.lms.domains.notification.aop.annotation;
+package com.mzc.backend.lms.common.notification.annotation;
 
-import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
+import com.mzc.backend.lms.common.notification.event.NotificationEventType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

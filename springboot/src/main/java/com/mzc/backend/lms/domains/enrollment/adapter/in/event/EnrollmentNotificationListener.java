@@ -2,7 +2,7 @@ package com.mzc.backend.lms.domains.enrollment.adapter.in.event;
 
 import com.mzc.backend.lms.domains.enrollment.domain.event.EnrollmentCancelledEvent;
 import com.mzc.backend.lms.domains.enrollment.domain.event.EnrollmentCreatedEvent;
-import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
+import com.mzc.backend.lms.common.notification.event.NotificationEventType;
 import com.mzc.backend.lms.domains.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

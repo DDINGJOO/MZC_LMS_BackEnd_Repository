@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.notification.aop.aspect;
 
-import com.mzc.backend.lms.domains.notification.aop.annotation.NotifyEvent;
-import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
+import com.mzc.backend.lms.common.notification.annotation.NotifyEvent;
+import com.mzc.backend.lms.common.notification.event.NotificationEventType;
 import com.mzc.backend.lms.domains.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

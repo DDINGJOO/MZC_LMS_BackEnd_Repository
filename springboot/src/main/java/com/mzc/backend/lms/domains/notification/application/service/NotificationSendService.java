@@ -4,7 +4,7 @@ import com.mzc.backend.lms.domains.notification.adapter.out.persistence.entity.N
 import com.mzc.backend.lms.domains.notification.adapter.out.persistence.entity.NotificationType;
 import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.BatchNotificationMessage;
 import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.NotificationMessage;
-import com.mzc.backend.lms.domains.notification.aop.event.NotificationEventType;
+import com.mzc.backend.lms.common.notification.event.NotificationEventType;
 import com.mzc.backend.lms.domains.notification.application.port.in.SendNotificationUseCase;
 import com.mzc.backend.lms.domains.notification.application.port.out.NotificationBatchRepositoryPort;
 import com.mzc.backend.lms.domains.notification.application.port.out.NotificationQueuePort;
