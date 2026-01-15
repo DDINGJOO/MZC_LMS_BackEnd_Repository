@@ -7,6 +7,7 @@ import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.TodayCou
 import com.mzc.backend.lms.domains.dashboard.student.adapter.out.persistence.repository.DashboardQueryRepositoryJpa;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
+import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfile;
@@ -20,6 +21,8 @@ import java.time.format.TextStyle;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 학생 대시보드 서비스
@@ -33,6 +36,7 @@ public class StudentDashboardService {
     private static final int DEFAULT_NOTICE_LIMIT = 5;
 
     private final DashboardQueryRepositoryJpa dashboardQueryRepository;
+    private final CourseRepositoryPort courseRepositoryPort;
 
     /**
      * 미제출 과제 목록 조회 (기본 7일 이내)
@@ -94,15 +98,21 @@ public class StudentDashboardService {
         List<Enrollment> enrollments = dashboardQueryRepository.findTodayEnrollments(studentId);
         DayOfWeek today = LocalDate.now().getDayOfWeek();
 
+        // MSA 전환 대비: Course 일괄 조회
+        List<Long> courseIds = enrollments.stream().map(Enrollment::getCourseId).toList();
+        Map<Long, Course> courseMap = courseRepositoryPort.findByIdInWithSubject(courseIds).stream()
+                .collect(Collectors.toMap(Course::getId, c -> c));
+
         return enrollments.stream()
-                .map(e -> toTodayCourseDto(e, today))
+                .map(e -> toTodayCourseDto(e, today, courseMap))
                 .sorted(Comparator.comparing(dto ->
                     dto.getSchedule().isEmpty() ? "" : dto.getSchedule().get(0).getStartTime()))
                 .toList();
     }
 
-    private TodayCourseDto toTodayCourseDto(Enrollment enrollment, DayOfWeek today) {
-        Course course = enrollment.getCourse();
+    private TodayCourseDto toTodayCourseDto(Enrollment enrollment, DayOfWeek today, Map<Long, Course> courseMap) {
+        // MSA 전환 대비: Course는 Map에서 가져옴
+        Course course = courseMap.get(enrollment.getCourseId());
         Professor professor = course.getProfessor();
         UserProfile professorProfile = professor.getUser().getUserProfile();
 

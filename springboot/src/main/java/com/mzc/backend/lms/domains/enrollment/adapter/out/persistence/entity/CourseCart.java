@@ -4,9 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -16,15 +13,10 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
-
-
-/*
-    CourseCart 엔티티
-    course_carts 테이블과 매핑
-*/
-
+/**
+ * 수강 장바구니 엔티티
+ * MSA 전환을 위해 다른 도메인 Entity 직접 참조 대신 ID만 저장
+ */
 @Entity
 @Table(name = "course_carts")
 @Getter
@@ -35,14 +27,23 @@ public class CourseCart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student; // 학생 ID
+    @Column(name = "student_id", nullable = false)
+    private Long studentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course; // 강의 ID
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
 
     @Column(name = "added_at", nullable = false)
-    private LocalDateTime addedAt; // 담은 일시
+    private LocalDateTime addedAt;
+
+    /**
+     * 팩토리 메서드
+     */
+    public static CourseCart create(Long studentId, Long courseId) {
+        return CourseCart.builder()
+                .studentId(studentId)
+                .courseId(courseId)
+                .addedAt(LocalDateTime.now())
+                .build();
+    }
 }
