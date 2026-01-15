@@ -1,8 +1,8 @@
 package com.mzc.backend.lms.domains.notification.adapter.out.queue;
 
 import com.mzc.backend.lms.domains.notification.adapter.out.queue.config.NotificationRedisConfig;
-import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.BatchNotificationMessage;
-import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.NotificationMessage;
+import com.mzc.backend.lms.domains.notification.domain.model.BatchNotificationMessage;
+import com.mzc.backend.lms.domains.notification.domain.model.NotificationMessage;
 import com.mzc.backend.lms.domains.notification.application.port.out.NotificationQueuePort;
 import com.mzc.backend.lms.domains.notification.exception.NotificationException;
 import lombok.RequiredArgsConstructor;
