@@ -1,8 +1,9 @@
 package com.mzc.backend.lms.domains.academy.adapter.out.persistence;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.mapper.AcademicTermMapper;
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.AcademicTermJpaRepository;
 import com.mzc.backend.lms.domains.academy.application.port.out.AcademicTermRepositoryPort;
+import com.mzc.backend.lms.domains.academy.domain.model.AcademicTermDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,13 +21,15 @@ public class AcademicTermPersistenceAdapter implements AcademicTermRepositoryPor
     private final AcademicTermJpaRepository academicTermJpaRepository;
 
     @Override
-    public Optional<AcademicTerm> findById(Long id) {
-        return academicTermJpaRepository.findById(id);
+    public Optional<AcademicTermDomain> findById(Long id) {
+        return academicTermJpaRepository.findById(id)
+                .map(AcademicTermMapper::toDomain);
     }
 
     @Override
-    public Optional<AcademicTerm> findByYearAndTermType(Integer year, String termType) {
-        return academicTermJpaRepository.findByYearAndTermType(year, termType);
+    public Optional<AcademicTermDomain> findByYearAndTermType(Integer year, String termType) {
+        return academicTermJpaRepository.findByYearAndTermType(year, termType)
+                .map(AcademicTermMapper::toDomain);
     }
 
     @Override
@@ -35,22 +38,30 @@ public class AcademicTermPersistenceAdapter implements AcademicTermRepositoryPor
     }
 
     @Override
-    public List<AcademicTerm> findByYear(Integer year) {
-        return academicTermJpaRepository.findByYear(year);
+    public List<AcademicTermDomain> findByYear(Integer year) {
+        return academicTermJpaRepository.findByYear(year).stream()
+                .map(AcademicTermMapper::toDomain)
+                .toList();
     }
 
     @Override
-    public List<AcademicTerm> findByTermType(String termType) {
-        return academicTermJpaRepository.findByTermType(termType);
+    public List<AcademicTermDomain> findByTermType(String termType) {
+        return academicTermJpaRepository.findByTermType(termType).stream()
+                .map(AcademicTermMapper::toDomain)
+                .toList();
     }
 
     @Override
-    public List<AcademicTerm> findCurrentTerms(LocalDate today) {
-        return academicTermJpaRepository.findCurrentTerms(today);
+    public List<AcademicTermDomain> findCurrentTerms(LocalDate today) {
+        return academicTermJpaRepository.findCurrentTerms(today).stream()
+                .map(AcademicTermMapper::toDomain)
+                .toList();
     }
 
     @Override
-    public AcademicTerm save(AcademicTerm academicTerm) {
-        return academicTermJpaRepository.save(academicTerm);
+    public AcademicTermDomain save(AcademicTermDomain academicTerm) {
+        var entity = AcademicTermMapper.toEntity(academicTerm);
+        var savedEntity = academicTermJpaRepository.save(entity);
+        return AcademicTermMapper.toDomain(savedEntity);
     }
 }

@@ -1,10 +1,9 @@
 package com.mzc.backend.lms.domains.academy.adapter.out.persistence;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.PeriodType;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.mapper.EnrollmentPeriodMapper;
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
 import com.mzc.backend.lms.domains.academy.application.port.out.EnrollmentPeriodRepositoryPort;
+import com.mzc.backend.lms.domains.academy.domain.model.EnrollmentPeriodDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,48 +21,59 @@ public class EnrollmentPeriodPersistenceAdapter implements EnrollmentPeriodRepos
     private final EnrollmentPeriodJpaRepository enrollmentPeriodJpaRepository;
 
     @Override
-    public Optional<EnrollmentPeriod> findById(Long id) {
-        return enrollmentPeriodJpaRepository.findById(id);
+    public Optional<EnrollmentPeriodDomain> findById(Long id) {
+        return enrollmentPeriodJpaRepository.findById(id)
+                .map(EnrollmentPeriodMapper::toDomain);
     }
 
     @Override
-    public Optional<EnrollmentPeriod> findByAcademicTermAndPeriodName(AcademicTerm academicTerm, String periodName) {
-        return enrollmentPeriodJpaRepository.findByAcademicTermAndPeriodName(academicTerm, periodName);
+    public Optional<EnrollmentPeriodDomain> findByAcademicTermIdAndPeriodName(Long academicTermId, String periodName) {
+        return enrollmentPeriodJpaRepository.findByAcademicTermIdAndPeriodName(academicTermId, periodName)
+                .map(EnrollmentPeriodMapper::toDomain);
     }
 
     @Override
-    public boolean existsByAcademicTermAndPeriodName(AcademicTerm academicTerm, String periodName) {
-        return enrollmentPeriodJpaRepository.existsByAcademicTermAndPeriodName(academicTerm, periodName);
+    public boolean existsByAcademicTermIdAndPeriodName(Long academicTermId, String periodName) {
+        return enrollmentPeriodJpaRepository.existsByAcademicTermIdAndPeriodName(academicTermId, periodName);
     }
 
     @Override
-    public List<EnrollmentPeriod> findByAcademicTerm(AcademicTerm academicTerm) {
-        return enrollmentPeriodJpaRepository.findByAcademicTerm(academicTerm);
+    public List<EnrollmentPeriodDomain> findByAcademicTermId(Long academicTermId) {
+        return enrollmentPeriodJpaRepository.findByAcademicTermId(academicTermId).stream()
+                .map(EnrollmentPeriodMapper::toDomain)
+                .toList();
     }
 
     @Override
-    public List<EnrollmentPeriod> findByPeriodType(PeriodType periodType) {
-        return enrollmentPeriodJpaRepository.findByPeriodType(periodType);
+    public List<EnrollmentPeriodDomain> findByPeriodTypeId(Integer periodTypeId) {
+        return enrollmentPeriodJpaRepository.findByPeriodTypeId(periodTypeId).stream()
+                .map(EnrollmentPeriodMapper::toDomain)
+                .toList();
     }
 
     @Override
-    public List<EnrollmentPeriod> findByPeriodTypeAndAcademicTerm(PeriodType periodType, AcademicTerm academicTerm) {
-        return enrollmentPeriodJpaRepository.findByPeriodTypeAndAcademicTerm(periodType, academicTerm);
+    public List<EnrollmentPeriodDomain> findByPeriodTypeIdAndAcademicTermId(Integer periodTypeId, Long academicTermId) {
+        return enrollmentPeriodJpaRepository.findByPeriodTypeIdAndAcademicTermId(periodTypeId, academicTermId).stream()
+                .map(EnrollmentPeriodMapper::toDomain)
+                .toList();
     }
 
     @Override
-    public Optional<EnrollmentPeriod> findFirstActiveEnrollmentPeriod(LocalDateTime now) {
-        return enrollmentPeriodJpaRepository.findFirstActiveEnrollmentPeriod(now);
+    public Optional<EnrollmentPeriodDomain> findFirstActiveEnrollmentPeriod(LocalDateTime now) {
+        return enrollmentPeriodJpaRepository.findFirstActiveEnrollmentPeriod(now)
+                .map(EnrollmentPeriodMapper::toDomain);
     }
 
     @Override
-    public Optional<EnrollmentPeriod> findFirstActiveCourseRegistrationPeriod(LocalDateTime now) {
-        return enrollmentPeriodJpaRepository.findFirstActiveCourseRegistrationPeriod(now);
+    public Optional<EnrollmentPeriodDomain> findFirstActiveCourseRegistrationPeriod(LocalDateTime now) {
+        return enrollmentPeriodJpaRepository.findFirstActiveCourseRegistrationPeriod(now)
+                .map(EnrollmentPeriodMapper::toDomain);
     }
 
     @Override
-    public Optional<EnrollmentPeriod> findFirstActivePeriodByTypeCode(String typeCode, LocalDateTime now) {
-        return enrollmentPeriodJpaRepository.findFirstActivePeriodByTypeCode(typeCode, now);
+    public Optional<EnrollmentPeriodDomain> findFirstActivePeriodByTypeCode(String typeCode, LocalDateTime now) {
+        return enrollmentPeriodJpaRepository.findFirstActivePeriodByTypeCode(typeCode, now)
+                .map(EnrollmentPeriodMapper::toDomain);
     }
 
     @Override
@@ -77,8 +87,9 @@ public class EnrollmentPeriodPersistenceAdapter implements EnrollmentPeriodRepos
     }
 
     @Override
-    public Optional<EnrollmentPeriod> findFirstActivePeriod(LocalDateTime now) {
-        return enrollmentPeriodJpaRepository.findFirstActivePeriod(now);
+    public Optional<EnrollmentPeriodDomain> findFirstActivePeriod(LocalDateTime now) {
+        return enrollmentPeriodJpaRepository.findFirstActivePeriod(now)
+                .map(EnrollmentPeriodMapper::toDomain);
     }
 
     @Override
@@ -92,7 +103,7 @@ public class EnrollmentPeriodPersistenceAdapter implements EnrollmentPeriodRepos
     }
 
     @Override
-    public EnrollmentPeriod save(EnrollmentPeriod enrollmentPeriod) {
-        return enrollmentPeriodJpaRepository.save(enrollmentPeriod);
+    public EnrollmentPeriodDomain save(EnrollmentPeriodDomain enrollmentPeriod) {
+        throw new UnsupportedOperationException("EnrollmentPeriod save operation requires Entity conversion - not yet implemented");
     }
 }

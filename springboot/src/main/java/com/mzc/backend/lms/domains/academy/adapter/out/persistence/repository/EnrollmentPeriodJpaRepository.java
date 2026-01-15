@@ -24,14 +24,29 @@ public interface EnrollmentPeriodJpaRepository extends JpaRepository<EnrollmentP
     Optional<EnrollmentPeriod> findByAcademicTermAndPeriodName(AcademicTerm academicTerm, String periodName);
 
     /**
+     * 학기 ID와 기간명으로 수강신청 기간 조회
+     */
+    Optional<EnrollmentPeriod> findByAcademicTermIdAndPeriodName(Long academicTermId, String periodName);
+
+    /**
      * 학기와 기간명 존재 여부 확인
      */
     boolean existsByAcademicTermAndPeriodName(AcademicTerm academicTerm, String periodName);
 
     /**
+     * 학기 ID와 기간명 존재 여부 확인
+     */
+    boolean existsByAcademicTermIdAndPeriodName(Long academicTermId, String periodName);
+
+    /**
      * 학기로 수강신청 기간 목록 조회
      */
     List<EnrollmentPeriod> findByAcademicTerm(AcademicTerm academicTerm);
+
+    /**
+     * 학기 ID로 수강신청 기간 목록 조회
+     */
+    List<EnrollmentPeriod> findByAcademicTermId(Long academicTermId);
 
     /**
      * 기간명으로 수강신청 기간 목록 조회
@@ -44,9 +59,19 @@ public interface EnrollmentPeriodJpaRepository extends JpaRepository<EnrollmentP
     List<EnrollmentPeriod> findByPeriodType(PeriodType periodType);
 
     /**
+     * 기간 타입 ID로 기간 목록 조회
+     */
+    List<EnrollmentPeriod> findByPeriodTypeId(Integer periodTypeId);
+
+    /**
      * 기간 타입과 학기로 기간 목록 조회
      */
     List<EnrollmentPeriod> findByPeriodTypeAndAcademicTerm(PeriodType periodType, AcademicTerm academicTerm);
+
+    /**
+     * 기간 타입 ID와 학기 ID로 기간 목록 조회
+     */
+    List<EnrollmentPeriod> findByPeriodTypeIdAndAcademicTermId(Integer periodTypeId, Long academicTermId);
 
     /**
      * 현재 활성화된 수강신청 기간 조회

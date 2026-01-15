@@ -1,7 +1,8 @@
 package com.mzc.backend.lms.domains.academy.adapter.out.external;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.adapter.out.persistence.mapper.AcademicTermMapper;
 import com.mzc.backend.lms.domains.academy.application.port.out.EnrollmentQueryPort;
+import com.mzc.backend.lms.domains.academy.domain.model.AcademicTermDomain;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,9 @@ public class EnrollmentAdapter implements EnrollmentQueryPort {
     private final EnrollmentRepository enrollmentRepository;
 
     @Override
-    public List<AcademicTerm> findDistinctAcademicTermsByStudentId(Long studentId) {
-        return enrollmentRepository.findDistinctAcademicTermsByStudentId(studentId);
+    public List<AcademicTermDomain> findDistinctAcademicTermsByStudentId(Long studentId) {
+        return enrollmentRepository.findDistinctAcademicTermsByStudentId(studentId).stream()
+                .map(AcademicTermMapper::toDomain)
+                .toList();
     }
 }

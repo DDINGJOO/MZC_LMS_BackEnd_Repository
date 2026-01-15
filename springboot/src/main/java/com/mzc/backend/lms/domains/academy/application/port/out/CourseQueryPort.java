@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.academy.application.port.out;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.domain.model.AcademicTermDomain;
 
 import java.util.List;
 
@@ -12,5 +12,5 @@ public interface CourseQueryPort {
     /**
      * 교수의 담당 학기 목록 조회
      */
-    List<AcademicTerm> findDistinctAcademicTermsByProfessorId(Long professorId);
+    List<AcademicTermDomain> findDistinctAcademicTermsByProfessorId(Long professorId);
 }

@@ -1,9 +1,9 @@
 package com.mzc.backend.lms.domains.academy.application.service;
 
 import com.mzc.backend.lms.domains.academy.adapter.in.web.dto.AcademicTermResponseDto;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.academy.application.port.in.ProfessorAcademicTermQueryUseCase;
 import com.mzc.backend.lms.domains.academy.application.port.out.CourseQueryPort;
+import com.mzc.backend.lms.domains.academy.domain.model.AcademicTermDomain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,10 +28,10 @@ public class ProfessorAcademicTermQueryService implements ProfessorAcademicTermQ
     public List<AcademicTermResponseDto> getMyAcademicTerms(Long professorId) {
         Objects.requireNonNull(professorId, "professorId");
 
-        List<AcademicTerm> terms = courseQueryPort.findDistinctAcademicTermsByProfessorId(professorId);
+        List<AcademicTermDomain> terms = courseQueryPort.findDistinctAcademicTermsByProfessorId(professorId);
 
         return terms.stream()
-                .sorted(Comparator.comparing(AcademicTerm::getId, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .sorted(Comparator.comparing(AcademicTermDomain::getId, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .map(AcademicTermResponseDto::from)
                 .toList();
     }
