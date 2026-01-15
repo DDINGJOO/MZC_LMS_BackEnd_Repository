@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.assessment.application.port.out;
 
-import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Assessment;
-import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
+import com.mzc.backend.lms.domains.assessment.domain.model.AssessmentDomain;
+import com.mzc.backend.lms.domains.assessment.domain.model.AssessmentTypeDomain;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,20 +15,20 @@ public interface AssessmentRepositoryPort {
     /**
      * 평가 저장
      */
-    Assessment save(Assessment assessment);
+    AssessmentDomain save(AssessmentDomain assessment);
 
     /**
      * ID로 평가 조회 (Post와 함께)
      */
-    Optional<Assessment> findActiveWithPost(Long id);
+    Optional<AssessmentDomain> findActiveWithPost(Long id);
 
     /**
      * 강의와 타입으로 평가 목록 조회 (교수용)
      */
-    List<Assessment> findActiveByCourse(Long courseId, AssessmentType type);
+    List<AssessmentDomain> findActiveByCourse(Long courseId, AssessmentTypeDomain type);
 
     /**
      * 강의와 타입으로 학생에게 보이는 평가 목록 조회
      */
-    List<Assessment> findVisibleByCourseForStudent(Long courseId, AssessmentType type, LocalDateTime now);
+    List<AssessmentDomain> findVisibleByCourseForStudent(Long courseId, AssessmentTypeDomain type, LocalDateTime now);
 }
