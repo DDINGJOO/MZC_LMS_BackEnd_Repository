@@ -1,6 +1,6 @@
 package com.mzc.backend.lms.domains.academy.adapter.in.web.dto;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
+import com.mzc.backend.lms.domains.academy.domain.model.AcademicTermDomain;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,9 +20,9 @@ public class AcademicTermResponseDto {
     private LocalDate endDate;
 
     /**
-     * Entity -> DTO 변환
+     * Domain -> DTO 변환
      */
-    public static AcademicTermResponseDto from(AcademicTerm academicTerm) {
+    public static AcademicTermResponseDto from(AcademicTermDomain academicTerm) {
         return AcademicTermResponseDto.builder()
                 .id(academicTerm.getId())
                 .year(academicTerm.getYear())
