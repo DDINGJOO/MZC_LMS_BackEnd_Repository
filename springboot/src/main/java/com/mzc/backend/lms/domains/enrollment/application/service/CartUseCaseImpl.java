@@ -17,7 +17,7 @@ import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.En
 import com.mzc.backend.lms.domains.course.constants.CourseConstants;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
+import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
@@ -44,7 +44,7 @@ import com.mzc.backend.lms.views.UserViewService;
 public class CartUseCaseImpl implements CartUseCase {
 
     private final CourseCartRepository courseCartRepository;
-    private final CourseRepository courseRepository;
+    private final CourseRepositoryPort courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
     private final SubjectPrerequisitesRepository subjectPrerequisitesRepository;
@@ -60,9 +60,14 @@ public class CartUseCaseImpl implements CartUseCase {
         // 학생의 장바구니 목록 조회
         List<CourseCart> cartItems = courseCartRepository.findByStudentId(studentIdLong);
 
+        // MSA 전환 대비: Course 일괄 조회
+        List<Long> cartCourseIds = cartItems.stream().map(CourseCart::getCourseId).toList();
+        Map<Long, Course> courseMap = courseRepository.findAllById(cartCourseIds).stream()
+                .collect(Collectors.toMap(Course::getId, c -> c));
+
         // DTO 변환
         List<CartItemDto> cartItemDtos = cartItems.stream()
-                .map(cart -> convertToCartItemDto(cart))
+                .map(cart -> convertToCartItemDto(cart, courseMap.get(cart.getCourseId())))
                 .collect(Collectors.toList());
 
         // 총 강의 수 계산
@@ -80,8 +85,8 @@ public class CartUseCaseImpl implements CartUseCase {
                 .build();
     }
 
-    private CartItemDto convertToCartItemDto(CourseCart cart) {
-        Course course = cart.getCourse();
+    private CartItemDto convertToCartItemDto(CourseCart cart, Course course) {
+        // MSA 전환 대비: Course는 파라미터로 받음
 
         // 교수 이름 조회
         String professorName = userViewService.getUserName(
@@ -178,19 +183,32 @@ public class CartUseCaseImpl implements CartUseCase {
         List<CourseCart> existingCarts = courseCartRepository.findByStudentId(studentIdLong);
         List<Enrollment> existingEnrollments = enrollmentRepository.findByStudentId(studentIdLong);
 
+        // MSA 전환 대비: ID로 직접 접근
         Set<Long> cartCourseIds = existingCarts.stream()
-                .map(cart -> cart.getCourse().getId())
+                .map(CourseCart::getCourseId)
                 .collect(Collectors.toSet());
         Set<Long> enrolledCourseIds = existingEnrollments.stream()
-                .map(enrollment -> enrollment.getCourse().getId())
+                .map(Enrollment::getCourseId)
                 .collect(Collectors.toSet());
-        Set<Long> enrolledSubjectIds = existingEnrollments.stream()
-                .map(enrollment -> enrollment.getCourse().getSubject().getId())
+
+        // Course 정보 일괄 조회 (Subject ID 확인용)
+        Set<Long> allCourseIds = new HashSet<>();
+        allCourseIds.addAll(cartCourseIds);
+        allCourseIds.addAll(enrolledCourseIds);
+        Map<Long, Course> existingCourseMap = courseRepository.findAllById(new ArrayList<>(allCourseIds)).stream()
+                .collect(Collectors.toMap(Course::getId, c -> c));
+
+        Set<Long> enrolledSubjectIds = enrolledCourseIds.stream()
+                .map(cid -> existingCourseMap.get(cid))
+                .filter(Objects::nonNull)
+                .map(c -> c.getSubject().getId())
                 .collect(Collectors.toSet());
 
         // 장바구니에 있는 과목의 subject_id도 체크용으로 수집
-        Set<Long> cartSubjectIds = existingCarts.stream()
-                .map(cart -> cart.getCourse().getSubject().getId())
+        Set<Long> cartSubjectIds = cartCourseIds.stream()
+                .map(cid -> existingCourseMap.get(cid))
+                .filter(Objects::nonNull)
+                .map(c -> c.getSubject().getId())
                 .collect(Collectors.toSet());
 
         // 5. 각 강의에 대한 검증
@@ -234,13 +252,12 @@ public class CartUseCaseImpl implements CartUseCase {
             List<SubjectPrerequisites> prerequisites = subjectPrerequisitesRepository.findBySubjectId(subjectId);
             for (SubjectPrerequisites prerequisite : prerequisites) {
                 Long prerequisiteSubjectId = prerequisite.getPrerequisite().getId();
-                // 선수과목을 이수했는지 확인 (수강신청한 강의 중에서)
-                boolean hasPrerequisite = existingEnrollments.stream()
-                        .anyMatch(enrollment -> enrollment.getCourse().getSubject().getId().equals(prerequisiteSubjectId));
-                
+                // 선수과목을 이수했는지 확인 (수강신청한 강의 중에서) - MSA 대비: enrolledSubjectIds 사용
+                boolean hasPrerequisite = enrolledSubjectIds.contains(prerequisiteSubjectId);
+
                 if (!hasPrerequisite && prerequisite.getIsMandatory()) {
-                    validationErrors.add(String.format("강의 %s(%s)의 필수 선수과목 %s(%s)를 이수하지 않았습니다.", 
-                            course.getSubject().getSubjectName(), 
+                    validationErrors.add(String.format("강의 %s(%s)의 필수 선수과목 %s(%s)를 이수하지 않았습니다.",
+                            course.getSubject().getSubjectName(),
                             course.getSubject().getSubjectCode(),
                             prerequisite.getPrerequisite().getSubjectName(),
                             prerequisite.getPrerequisite().getSubjectCode()));
@@ -254,25 +271,33 @@ public class CartUseCaseImpl implements CartUseCase {
             throw EnrollmentException.validationFailed(String.join("; ", validationErrors));
         }
 
-        // 6. 학점 제한 체크
+        // 6. 학점 제한 체크 - MSA 대비: existingCourseMap 사용
         int currentCredits = existingCarts.stream()
-                .mapToInt(cart -> cart.getCourse().getSubject().getCredits())
+                .map(cart -> existingCourseMap.get(cart.getCourseId()))
+                .filter(Objects::nonNull)
+                .mapToInt(c -> c.getSubject().getCredits())
                 .sum();
         int newCredits = courses.stream()
                 .mapToInt(course -> course.getSubject().getCredits())
                 .sum();
-        
+
         if (currentCredits + newCredits > MAX_CREDITS_PER_TERM) {
             throw EnrollmentException.maxCreditsExceeded(currentCredits, MAX_CREDITS_PER_TERM);
         }
 
-        // 7. 시간표 충돌 체크
+        // 7. 시간표 충돌 체크 - MSA 대비: existingCourseMap 사용
         List<CourseSchedule> existingSchedules = new ArrayList<>();
         for (CourseCart cart : existingCarts) {
-            existingSchedules.addAll(cart.getCourse().getSchedules());
+            Course cartCourse = existingCourseMap.get(cart.getCourseId());
+            if (cartCourse != null) {
+                existingSchedules.addAll(cartCourse.getSchedules());
+            }
         }
         for (Enrollment enrollment : existingEnrollments) {
-            existingSchedules.addAll(enrollment.getCourse().getSchedules());
+            Course enrollmentCourse = existingCourseMap.get(enrollment.getCourseId());
+            if (enrollmentCourse != null) {
+                existingSchedules.addAll(enrollmentCourse.getSchedules());
+            }
         }
 
         // 모든 새 강의의 스케줄 수집
@@ -311,16 +336,12 @@ public class CartUseCaseImpl implements CartUseCase {
             }
         }
 
-        // 8. 모든 검증 통과 - 장바구니에 추가
+        // 8. 모든 검증 통과 - 장바구니에 추가 (MSA 대비: ID만 사용)
         LocalDateTime now = LocalDateTime.now();
         List<CartBulkAddResponseDto.SucceededItemDto> succeededItems = new ArrayList<>();
 
         for (Course course : courses) {
-            CourseCart cart = CourseCart.builder()
-                    .student(student)
-                    .course(course)
-                    .addedAt(now)
-                    .build();
+            CourseCart cart = CourseCart.create(studentIdLong, course.getId());
             
             CourseCart savedCart = courseCartRepository.save(cart);
             if (savedCart == null || savedCart.getId() == null) {
@@ -401,27 +422,34 @@ public class CartUseCaseImpl implements CartUseCase {
             throw EnrollmentException.enrollmentNotFound(null);
         }
 
+        // MSA 대비: Course 일괄 조회
+        List<Long> deleteCourseIds = cartsToDelete.stream().map(CourseCart::getCourseId).toList();
+        Map<Long, Course> deleteCourseMap = courseRepository.findAllById(deleteCourseIds).stream()
+                .collect(Collectors.toMap(Course::getId, c -> c));
+
         // 소유권 확인 및 삭제할 항목 수집
         List<CartBulkDeleteResponseDto.RemovedCourseDto> removedCourses = new ArrayList<>();
         int totalRemovedCredits = 0;
 
         for (CourseCart cart : cartsToDelete) {
-            // 소유권 확인
-            if (!cart.getStudent().getStudentId().equals(studentIdLong)) {
+            // 소유권 확인 - MSA 대비: studentId 직접 사용
+            if (!cart.getStudentId().equals(studentIdLong)) {
                 throw EnrollmentException.validationFailed(
                     String.format("장바구니 항목 %d에 대한 접근 권한이 없습니다.", cart.getId()));
             }
 
-            // 삭제할 항목 정보 수집
-            Course course = cart.getCourse();
-            removedCourses.add(CartBulkDeleteResponseDto.RemovedCourseDto.builder()
-                    .cartId(cart.getId())
-                    .courseCode(course.getSubject().getSubjectCode())
-                    .courseName(course.getSubject().getSubjectName())
-                    .credits(course.getSubject().getCredits())
-                    .build());
-            
-            totalRemovedCredits += course.getSubject().getCredits();
+            // 삭제할 항목 정보 수집 - MSA 대비: Course 별도 조회
+            Course course = deleteCourseMap.get(cart.getCourseId());
+            if (course != null) {
+                removedCourses.add(CartBulkDeleteResponseDto.RemovedCourseDto.builder()
+                        .cartId(cart.getId())
+                        .courseCode(course.getSubject().getSubjectCode())
+                        .courseName(course.getSubject().getSubjectName())
+                        .credits(course.getSubject().getCredits())
+                        .build());
+
+                totalRemovedCredits += course.getSubject().getCredits();
+            }
         }
 
         // 장바구니에서 삭제
@@ -438,8 +466,13 @@ public class CartUseCaseImpl implements CartUseCase {
     public CartBulkDeleteResponseDto deleteAllCart(String studentId) {
         Long studentIdLong = Long.parseLong(studentId);
 
-        // 장바구니 항목 조회 및 소유권 확인
+        // 장바구니 항목 조회
         List<CourseCart> cartsToDelete = courseCartRepository.findByStudentId(studentIdLong);
+
+        // MSA 대비: Course 일괄 조회
+        List<Long> allDeleteCourseIds = cartsToDelete.stream().map(CourseCart::getCourseId).toList();
+        Map<Long, Course> allDeleteCourseMap = courseRepository.findAllById(allDeleteCourseIds).stream()
+                .collect(Collectors.toMap(Course::getId, c -> c));
 
         // 장바구니에서 삭제
         courseCartRepository.deleteByStudentId(studentIdLong);
@@ -447,15 +480,22 @@ public class CartUseCaseImpl implements CartUseCase {
         return CartBulkDeleteResponseDto.builder()
                 .removedCount(cartsToDelete.size())
                 .removedCredits(cartsToDelete.stream()
-                        .mapToInt(cart -> cart.getCourse().getSubject().getCredits())
+                        .map(cart -> allDeleteCourseMap.get(cart.getCourseId()))
+                        .filter(Objects::nonNull)
+                        .mapToInt(c -> c.getSubject().getCredits())
                         .sum())
                 .removedCourses(cartsToDelete.stream()
-                        .map(cart -> CartBulkDeleteResponseDto.RemovedCourseDto.builder()
-                                .cartId(cart.getId())
-                                .courseCode(cart.getCourse().getSubject().getSubjectCode())
-                                .courseName(cart.getCourse().getSubject().getSubjectName())
-                                .credits(cart.getCourse().getSubject().getCredits())
-                                .build())
+                        .map(cart -> {
+                            Course course = allDeleteCourseMap.get(cart.getCourseId());
+                            if (course == null) return null;
+                            return CartBulkDeleteResponseDto.RemovedCourseDto.builder()
+                                    .cartId(cart.getId())
+                                    .courseCode(course.getSubject().getSubjectCode())
+                                    .courseName(course.getSubject().getSubjectName())
+                                    .credits(course.getSubject().getCredits())
+                                    .build();
+                        })
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList()))
                 .build();
     }

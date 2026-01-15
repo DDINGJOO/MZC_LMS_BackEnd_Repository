@@ -248,7 +248,7 @@ public class GradePublishService implements GradePublishUseCase {
         // 1) 수강생별 점수(원점수/정규화/최종점수) 전부 계산
         List<StudentGradeCalc> calcs = new ArrayList<>(enrollments.size());
         for (Enrollment e : enrollments) {
-            Long studentId = e.getStudent().getStudentId();
+            Long studentId = e.getStudentId();
 
             // 원점수 합(획득합)
             BigDecimal quizEarned = quizIds.isEmpty() ? BigDecimal.ZERO :
@@ -354,7 +354,7 @@ public class GradePublishService implements GradePublishUseCase {
         }
 
         List<Enrollment> enrollments = enrollmentPort.findByCourseIdWithStudent(courseId);
-        List<Long> studentIds = enrollments.stream().map(e -> e.getStudent().getStudentId()).toList();
+        List<Long> studentIds = enrollments.stream().map(Enrollment::getStudentId).toList();
         if (studentIds.isEmpty()) {
             log.info("성적 공개 스킵(수강생 없음) courseId={}", courseId);
             return;

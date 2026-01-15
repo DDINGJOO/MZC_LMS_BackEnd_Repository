@@ -67,6 +67,11 @@ public class CoursePersistenceAdapter implements CourseRepositoryPort {
     }
 
     @Override
+    public List<Course> findAllById(List<Long> ids) {
+        return courseRepository.findAllById(ids);
+    }
+
+    @Override
     public List<Course> findByIdInWithSubject(List<Long> ids) {
         return courseRepository.findByIdInWithSubject(ids);
     }

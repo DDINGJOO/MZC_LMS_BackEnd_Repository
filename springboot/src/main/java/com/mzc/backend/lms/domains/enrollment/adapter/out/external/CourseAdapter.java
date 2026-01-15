@@ -70,13 +70,21 @@ public class CourseAdapter implements CoursePort {
     public boolean checkPrerequisites(Long studentId, Long subjectId) {
         List<SubjectPrerequisites> prerequisites = prerequisitesRepository.findBySubjectId(subjectId);
 
+        // MSA 전환 대비: 학생의 수강 강의 ID 목록 조회
+        List<Long> enrolledCourseIds = enrollmentRepository.findByStudentId(studentId).stream()
+                .map(e -> e.getCourseId())
+                .toList();
+
+        // 수강 강의들의 Subject ID 조회
+        java.util.Set<Long> enrolledSubjectIds = courseRepository.findAllById(enrolledCourseIds).stream()
+                .map(c -> c.getSubject().getId())
+                .collect(java.util.stream.Collectors.toSet());
+
         for (SubjectPrerequisites prerequisite : prerequisites) {
             if (prerequisite.getIsMandatory()) {
                 Long prerequisiteSubjectId = prerequisite.getPrerequisite().getId();
                 // 해당 선수과목을 수강했는지 확인
-                boolean hasCompleted = enrollmentRepository.findByStudentId(studentId).stream()
-                        .anyMatch(e -> e.getCourse().getSubject().getId().equals(prerequisiteSubjectId));
-                if (!hasCompleted) {
+                if (!enrolledSubjectIds.contains(prerequisiteSubjectId)) {
                     return false;
                 }
             }

@@ -11,6 +11,8 @@ import com.mzc.backend.lms.domains.course.grade.adapter.in.web.dto.ProfessorCour
 import com.mzc.backend.lms.domains.course.grade.adapter.out.persistence.entity.Grade;
 import com.mzc.backend.lms.domains.course.grade.domain.enums.GradeStatus;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
+import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
+import com.mzc.backend.lms.domains.user.application.port.out.StudentQueryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ public class ProfessorGradeQueryService implements ProfessorGradeQueryUseCase {
     private final GradeCoursePort coursePort;
     private final GradeEnrollmentPort enrollmentPort;
     private final UserViewPort userViewPort;
+    private final StudentQueryPort studentQueryPort;
 
     // Persistence Ports
     private final GradeRepositoryPort gradeRepository;
@@ -52,7 +55,8 @@ public class ProfessorGradeQueryService implements ProfessorGradeQueryUseCase {
         Long academicTermId = (course.getAcademicTerm() != null) ? course.getAcademicTerm().getId() : null;
 
         List<Enrollment> enrollments = enrollmentPort.findByCourseIdWithStudent(courseId);
-        List<Long> studentIds = enrollments.stream().map(e -> e.getStudent().getStudentId()).distinct().toList();
+        // MSA 전환 대비: studentId만 사용
+        List<Long> studentIds = enrollments.stream().map(Enrollment::getStudentId).distinct().toList();
 
         Map<Long, Grade> gradeMap = new HashMap<>();
         if (!studentIds.isEmpty()) {
@@ -69,17 +73,25 @@ public class ProfessorGradeQueryService implements ProfessorGradeQueryUseCase {
                 ? new HashMap<>()
                 : userViewPort.getUserNames(studentIds);
 
+        // 학생 정보 배치 조회 (MSA 전환 대비)
+        final Map<Long, Student> studentMap = new HashMap<>();
+        if (!studentIds.isEmpty()) {
+            studentQueryPort.findAllById(studentIds)
+                    .forEach(s -> studentMap.put(s.getStudentId(), s));
+        }
+
         return enrollments.stream()
                 .map(e -> {
-                    Long sid = e.getStudent().getStudentId();
+                    Long sid = e.getStudentId();
                     Grade g = gradeMap.get(sid);
+                    Student student = studentMap.get(sid);
                     return ProfessorCourseGradesResponseDto.builder()
                             .courseId(courseId)
                             .academicTermId(academicTermId)
                             .courseName(courseName)
                             .student(ProfessorCourseGradesResponseDto.StudentDto.builder()
                                     .id(sid)
-                                    .studentNumber(e.getStudent().getStudentNumber())
+                                    .studentNumber(student != null ? student.getStudentNumber() : null)
                                     .name(nameMap.get(sid))
                                     .build())
                             .midtermScore(g != null ? g.getMidtermScore() : null)
