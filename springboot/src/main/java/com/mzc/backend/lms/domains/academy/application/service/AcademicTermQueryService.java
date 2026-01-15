@@ -1,9 +1,9 @@
 package com.mzc.backend.lms.domains.academy.application.service;
 
 import com.mzc.backend.lms.domains.academy.adapter.in.web.dto.AcademicTermResponseDto;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.academy.application.port.in.AcademicTermQueryUseCase;
 import com.mzc.backend.lms.domains.academy.application.port.out.AcademicTermRepositoryPort;
+import com.mzc.backend.lms.domains.academy.domain.model.AcademicTermDomain;
 import com.mzc.backend.lms.domains.academy.exception.AcademyException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class AcademicTermQueryService implements AcademicTermQueryUseCase {
 
     @Override
     public AcademicTermResponseDto getCurrentAcademicTerm(LocalDate today) {
-        AcademicTerm academicTerm = academicTermRepositoryPort.findCurrentTerms(today).stream()
+        AcademicTermDomain academicTerm = academicTermRepositoryPort.findCurrentTerms(today).stream()
                 .findFirst()
                 .orElseThrow(AcademyException::currentSemesterNotSet);
 
@@ -34,7 +34,7 @@ public class AcademicTermQueryService implements AcademicTermQueryUseCase {
 
     @Override
     public AcademicTermResponseDto getAcademicTermById(Long id) {
-        AcademicTerm academicTerm = academicTermRepositoryPort.findById(id)
+        AcademicTermDomain academicTerm = academicTermRepositoryPort.findById(id)
                 .orElseThrow(() -> AcademyException.semesterNotFound(id));
 
         return AcademicTermResponseDto.from(academicTerm);
