@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.notification.application.port.in;
 
-import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.BatchNotificationMessage;
-import com.mzc.backend.lms.domains.notification.adapter.out.queue.dto.NotificationMessage;
+import com.mzc.backend.lms.domains.notification.domain.model.BatchNotificationMessage;
+import com.mzc.backend.lms.domains.notification.domain.model.NotificationMessage;
 
 /**
  * 알림 처리 UseCase (Inbound Port)
