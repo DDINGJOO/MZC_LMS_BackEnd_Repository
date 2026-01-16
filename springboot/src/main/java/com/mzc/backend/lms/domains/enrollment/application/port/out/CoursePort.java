@@ -27,6 +27,11 @@ public interface CoursePort {
     List<CourseInfo> getCourses(List<Long> courseIds);
 
     /**
+     * 학기별 강의 목록 조회
+     */
+    List<CourseInfo> getCoursesByAcademicTermId(Long academicTermId);
+
+    /**
      * 수강 인원 증가
      */
     void increaseCurrentStudents(Long courseId);
@@ -40,6 +45,11 @@ public interface CoursePort {
      * 필수 선수과목 Subject ID 목록 조회
      */
     List<Long> getMandatoryPrerequisiteSubjectIds(Long subjectId);
+
+    /**
+     * 선수과목 정보 조회 (필수/권장 포함)
+     */
+    List<PrerequisiteInfo> getPrerequisites(Long subjectId);
 
     // DTO Records
 
@@ -56,6 +66,9 @@ public interface CoursePort {
             Long academicTermId,
             String courseTypeCode,
             String courseTypeName,
+            int courseTypeIntCode,
+            Long departmentId,
+            String departmentName,
             List<ScheduleInfo> schedules
     ) {
         public boolean isFull() {
@@ -68,5 +81,12 @@ public interface CoursePort {
             LocalTime startTime,
             LocalTime endTime,
             String classroom
+    ) {}
+
+    record PrerequisiteInfo(
+            Long prerequisiteSubjectId,
+            String prerequisiteSubjectCode,
+            String prerequisiteSubjectName,
+            boolean isMandatory
     ) {}
 }
