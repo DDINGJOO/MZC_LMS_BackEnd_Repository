@@ -4,11 +4,11 @@ import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.Enrollme
 import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.NoticeDto;
 import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.PendingAssignmentDto;
 import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.TodayCourseDto;
-import com.mzc.backend.lms.domains.dashboard.student.adapter.out.persistence.repository.DashboardQueryRepositoryJpa;
+import com.mzc.backend.lms.domains.dashboard.student.application.port.out.DashboardQueryPort;
+import com.mzc.backend.lms.domains.dashboard.student.application.port.out.DashboardQueryPort.*;
+import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
-import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfile;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +33,11 @@ public class StudentDashboardService {
     private static final int DEFAULT_PENDING_DAYS = 7;
     private static final int DEFAULT_NOTICE_LIMIT = 5;
 
-    private final DashboardQueryRepositoryJpa dashboardQueryRepository;
+    private final DashboardQueryPort dashboardQueryPort;
     private final CourseRepositoryPort courseRepository;
 
     /**
      * 미제출 과제 목록 조회 (기본 7일 이내)
-     *
-     * @param studentId 학생 ID
-     * @return 미제출 과제 목록
      */
     public List<PendingAssignmentDto> getPendingAssignments(Long studentId) {
         return getPendingAssignments(studentId, DEFAULT_PENDING_DAYS);
@@ -48,19 +45,24 @@ public class StudentDashboardService {
 
     /**
      * 미제출 과제 목록 조회 (기간 지정)
-     *
-     * @param studentId 학생 ID
-     * @param withinDays 마감일 기준 일수
-     * @return 미제출 과제 목록
      */
     public List<PendingAssignmentDto> getPendingAssignments(Long studentId, int withinDays) {
-        return dashboardQueryRepository.findPendingAssignments(studentId, withinDays);
+        List<PendingAssignmentInfo> infos = dashboardQueryPort.findPendingAssignments(studentId, withinDays);
+        return infos.stream()
+                .map(info -> new PendingAssignmentDto(
+                        info.assignmentId(),
+                        info.postId(),
+                        info.title(),
+                        info.courseId(),
+                        info.courseFullName(),
+                        info.courseName(),
+                        info.dueDate(),
+                        info.lateSubmissionAllowed()))
+                .toList();
     }
 
     /**
      * 최신 공지사항 목록 조회 (기본 5개)
-     *
-     * @return 최신 공지사항 목록
      */
     public List<NoticeDto> getLatestNotices() {
         return getLatestNotices(DEFAULT_NOTICE_LIMIT);
@@ -68,32 +70,31 @@ public class StudentDashboardService {
 
     /**
      * 최신 공지사항 목록 조회 (개수 지정)
-     *
-     * @param limit 조회할 개수
-     * @return 최신 공지사항 목록
      */
     public List<NoticeDto> getLatestNotices(int limit) {
-        return dashboardQueryRepository.findLatestNotices(limit);
+        List<NoticeInfo> infos = dashboardQueryPort.findLatestNotices(limit);
+        return infos.stream()
+                .map(info -> new NoticeDto(
+                        info.postId(),
+                        info.title(),
+                        info.createdAt(),
+                        info.viewCount()))
+                .toList();
     }
 
     /**
      * 수강 현황 요약 조회
-     *
-     * @param studentId 학생 ID
-     * @return 수강 현황 요약 (과목 수, 총 학점)
      */
     public EnrollmentSummaryDto getEnrollmentSummary(Long studentId) {
-        return dashboardQueryRepository.findEnrollmentSummary(studentId);
+        EnrollmentSummaryInfo info = dashboardQueryPort.findEnrollmentSummary(studentId);
+        return new EnrollmentSummaryDto(info.courseCount(), info.totalCredits());
     }
 
     /**
      * 오늘의 강의 목록 조회
-     *
-     * @param studentId 학생 ID
-     * @return 오늘의 강의 목록
      */
     public List<TodayCourseDto> getTodayCourses(Long studentId) {
-        List<Enrollment> enrollments = dashboardQueryRepository.findTodayEnrollments(studentId);
+        List<TodayEnrollmentInfo> enrollments = dashboardQueryPort.findTodayEnrollments(studentId);
         DayOfWeek today = LocalDate.now().getDayOfWeek();
 
         return enrollments.stream()
@@ -103,9 +104,9 @@ public class StudentDashboardService {
                 .toList();
     }
 
-    private TodayCourseDto toTodayCourseDto(Enrollment enrollment, DayOfWeek today) {
-        Course course = courseRepository.findById(enrollment.getCourseId())
-                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + enrollment.getCourseId()));
+    private TodayCourseDto toTodayCourseDto(TodayEnrollmentInfo enrollment, DayOfWeek today) {
+        Course course = courseRepository.findById(enrollment.courseId())
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + enrollment.courseId()));
         Professor professor = course.getProfessor();
         UserProfile professorProfile = professor.getUser().getUserProfile();
 
@@ -117,7 +118,7 @@ public class StudentDashboardService {
                 .toList();
 
         return TodayCourseDto.builder()
-                .enrollmentId(enrollment.getId())
+                .enrollmentId(enrollment.enrollmentId())
                 .course(TodayCourseDto.CourseInfoDto.builder()
                         .id(course.getId())
                         .courseCode(course.getSubject().getSubjectCode())
