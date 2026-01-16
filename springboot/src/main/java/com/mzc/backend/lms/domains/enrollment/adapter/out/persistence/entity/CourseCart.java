@@ -17,14 +17,11 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 
-
-/*
-    CourseCart 엔티티
-    course_carts 테이블과 매핑
-*/
-
+/**
+ * CourseCart 엔티티
+ * course_carts 테이블과 매핑
+ */
 @Entity
 @Table(name = "course_carts")
 @Getter
@@ -37,12 +34,11 @@ public class CourseCart {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
-    private Student student; // 학생 ID
+    private Student student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course; // 강의 ID
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
 
     @Column(name = "added_at", nullable = false)
-    private LocalDateTime addedAt; // 담은 일시
+    private LocalDateTime addedAt;
 }

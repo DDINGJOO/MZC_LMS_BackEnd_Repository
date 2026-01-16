@@ -7,6 +7,7 @@ import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.TodayCou
 import com.mzc.backend.lms.domains.dashboard.student.adapter.out.persistence.repository.DashboardQueryRepositoryJpa;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
+import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.UserProfile;
@@ -33,6 +34,7 @@ public class StudentDashboardService {
     private static final int DEFAULT_NOTICE_LIMIT = 5;
 
     private final DashboardQueryRepositoryJpa dashboardQueryRepository;
+    private final CourseRepositoryPort courseRepository;
 
     /**
      * 미제출 과제 목록 조회 (기본 7일 이내)
@@ -102,7 +104,8 @@ public class StudentDashboardService {
     }
 
     private TodayCourseDto toTodayCourseDto(Enrollment enrollment, DayOfWeek today) {
-        Course course = enrollment.getCourse();
+        Course course = courseRepository.findById(enrollment.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + enrollment.getCourseId()));
         Professor professor = course.getProfessor();
         UserProfile professorProfile = professor.getUser().getUserProfile();
 
