@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
+package com.mzc.backend.lms.domains.course.course.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.constants.CourseConstants;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
@@ -6,38 +6,35 @@ import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.repository.SubjectPrerequisitesRepository;
+import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
-import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
- * Course 도메인 Adapter
- * 현재: Repository 직접 호출
- * MSA 전환 시: HTTP Client로 교체
+ * Course 도메인 Adapter (enrollment 도메인용)
+ * enrollment 도메인의 CoursePort를 구현하여 강의 데이터 제공
  */
-@Component
+@Component("enrollmentCourseAdapter")
 @RequiredArgsConstructor
-public class CourseAdapter implements CoursePort {
+public class EnrollmentCourseAdapter implements CoursePort {
 
     private final CourseRepository courseRepository;
     private final SubjectPrerequisitesRepository prerequisitesRepository;
-    private final EnrollmentRepository enrollmentRepository;
 
     @Override
     public CourseInfo getCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> EnrollmentException.courseNotExists(courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         return toCourseInfo(course);
     }
 
     @Override
     public CourseInfo getCourseWithLock(Long courseId) {
         Course course = courseRepository.findByIdWithLock(courseId)
-                .orElseThrow(() -> EnrollmentException.courseNotExists(courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         return toCourseInfo(course);
     }
 
@@ -51,7 +48,7 @@ public class CourseAdapter implements CoursePort {
     @Override
     public void increaseCurrentStudents(Long courseId) {
         Course course = courseRepository.findByIdWithLock(courseId)
-                .orElseThrow(() -> EnrollmentException.courseNotExists(courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         course.setCurrentStudents(course.getCurrentStudents() + 1);
         courseRepository.save(course);
     }
@@ -59,7 +56,7 @@ public class CourseAdapter implements CoursePort {
     @Override
     public void decreaseCurrentStudents(Long courseId) {
         Course course = courseRepository.findByIdWithLock(courseId)
-                .orElseThrow(() -> EnrollmentException.courseNotExists(courseId));
+                .orElseThrow(() -> CourseException.courseNotFound(courseId));
         if (course.getCurrentStudents() > 0) {
             course.setCurrentStudents(course.getCurrentStudents() - 1);
             courseRepository.save(course);
@@ -67,21 +64,11 @@ public class CourseAdapter implements CoursePort {
     }
 
     @Override
-    public boolean checkPrerequisites(Long studentId, Long subjectId) {
-        List<SubjectPrerequisites> prerequisites = prerequisitesRepository.findBySubjectId(subjectId);
-
-        for (SubjectPrerequisites prerequisite : prerequisites) {
-            if (prerequisite.getIsMandatory()) {
-                Long prerequisiteSubjectId = prerequisite.getPrerequisite().getId();
-                // 해당 선수과목을 수강했는지 확인
-                boolean hasCompleted = enrollmentRepository.findByStudentId(studentId).stream()
-                        .anyMatch(e -> e.getCourse().getSubject().getId().equals(prerequisiteSubjectId));
-                if (!hasCompleted) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    public List<Long> getMandatoryPrerequisiteSubjectIds(Long subjectId) {
+        return prerequisitesRepository.findBySubjectId(subjectId).stream()
+                .filter(SubjectPrerequisites::getIsMandatory)
+                .map(p -> p.getPrerequisite().getId())
+                .toList();
     }
 
     private CourseInfo toCourseInfo(Course course) {

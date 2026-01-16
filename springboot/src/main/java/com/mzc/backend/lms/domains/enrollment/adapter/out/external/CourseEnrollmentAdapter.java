@@ -1,18 +1,19 @@
-package com.mzc.backend.lms.domains.course.course.adapter.out.external;
+package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
 
 import com.mzc.backend.lms.domains.course.course.application.port.out.EnrollmentPort;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * 수강신청 외부 Adapter (enrollment 도메인)
+ * 수강신청 외부 Adapter (course.course 도메인용)
+ * course.course 도메인의 EnrollmentPort를 구현하여 수강신청 데이터 제공
  */
 @Component("courseEnrollmentAdapter")
 @RequiredArgsConstructor
-public class EnrollmentAdapter implements EnrollmentPort {
+public class CourseEnrollmentAdapter implements EnrollmentPort {
 
-    private final EnrollmentRepository enrollmentRepository;
+    private final EnrollmentRepositoryPort enrollmentRepository;
 
     @Override
     public long countByCourseId(Long courseId) {

@@ -1,7 +1,5 @@
 package com.mzc.backend.lms.domains.course.grade.application.port.out;
 
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
-
 import java.util.List;
 
 /**
@@ -10,7 +8,15 @@ import java.util.List;
 public interface GradeEnrollmentPort {
 
     /**
-     * 강의 ID로 수강신청 목록 조회 (학생 정보 포함)
+     * 강의 ID로 수강생 정보 조회
      */
-    List<Enrollment> findByCourseIdWithStudent(Long courseId);
+    List<EnrolledStudentInfo> findStudentsByCourseId(Long courseId);
+
+    /**
+     * 강의 수강생 정보 DTO
+     */
+    record EnrolledStudentInfo(
+            Long studentId,
+            Long studentNumber
+    ) {}
 }

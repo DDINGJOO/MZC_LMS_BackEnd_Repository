@@ -10,7 +10,7 @@ import com.mzc.backend.lms.domains.course.grade.application.port.out.UserViewPor
 import com.mzc.backend.lms.domains.course.grade.adapter.in.web.dto.ProfessorCourseGradesResponseDto;
 import com.mzc.backend.lms.domains.course.grade.adapter.out.persistence.entity.Grade;
 import com.mzc.backend.lms.domains.course.grade.domain.enums.GradeStatus;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
+import com.mzc.backend.lms.domains.course.grade.application.port.out.GradeEnrollmentPort.EnrolledStudentInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,8 +51,8 @@ public class ProfessorGradeQueryService implements ProfessorGradeQueryUseCase {
         String courseName = (course.getSubject() != null) ? course.getSubject().getSubjectName() : null;
         Long academicTermId = (course.getAcademicTerm() != null) ? course.getAcademicTerm().getId() : null;
 
-        List<Enrollment> enrollments = enrollmentPort.findByCourseIdWithStudent(courseId);
-        List<Long> studentIds = enrollments.stream().map(e -> e.getStudent().getStudentId()).distinct().toList();
+        List<EnrolledStudentInfo> enrolledStudents = enrollmentPort.findStudentsByCourseId(courseId);
+        List<Long> studentIds = enrolledStudents.stream().map(EnrolledStudentInfo::studentId).distinct().toList();
 
         Map<Long, Grade> gradeMap = new HashMap<>();
         if (!studentIds.isEmpty()) {
@@ -69,9 +69,9 @@ public class ProfessorGradeQueryService implements ProfessorGradeQueryUseCase {
                 ? new HashMap<>()
                 : userViewPort.getUserNames(studentIds);
 
-        return enrollments.stream()
-                .map(e -> {
-                    Long sid = e.getStudent().getStudentId();
+        return enrolledStudents.stream()
+                .map(student -> {
+                    Long sid = student.studentId();
                     Grade g = gradeMap.get(sid);
                     return ProfessorCourseGradesResponseDto.builder()
                             .courseId(courseId)
@@ -79,7 +79,7 @@ public class ProfessorGradeQueryService implements ProfessorGradeQueryUseCase {
                             .courseName(courseName)
                             .student(ProfessorCourseGradesResponseDto.StudentDto.builder()
                                     .id(sid)
-                                    .studentNumber(e.getStudent().getStudentNumber())
+                                    .studentNumber(student.studentNumber())
                                     .name(nameMap.get(sid))
                                     .build())
                             .midtermScore(g != null ? g.getMidtermScore() : null)

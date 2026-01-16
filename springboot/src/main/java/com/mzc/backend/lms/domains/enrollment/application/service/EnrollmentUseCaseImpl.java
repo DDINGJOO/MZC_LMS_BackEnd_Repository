@@ -344,7 +344,8 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
         }
 
         // 선수과목
-        if (!coursePort.checkPrerequisites(studentId, course.subjectId())) {
+        List<Long> prerequisiteSubjectIds = coursePort.getMandatoryPrerequisiteSubjectIds(course.subjectId());
+        if (!enrolledSubjectIds.containsAll(prerequisiteSubjectIds)) {
             return "PREREQUISITE_NOT_MET";
         }
 

@@ -11,7 +11,7 @@ import com.mzc.backend.lms.domains.course.grade.application.port.in.GradePublish
 import com.mzc.backend.lms.domains.course.grade.application.port.out.*;
 import com.mzc.backend.lms.domains.course.grade.adapter.out.persistence.entity.Grade;
 import com.mzc.backend.lms.domains.course.grade.domain.enums.GradeStatus;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
+import com.mzc.backend.lms.domains.course.grade.application.port.out.GradeEnrollmentPort.EnrolledStudentInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -242,13 +242,13 @@ public class GradePublishService implements GradePublishUseCase {
 
         long totalWeeks = courseWeekPort.countByCourseId(courseId);
 
-        // 학생 엔티티를 함께 로딩해서 루프 내 lazy-loading(N+1) 가능성을 제거
+        // 수강생 정보 조회 (Port를 통해 DTO로 받음)
         // 주의: 여기서는 학생 "이름"을 직접 조회/복호화하지 않는다(성적 산출에 불필요).
-        List<Enrollment> enrollments = enrollmentPort.findByCourseIdWithStudent(courseId);
+        List<EnrolledStudentInfo> enrolledStudents = enrollmentPort.findStudentsByCourseId(courseId);
         // 1) 수강생별 점수(원점수/정규화/최종점수) 전부 계산
-        List<StudentGradeCalc> calcs = new ArrayList<>(enrollments.size());
-        for (Enrollment e : enrollments) {
-            Long studentId = e.getStudent().getStudentId();
+        List<StudentGradeCalc> calcs = new ArrayList<>(enrolledStudents.size());
+        for (EnrolledStudentInfo student : enrolledStudents) {
+            Long studentId = student.studentId();
 
             // 원점수 합(획득합)
             BigDecimal quizEarned = quizIds.isEmpty() ? BigDecimal.ZERO :
@@ -353,8 +353,8 @@ public class GradePublishService implements GradePublishUseCase {
             return;
         }
 
-        List<Enrollment> enrollments = enrollmentPort.findByCourseIdWithStudent(courseId);
-        List<Long> studentIds = enrollments.stream().map(e -> e.getStudent().getStudentId()).toList();
+        List<EnrolledStudentInfo> enrolledStudents = enrollmentPort.findStudentsByCourseId(courseId);
+        List<Long> studentIds = enrolledStudents.stream().map(EnrolledStudentInfo::studentId).toList();
         if (studentIds.isEmpty()) {
             log.info("성적 공개 스킵(수강생 없음) courseId={}", courseId);
             return;
