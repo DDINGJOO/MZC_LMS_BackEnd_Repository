@@ -9,6 +9,7 @@ import com.mzc.backend.lms.domains.attendance.application.port.in.StudentAttenda
 import com.mzc.backend.lms.domains.attendance.exception.AttendanceException;
 import com.mzc.backend.lms.domains.attendance.application.port.out.StudentContentProgressRepositoryPort;
 import com.mzc.backend.lms.domains.attendance.application.port.out.WeekAttendanceRepositoryPort;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort.EnrollmentInfo;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseWeek;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.WeekContent;
@@ -203,7 +204,7 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
     public List<CourseAttendanceSummaryDto> getStudentAllAttendance(Long studentId) {
         // 학생이 수강 중인 강의 목록 조회
         List<Long> courseIds = enrollmentRepository.findByStudentId(studentId).stream()
-                .map(e -> e.getCourseId())
+                .map(EnrollmentInfo::courseId)
                 .collect(Collectors.toList());
 
         return courseIds.stream()
@@ -301,21 +302,21 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
         validateProfessorCourse(professorId, courseId);
 
         // 수강생 목록 조회
-        var enrollments = enrollmentRepository.findByCourseId(courseId);
+        List<EnrollmentInfo> enrollments = enrollmentRepository.findByCourseId(courseId);
         int totalWeeks = courseWeekRepository.findByCourseId(courseId).size();
 
         return enrollments.stream()
                 .map(enrollment -> {
-                    Student student = enrollment.getStudent();
+                    Long studentId = enrollment.studentId();
                     int completedWeeks = weekAttendanceRepository
-                            .countCompletedByStudentAndCourse(student.getStudentId(), courseId);
+                            .countCompletedByStudentAndCourse(studentId, courseId);
                     double attendanceRate = totalWeeks > 0 ? (completedWeeks * 100.0 / totalWeeks) : 0;
 
                     // 학생 이름 조회 (UserProfile에서)
-                    String studentName = getStudentName(student.getStudentId());
+                    String studentName = getStudentName(studentId);
 
                     return StudentAttendanceDto.builder()
-                            .studentId(student.getStudentId())
+                            .studentId(studentId)
                             .studentName(studentName)
                             .completedWeeks(completedWeeks)
                             .totalWeeks(totalWeeks)
@@ -343,7 +344,7 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
         }
 
         // 수강생 목록 조회
-        var enrollments = enrollmentRepository.findByCourseId(courseId);
+        List<EnrollmentInfo> enrollments = enrollmentRepository.findByCourseId(courseId);
 
         // 해당 주차의 출석 목록 조회
         List<WeekAttendanceDomain> attendances = weekAttendanceRepository.findByWeekId(weekId);
@@ -351,16 +352,16 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
 
         return enrollments.stream()
                 .map(enrollment -> {
-                    Student student = enrollment.getStudent();
+                    Long studentId = enrollment.studentId();
                     WeekAttendanceDomain attendance = attendances.stream()
-                            .filter(a -> a.getStudentId().equals(student.getStudentId()))
+                            .filter(a -> a.getStudentId().equals(studentId))
                             .findFirst()
                             .orElse(null);
 
-                    String studentName = getStudentName(student.getStudentId());
+                    String studentName = getStudentName(studentId);
 
                     return WeekStudentAttendanceDto.builder()
-                            .studentId(student.getStudentId())
+                            .studentId(studentId)
                             .studentName(studentName)
                             .isCompleted(attendance != null && attendance.isAttendanceCompleted())
                             .completedVideoCount(attendance != null ? attendance.getCompletedVideoCount() : 0)
