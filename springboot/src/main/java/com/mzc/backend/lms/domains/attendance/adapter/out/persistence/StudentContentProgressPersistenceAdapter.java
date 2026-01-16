@@ -32,13 +32,13 @@ public class StudentContentProgressPersistenceAdapter implements StudentContentP
 
     @Override
     public Optional<StudentContentProgressDomain> findByStudentIdAndContentId(Long studentId, Long contentId) {
-        return studentContentProgressJpaRepository.findByStudentStudentIdAndContent_Id(studentId, contentId)
+        return studentContentProgressJpaRepository.findByStudentStudentIdAndContentId(studentId, contentId)
                 .map(StudentContentProgressMapper::toDomain);
     }
 
     @Override
     public List<StudentContentProgressDomain> findByStudentIdAndContentIdIn(Long studentId, List<Long> contentIds) {
-        return studentContentProgressJpaRepository.findByStudentStudentIdAndContent_IdIn(studentId, contentIds).stream()
+        return studentContentProgressJpaRepository.findByStudentStudentIdAndContentIdIn(studentId, contentIds).stream()
                 .map(StudentContentProgressMapper::toDomain)
                 .toList();
     }

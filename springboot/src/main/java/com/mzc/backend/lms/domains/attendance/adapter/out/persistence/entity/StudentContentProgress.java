@@ -1,6 +1,5 @@
 package com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity;
 
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.WeekContent;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,9 +23,8 @@ public class StudentContentProgress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "content_id", nullable = false)
-    private WeekContent content;
+    @Column(name = "content_id", nullable = false)
+    private Long contentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
@@ -58,13 +56,6 @@ public class StudentContentProgress {
      */
     public boolean isVideoCompleted() {
         return Boolean.TRUE.equals(this.isCompleted);
-    }
-
-    /**
-     * 콘텐츠 ID 반환 (편의 메서드)
-     */
-    public Long getContentId() {
-        return this.content != null ? this.content.getId() : null;
     }
 
     /**
