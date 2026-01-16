@@ -7,7 +7,7 @@ import com.mzc.backend.lms.domains.course.course.application.port.out.Enrollment
 import com.mzc.backend.lms.domains.course.course.application.port.out.SubjectPrerequisitesPort;
 import com.mzc.backend.lms.domains.course.course.application.port.out.UserViewPort;
 import com.mzc.backend.lms.domains.course.course.adapter.in.web.dto.*;
-import com.mzc.backend.lms.domains.course.constants.CourseConstants;
+import com.mzc.backend.lms.common.constants.CourseConstants;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
