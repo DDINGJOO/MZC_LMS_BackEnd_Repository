@@ -371,7 +371,7 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         // 학생이 수강신청한 강의 목록 조회
         List<Enrollment> studentEnrollments = enrollmentRepository.findByStudentId(studentId);
         Set<Long> enrolledSubjectIds = studentEnrollments.stream()
-                .map(enrollment -> enrollment.getCourse().getSubject().getId())
+                .map(enrollment -> coursePort.getCourse(enrollment.getCourseId()).subjectId())
                 .collect(Collectors.toSet());
 
         log.debug("학생 ID: {}, 수강신청한 과목 수: {}, 과목 IDs: {}", studentId, enrolledSubjectIds.size(), enrolledSubjectIds);

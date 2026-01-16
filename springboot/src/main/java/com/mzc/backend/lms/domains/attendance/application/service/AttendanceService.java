@@ -203,7 +203,7 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
     public List<CourseAttendanceSummaryDto> getStudentAllAttendance(Long studentId) {
         // 학생이 수강 중인 강의 목록 조회
         List<Long> courseIds = enrollmentRepository.findByStudentId(studentId).stream()
-                .map(e -> e.getCourse().getId())
+                .map(e -> e.getCourseId())
                 .collect(Collectors.toList());
 
         return courseIds.stream()
