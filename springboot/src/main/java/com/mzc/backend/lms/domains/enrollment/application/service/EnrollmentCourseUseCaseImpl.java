@@ -20,8 +20,7 @@ import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
-import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
-import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.repository.SubjectPrerequisitesRepository;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.*;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.*;
@@ -45,7 +44,7 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseCartRepository courseCartRepository;
     private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
-    private final SubjectPrerequisitesRepository subjectPrerequisitesRepository;
+    private final CoursePort coursePort;
     private final UserViewService userViewService;
 
     @Override
@@ -360,13 +359,13 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
      */
     private boolean checkPrerequisites(Course course, Long studentId) {
         Long subjectId = course.getSubject().getId();
-        List<SubjectPrerequisites> prerequisites = subjectPrerequisitesRepository.findBySubjectId(subjectId);
-        
-        log.debug("과목 ID: {}, 선수과목 개수: {}", subjectId, prerequisites.size());
-        
-        if (prerequisites.isEmpty()) {
+        List<Long> prerequisiteSubjectIds = coursePort.getMandatoryPrerequisiteSubjectIds(subjectId);
+
+        log.debug("과목 ID: {}, 필수 선수과목 개수: {}", subjectId, prerequisiteSubjectIds.size());
+
+        if (prerequisiteSubjectIds.isEmpty()) {
             log.debug("선수과목이 없으므로 true 반환");
-            return true; // 선수과목이 없으면 true
+            return true;
         }
 
         // 학생이 수강신청한 강의 목록 조회
@@ -378,18 +377,9 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         log.debug("학생 ID: {}, 수강신청한 과목 수: {}, 과목 IDs: {}", studentId, enrolledSubjectIds.size(), enrolledSubjectIds);
 
         // 필수 선수과목이 모두 이수되었는지 확인
-        for (SubjectPrerequisites prerequisite : prerequisites) {
-            if (prerequisite.getIsMandatory()) {
-                Long prerequisiteSubjectId = prerequisite.getPrerequisite().getId();
-                log.debug("필수 선수과목 ID: {}, 이수 여부: {}", prerequisiteSubjectId, enrolledSubjectIds.contains(prerequisiteSubjectId));
-                if (!enrolledSubjectIds.contains(prerequisiteSubjectId)) {
-                    log.debug("필수 선수과목을 이수하지 않아 false 반환");
-                    return false; // 필수 선수과목을 이수하지 않음
-                }
-            }
-        }
+        boolean allPrerequisitesMet = enrolledSubjectIds.containsAll(prerequisiteSubjectIds);
+        log.debug("모든 필수 선수과목 이수 여부: {}", allPrerequisitesMet);
 
-        log.debug("모든 필수 선수과목을 이수하여 true 반환");
-        return true; // 모든 필수 선수과목을 이수함
+        return allPrerequisitesMet;
     }
 }

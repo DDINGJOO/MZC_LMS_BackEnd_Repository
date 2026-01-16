@@ -1,7 +1,7 @@
 package com.mzc.backend.lms.domains.course.notice.adapter.in.event;
 
 import com.mzc.backend.lms.domains.course.notice.domain.event.CourseNoticeCreatedEvent;
-import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository.EnrollmentRepository;
+import com.mzc.backend.lms.domains.course.notice.application.port.out.NoticeEnrollmentPort;
 import com.mzc.backend.lms.common.notification.event.NotificationEventType;
 import com.mzc.backend.lms.domains.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.List;
 public class CourseNoticeNotificationListener {
 
     private final SendNotificationUseCase sendNotificationUseCase;
-    private final EnrollmentRepository enrollmentRepository;
+    private final NoticeEnrollmentPort enrollmentPort;
 
     /**
      * 공지사항 생성 이벤트 처리
@@ -36,7 +36,7 @@ public class CourseNoticeNotificationListener {
                 event.getCourseId(), event.getNoticeId(), event.getNoticeTitle());
 
         try {
-            List<Long> studentIds = enrollmentRepository.findStudentIdsByCourseId(event.getCourseId());
+            List<Long> studentIds = enrollmentPort.findStudentIdsByCourseId(event.getCourseId());
 
             if (studentIds.isEmpty()) {
                 log.debug("수강생이 없어 알림을 발송하지 않습니다: courseId={}", event.getCourseId());

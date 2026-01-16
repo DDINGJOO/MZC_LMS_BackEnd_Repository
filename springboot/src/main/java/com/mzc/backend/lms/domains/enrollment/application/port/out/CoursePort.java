@@ -37,9 +37,9 @@ public interface CoursePort {
     void decreaseCurrentStudents(Long courseId);
 
     /**
-     * 선수과목 이수 여부 확인
+     * 필수 선수과목 Subject ID 목록 조회
      */
-    boolean checkPrerequisites(Long studentId, Long subjectId);
+    List<Long> getMandatoryPrerequisiteSubjectIds(Long subjectId);
 
     // DTO Records
 
