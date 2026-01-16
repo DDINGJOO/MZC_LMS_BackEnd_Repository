@@ -18,12 +18,12 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
     /**
      * 학생 ID와 주차 ID로 출석 조회
      */
-    Optional<WeekAttendance> findByStudentStudentIdAndWeek_Id(Long studentId, Long weekId);
+    Optional<WeekAttendance> findByStudentStudentIdAndWeekId(Long studentId, Long weekId);
 
     /**
      * 학생의 특정 강의 출석 목록 조회
      */
-    List<WeekAttendance> findByStudentStudentIdAndCourse_Id(Long studentId, Long courseId);
+    List<WeekAttendance> findByStudentStudentIdAndCourseId(Long studentId, Long courseId);
 
     /**
      * 학생의 모든 출석 목록 조회
@@ -33,19 +33,19 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
     /**
      * 특정 강의의 모든 학생 출석 목록 조회 (교수용)
      */
-    List<WeekAttendance> findByCourse_Id(Long courseId);
+    List<WeekAttendance> findByCourseId(Long courseId);
 
     /**
      * 특정 주차의 모든 학생 출석 목록 조회 (교수용)
      */
-    List<WeekAttendance> findByWeek_Id(Long weekId);
+    List<WeekAttendance> findByWeekId(Long weekId);
 
     /**
      * 학생의 특정 강의 출석 완료 주차 수 조회
      */
     @Query("SELECT COUNT(wa) FROM WeekAttendance wa " +
             "WHERE wa.student.studentId = :studentId " +
-            "AND wa.course.id = :courseId " +
+            "AND wa.courseId = :courseId " +
             "AND wa.isCompleted = true")
     int countCompletedByStudentAndCourse(
             @Param("studentId") Long studentId,
@@ -55,7 +55,7 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
      * 특정 강의의 출석 완료 학생 수 조회 (주차별)
      */
     @Query("SELECT COUNT(wa) FROM WeekAttendance wa " +
-            "WHERE wa.week.id = :weekId " +
+            "WHERE wa.weekId = :weekId " +
             "AND wa.isCompleted = true")
     int countCompletedByWeek(@Param("weekId") Long weekId);
 
@@ -63,7 +63,7 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
      * 특정 강의, 주차의 미완료 학생 목록 조회
      */
     @Query("SELECT wa FROM WeekAttendance wa " +
-            "WHERE wa.week.id = :weekId " +
+            "WHERE wa.weekId = :weekId " +
             "AND wa.isCompleted = false")
     List<WeekAttendance> findIncompleteByWeek(@Param("weekId") Long weekId);
 
@@ -74,7 +74,7 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
             "COUNT(wa), " +
             "SUM(CASE WHEN wa.isCompleted = true THEN 1 ELSE 0 END) " +
             "FROM WeekAttendance wa " +
-            "WHERE wa.course.id = :courseId " +
+            "WHERE wa.courseId = :courseId " +
             "GROUP BY wa.student.studentId")
     List<Object[]> getAttendanceStatsByCourse(@Param("courseId") Long courseId);
 
@@ -83,7 +83,7 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
      */
     @Query("SELECT wa FROM WeekAttendance wa " +
             "WHERE wa.student.studentId = :studentId " +
-            "AND wa.week.id IN :weekIds")
+            "AND wa.weekId IN :weekIds")
     List<WeekAttendance> findByStudentAndWeekIds(
             @Param("studentId") Long studentId,
             @Param("weekIds") List<Long> weekIds);

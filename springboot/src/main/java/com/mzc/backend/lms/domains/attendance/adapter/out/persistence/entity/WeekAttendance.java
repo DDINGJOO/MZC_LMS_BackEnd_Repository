@@ -1,7 +1,5 @@
 package com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity;
 
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseWeek;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,13 +28,11 @@ public class WeekAttendance {
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "week_id", nullable = false)
-    private CourseWeek week;
+    @Column(name = "week_id", nullable = false)
+    private Long weekId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
 
     @Column(name = "is_completed", nullable = false)
     @Builder.Default
@@ -58,11 +54,11 @@ public class WeekAttendance {
     /**
      * 출석 레코드 생성 팩토리 메서드
      */
-    public static WeekAttendance create(Student student, CourseWeek week, Course course, int totalVideoCount) {
+    public static WeekAttendance create(Student student, Long weekId, Long courseId, int totalVideoCount) {
         return WeekAttendance.builder()
                 .student(student)
-                .week(week)
-                .course(course)
+                .weekId(weekId)
+                .courseId(courseId)
                 .isCompleted(false)
                 .completedVideoCount(0)
                 .totalVideoCount(totalVideoCount)
@@ -118,17 +114,4 @@ public class WeekAttendance {
         return this.student != null ? this.student.getStudentId() : null;
     }
 
-    /**
-     * 주차 ID 반환 (편의 메서드)
-     */
-    public Long getWeekId() {
-        return this.week != null ? this.week.getId() : null;
-    }
-
-    /**
-     * 강의 ID 반환 (편의 메서드)
-     */
-    public Long getCourseId() {
-        return this.course != null ? this.course.getId() : null;
-    }
 }

@@ -18,19 +18,19 @@ public interface StudentContentProgressJpaRepository extends JpaRepository<Stude
     /**
      * 학생 ID와 콘텐츠 ID로 진행 상황 조회
      */
-    Optional<StudentContentProgress> findByStudentStudentIdAndContent_Id(Long studentId, Long contentId);
+    Optional<StudentContentProgress> findByStudentStudentIdAndContentId(Long studentId, Long contentId);
 
     /**
      * 학생 ID와 콘텐츠 ID 목록으로 진행 상황 조회
      */
-    List<StudentContentProgress> findByStudentStudentIdAndContent_IdIn(Long studentId, List<Long> contentIds);
+    List<StudentContentProgress> findByStudentStudentIdAndContentIdIn(Long studentId, List<Long> contentIds);
 
     /**
      * 학생 ID와 콘텐츠 ID 목록 중 완료된 것만 조회
      */
     @Query("SELECT scp FROM StudentContentProgress scp " +
             "WHERE scp.student.studentId = :studentId " +
-            "AND scp.content.id IN :contentIds " +
+            "AND scp.contentId IN :contentIds " +
             "AND scp.isCompleted = true")
     List<StudentContentProgress> findCompletedByStudentAndContentIds(
             @Param("studentId") Long studentId,
@@ -38,13 +38,14 @@ public interface StudentContentProgressJpaRepository extends JpaRepository<Stude
 
     /**
      * 학생이 특정 주차에서 완료한 VIDEO 콘텐츠 수 조회
+     * Note: weekId와 contentType 필터링은 contentIds를 미리 조회하여 전달해야 함
      */
-    @Query("SELECT COUNT(scp) FROM StudentContentProgress scp " +
-            "JOIN scp.content wc " +
-            "WHERE scp.student.studentId = :studentId " +
-            "AND wc.week.id = :weekId " +
-            "AND wc.contentType = 'VIDEO' " +
-            "AND scp.isCompleted = true")
+    @Query(value = "SELECT COUNT(scp.id) FROM student_content_progress scp " +
+            "JOIN week_contents wc ON scp.content_id = wc.id " +
+            "WHERE scp.student_id = :studentId " +
+            "AND wc.week_id = :weekId " +
+            "AND wc.content_type = 'VIDEO' " +
+            "AND scp.is_completed = true", nativeQuery = true)
     int countCompletedVideosByStudentAndWeek(
             @Param("studentId") Long studentId,
             @Param("weekId") Long weekId);
@@ -52,11 +53,11 @@ public interface StudentContentProgressJpaRepository extends JpaRepository<Stude
     /**
      * 학생의 특정 강의 전체 진행 상황 조회
      */
-    @Query("SELECT scp FROM StudentContentProgress scp " +
-            "JOIN scp.content wc " +
-            "JOIN wc.week cw " +
-            "WHERE scp.student.studentId = :studentId " +
-            "AND cw.course.id = :courseId")
+    @Query(value = "SELECT scp.* FROM student_content_progress scp " +
+            "JOIN week_contents wc ON scp.content_id = wc.id " +
+            "JOIN course_weeks cw ON wc.week_id = cw.id " +
+            "WHERE scp.student_id = :studentId " +
+            "AND cw.course_id = :courseId", nativeQuery = true)
     List<StudentContentProgress> findByStudentAndCourse(
             @Param("studentId") Long studentId,
             @Param("courseId") Long courseId);

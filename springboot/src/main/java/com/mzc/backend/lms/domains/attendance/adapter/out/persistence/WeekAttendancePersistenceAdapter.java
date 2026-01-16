@@ -32,13 +32,13 @@ public class WeekAttendancePersistenceAdapter implements WeekAttendanceRepositor
 
     @Override
     public Optional<WeekAttendanceDomain> findByStudentIdAndWeekId(Long studentId, Long weekId) {
-        return weekAttendanceJpaRepository.findByStudentStudentIdAndWeek_Id(studentId, weekId)
+        return weekAttendanceJpaRepository.findByStudentStudentIdAndWeekId(studentId, weekId)
                 .map(WeekAttendanceMapper::toDomain);
     }
 
     @Override
     public List<WeekAttendanceDomain> findByStudentIdAndCourseId(Long studentId, Long courseId) {
-        return weekAttendanceJpaRepository.findByStudentStudentIdAndCourse_Id(studentId, courseId).stream()
+        return weekAttendanceJpaRepository.findByStudentStudentIdAndCourseId(studentId, courseId).stream()
                 .map(WeekAttendanceMapper::toDomain)
                 .toList();
     }
@@ -52,14 +52,14 @@ public class WeekAttendancePersistenceAdapter implements WeekAttendanceRepositor
 
     @Override
     public List<WeekAttendanceDomain> findByCourseId(Long courseId) {
-        return weekAttendanceJpaRepository.findByCourse_Id(courseId).stream()
+        return weekAttendanceJpaRepository.findByCourseId(courseId).stream()
                 .map(WeekAttendanceMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<WeekAttendanceDomain> findByWeekId(Long weekId) {
-        return weekAttendanceJpaRepository.findByWeek_Id(weekId).stream()
+        return weekAttendanceJpaRepository.findByWeekId(weekId).stream()
                 .map(WeekAttendanceMapper::toDomain)
                 .toList();
     }
