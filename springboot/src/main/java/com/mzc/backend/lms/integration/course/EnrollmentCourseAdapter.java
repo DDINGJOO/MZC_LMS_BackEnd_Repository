@@ -1,6 +1,6 @@
-package com.mzc.backend.lms.domains.course.course.adapter.out.external;
+package com.mzc.backend.lms.integration.course;
 
-import com.mzc.backend.lms.domains.course.constants.CourseConstants;
+import com.mzc.backend.lms.common.constants.CourseConstants;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
@@ -64,10 +64,29 @@ public class EnrollmentCourseAdapter implements CoursePort {
     }
 
     @Override
+    public List<CourseInfo> getCoursesByAcademicTermId(Long academicTermId) {
+        return courseRepository.findByAcademicTermId(academicTermId).stream()
+                .map(this::toCourseInfo)
+                .toList();
+    }
+
+    @Override
     public List<Long> getMandatoryPrerequisiteSubjectIds(Long subjectId) {
         return prerequisitesRepository.findBySubjectId(subjectId).stream()
                 .filter(SubjectPrerequisites::getIsMandatory)
                 .map(p -> p.getPrerequisite().getId())
+                .toList();
+    }
+
+    @Override
+    public List<PrerequisiteInfo> getPrerequisites(Long subjectId) {
+        return prerequisitesRepository.findBySubjectId(subjectId).stream()
+                .map(p -> new PrerequisiteInfo(
+                        p.getPrerequisite().getId(),
+                        p.getPrerequisite().getSubjectCode(),
+                        p.getPrerequisite().getSubjectName(),
+                        p.getIsMandatory()
+                ))
                 .toList();
     }
 
@@ -76,10 +95,11 @@ public class EnrollmentCourseAdapter implements CoursePort {
                 .map(this::toScheduleInfo)
                 .toList();
 
+        int courseTypeIntCode = course.getSubject().getCourseType().getTypeCode();
         String courseTypeCode = CourseConstants.COURSE_TYPE_CODE_MAP
-                .getOrDefault(course.getSubject().getCourseType().getTypeCode(), "기타");
+                .getOrDefault(courseTypeIntCode, "기타");
         String courseTypeName = CourseConstants.COURSE_TYPE_NAME_MAP
-                .getOrDefault(course.getSubject().getCourseType().getTypeCode(), "기타");
+                .getOrDefault(courseTypeIntCode, "기타");
 
         return new CourseInfo(
                 course.getId(),
@@ -94,6 +114,9 @@ public class EnrollmentCourseAdapter implements CoursePort {
                 course.getAcademicTerm().getId(),
                 courseTypeCode,
                 courseTypeName,
+                courseTypeIntCode,
+                course.getSubject().getDepartment().getId(),
+                course.getSubject().getDepartment().getDepartmentName(),
                 schedules
         );
     }

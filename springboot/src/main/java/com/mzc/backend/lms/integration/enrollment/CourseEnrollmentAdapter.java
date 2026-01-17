@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
+package com.mzc.backend.lms.integration.enrollment;
 
 import com.mzc.backend.lms.domains.course.course.application.port.out.EnrollmentPort;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort;

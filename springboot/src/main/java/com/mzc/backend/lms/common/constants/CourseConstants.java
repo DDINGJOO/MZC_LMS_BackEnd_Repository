@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.course.constants;
+package com.mzc.backend.lms.common.constants;
 
 import java.time.DayOfWeek;
 import java.util.Map;

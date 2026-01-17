@@ -1,7 +1,8 @@
-package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
+package com.mzc.backend.lms.integration.enrollment;
 
 import com.mzc.backend.lms.domains.course.notice.application.port.out.NoticeEnrollmentPort;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort.EnrollmentInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class NoticeEnrollmentAdapter implements NoticeEnrollmentPort {
     @Override
     public List<Long> findStudentIdsByCourseId(Long courseId) {
         return enrollmentRepository.findByCourseId(courseId).stream()
-                .map(enrollment -> enrollment.getStudent().getStudentId())
+                .map(EnrollmentInfo::studentId)
                 .collect(Collectors.toList());
     }
 }
