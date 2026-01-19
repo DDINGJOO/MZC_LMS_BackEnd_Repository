@@ -64,16 +64,45 @@ public class HexagonalArchitectureTest {
             .because("Output Port는 Adapter에 의존하면 안됩니다"));
 
     // ============================================================
-    // HEX-003: Service는 Port를 통해 Adapter와 통신
+    // HEX-003: Service는 타 도메인의 JPA Repository에 직접 의존하지 않음
+    // 같은 도메인 내의 JPA Repository는 허용 (Port 도입 전 단계)
     // ============================================================
 
+    // enrollment 서비스는 course 도메인의 JPA Repository에 의존하면 안됨
     @ArchTest
-    static final ArchRule service_should_not_depend_on_jpa_repository =
+    static final ArchRule enrollment_service_should_not_depend_on_course_repository =
         freeze(noClasses()
-            .that().resideInAPackage("..application.service..")
+            .that().resideInAPackage("..domains.enrollment..application.service..")
             .should().dependOnClassesThat()
-            .resideInAPackage("..adapter.out.persistence.repository..")
-            .because("서비스는 JPA Repository 구현체에 직접 의존하면 안됩니다. Repository Port를 사용하세요"));
+            .resideInAPackage("..domains.course..adapter.out.persistence.repository..")
+            .because("enrollment 서비스는 course 도메인의 JPA Repository에 직접 의존하면 안됩니다. CoursePort를 사용하세요"));
+
+    // enrollment 서비스는 user 도메인의 JPA Repository에 의존하면 안됨
+    @ArchTest
+    static final ArchRule enrollment_service_should_not_depend_on_user_repository =
+        freeze(noClasses()
+            .that().resideInAPackage("..domains.enrollment..application.service..")
+            .should().dependOnClassesThat()
+            .resideInAPackage("..domains.user..adapter.out.persistence.repository..")
+            .because("enrollment 서비스는 user 도메인의 JPA Repository에 직접 의존하면 안됩니다. StudentPort를 사용하세요"));
+
+    // course 서비스는 enrollment 도메인의 JPA Repository에 의존하면 안됨
+    @ArchTest
+    static final ArchRule course_service_should_not_depend_on_enrollment_repository =
+        freeze(noClasses()
+            .that().resideInAPackage("..domains.course..application.service..")
+            .should().dependOnClassesThat()
+            .resideInAPackage("..domains.enrollment..adapter.out.persistence.repository..")
+            .because("course 서비스는 enrollment 도메인의 JPA Repository에 직접 의존하면 안됩니다. EnrollmentPort를 사용하세요"));
+
+    // dashboard 서비스는 course 도메인의 JPA Repository에 의존하면 안됨 (Port 사용 권장)
+    @ArchTest
+    static final ArchRule dashboard_service_should_not_depend_on_course_repository =
+        freeze(noClasses()
+            .that().resideInAPackage("..domains.dashboard..application.service..")
+            .should().dependOnClassesThat()
+            .resideInAPackage("..domains.course..adapter.out.persistence.repository..")
+            .because("dashboard 서비스는 course 도메인의 JPA Repository에 직접 의존하면 안됩니다"));
 
     @ArchTest
     static final ArchRule service_should_not_depend_on_controller =
