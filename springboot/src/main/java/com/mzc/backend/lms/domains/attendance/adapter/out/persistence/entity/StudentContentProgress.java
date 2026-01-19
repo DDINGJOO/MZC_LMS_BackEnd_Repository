@@ -1,6 +1,5 @@
 package com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity;
 
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,7 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * 학생 콘텐츠 진행 상황 엔티티
- * student_content_progress 테이블과 매핑 (Video Streaming Server에서 관리)
+ * MSA 전환을 위해 다른 도메인 Entity 직접 참조 대신 ID만 저장
  */
 @Entity
 @Table(name = "student_content_progress",
@@ -26,9 +25,8 @@ public class StudentContentProgress {
     @Column(name = "content_id", nullable = false)
     private Long contentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @Column(name = "student_id", nullable = false)
+    private Long studentId;
 
     @Column(name = "is_completed", nullable = false)
     private Boolean isCompleted;
@@ -51,17 +49,7 @@ public class StudentContentProgress {
     @Column(name = "access_count", nullable = false)
     private Integer accessCount;
 
-    /**
-     * 콘텐츠 완료 여부 확인
-     */
     public boolean isVideoCompleted() {
         return Boolean.TRUE.equals(this.isCompleted);
-    }
-
-    /**
-     * 학생 ID 반환 (편의 메서드)
-     */
-    public Long getStudentId() {
-        return this.student != null ? this.student.getStudentId() : null;
     }
 }
