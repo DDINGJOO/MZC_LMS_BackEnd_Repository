@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.board.assignment.adapter.out.persistence.rep
 
 import com.mzc.backend.lms.domains.board.assignment.adapter.out.persistence.entity.Assignment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * 과제 Repository
  */
 @Repository
-public interface AssignmentRepositoryJpa extends JpaRepository<Assignment, Long> {
+public interface AssignmentRepositoryJpa extends JpaRepository<Assignment, Long>, JpaSpecificationExecutor<Assignment> {
 
     /**
      * 게시글 ID로 과제 조회
