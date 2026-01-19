@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.message.message.adapter.out.persistence.repo
 
 import com.mzc.backend.lms.domains.message.message.adapter.out.persistence.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +14,7 @@ import java.util.List;
  * 메시지 Repository
  */
 @Repository
-public interface MessageJpaRepository extends JpaRepository<Message, Long> {
+public interface MessageJpaRepository extends JpaRepository<Message, Long>, JpaSpecificationExecutor<Message> {
 
     /**
      * 대화방의 메시지 목록 조회 (최신순)
