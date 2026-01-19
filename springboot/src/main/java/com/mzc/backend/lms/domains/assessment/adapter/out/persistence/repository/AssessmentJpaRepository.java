@@ -3,6 +3,7 @@ package com.mzc.backend.lms.domains.assessment.adapter.out.persistence.repositor
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.Assessment;
 import com.mzc.backend.lms.domains.assessment.adapter.out.persistence.entity.enums.AssessmentType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AssessmentJpaRepository extends JpaRepository<Assessment, Long> {
+public interface AssessmentJpaRepository extends JpaRepository<Assessment, Long>, JpaSpecificationExecutor<Assessment> {
 
     @Query("""
         SELECT a FROM Assessment a
