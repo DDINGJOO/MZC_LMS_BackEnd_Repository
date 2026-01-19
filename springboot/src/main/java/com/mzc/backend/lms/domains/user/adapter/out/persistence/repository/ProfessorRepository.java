@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.user.adapter.out.persistence.repository;
 
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * 교수 Repository
  */
 @Repository
-public interface ProfessorRepository extends JpaRepository<Professor, Long> {
+public interface ProfessorRepository extends JpaRepository<Professor, Long>, JpaSpecificationExecutor<Professor> {
 
     /**
      * 교번 존재 여부 확인
