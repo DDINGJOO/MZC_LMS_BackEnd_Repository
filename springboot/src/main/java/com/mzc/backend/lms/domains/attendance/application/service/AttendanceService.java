@@ -16,8 +16,8 @@ import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepo
 import com.mzc.backend.lms.domains.course.course.application.port.out.CourseWeekRepositoryPort;
 import com.mzc.backend.lms.domains.course.course.application.port.out.WeekContentRepositoryPort;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort;
-import com.mzc.backend.lms.domains.user.application.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
+import com.mzc.backend.lms.domains.user.application.service.EncryptionService;
 import com.mzc.backend.lms.domains.user.application.port.out.StudentQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -306,16 +306,16 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
 
         return enrollments.stream()
                 .map(enrollment -> {
-                    Student student = enrollment.getStudent();
+                    Long studentId = enrollment.getStudentId();
                     int completedWeeks = weekAttendanceRepository
-                            .countCompletedByStudentAndCourse(student.getStudentId(), courseId);
+                            .countCompletedByStudentAndCourse(studentId, courseId);
                     double attendanceRate = totalWeeks > 0 ? (completedWeeks * 100.0 / totalWeeks) : 0;
 
                     // 학생 이름 조회 (UserProfile에서)
-                    String studentName = getStudentName(student.getStudentId());
+                    String studentName = getStudentName(studentId);
 
                     return StudentAttendanceDto.builder()
-                            .studentId(student.getStudentId())
+                            .studentId(studentId)
                             .studentName(studentName)
                             .completedWeeks(completedWeeks)
                             .totalWeeks(totalWeeks)
@@ -351,16 +351,16 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
 
         return enrollments.stream()
                 .map(enrollment -> {
-                    Student student = enrollment.getStudent();
+                    Long studentId = enrollment.getStudentId();
                     WeekAttendanceDomain attendance = attendances.stream()
-                            .filter(a -> a.getStudentId().equals(student.getStudentId()))
+                            .filter(a -> a.getStudentId().equals(studentId))
                             .findFirst()
                             .orElse(null);
 
-                    String studentName = getStudentName(student.getStudentId());
+                    String studentName = getStudentName(studentId);
 
                     return WeekStudentAttendanceDto.builder()
-                            .studentId(student.getStudentId())
+                            .studentId(studentId)
                             .studentName(studentName)
                             .isCompleted(attendance != null && attendance.isAttendanceCompleted())
                             .completedVideoCount(attendance != null ? attendance.getCompletedVideoCount() : 0)
