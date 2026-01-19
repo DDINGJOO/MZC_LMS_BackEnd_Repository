@@ -3,6 +3,7 @@ package com.mzc.backend.lms.domains.course.grade.adapter.out.persistence.reposit
 import com.mzc.backend.lms.domains.course.grade.adapter.out.persistence.entity.Grade;
 import com.mzc.backend.lms.domains.course.grade.domain.enums.GradeStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface GradeRepository extends JpaRepository<Grade, Long> {
+public interface GradeRepository extends JpaRepository<Grade, Long>, JpaSpecificationExecutor<Grade> {
     Optional<Grade> findByCourseIdAndStudentId(Long courseId, Long studentId);
 
     List<Grade> findByStudentIdAndStatusOrderByAcademicTermIdDescCourseIdAsc(Long studentId, GradeStatus status);
