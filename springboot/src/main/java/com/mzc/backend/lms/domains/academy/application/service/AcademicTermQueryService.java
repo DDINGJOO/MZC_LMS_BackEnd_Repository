@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.academy.application.service;
 
+import com.mzc.backend.lms.common.config.CacheConfig;
 import com.mzc.backend.lms.domains.academy.adapter.in.web.dto.AcademicTermResponseDto;
 import com.mzc.backend.lms.domains.academy.application.port.in.AcademicTermQueryUseCase;
 import com.mzc.backend.lms.domains.academy.application.port.out.AcademicTermRepositoryPort;
@@ -7,6 +8,7 @@ import com.mzc.backend.lms.domains.academy.domain.model.AcademicTermDomain;
 import com.mzc.backend.lms.domains.academy.exception.AcademyException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class AcademicTermQueryService implements AcademicTermQueryUseCase {
     private final AcademicTermRepositoryPort academicTermRepositoryPort;
 
     @Override
+    @Cacheable(value = CacheConfig.CACHE_TERMS, key = "'current:' + #today")
     public AcademicTermResponseDto getCurrentAcademicTerm(LocalDate today) {
         AcademicTermDomain academicTerm = academicTermRepositoryPort.findCurrentTerms(today).stream()
                 .findFirst()
@@ -33,6 +36,7 @@ public class AcademicTermQueryService implements AcademicTermQueryUseCase {
     }
 
     @Override
+    @Cacheable(value = CacheConfig.CACHE_TERMS, key = "#id")
     public AcademicTermResponseDto getAcademicTermById(Long id) {
         AcademicTermDomain academicTerm = academicTermRepositoryPort.findById(id)
                 .orElseThrow(() -> AcademyException.semesterNotFound(id));

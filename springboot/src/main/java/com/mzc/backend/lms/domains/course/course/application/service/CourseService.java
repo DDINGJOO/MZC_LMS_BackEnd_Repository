@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.course.course.application.service;
 
+import com.mzc.backend.lms.common.config.CacheConfig;
 import com.mzc.backend.lms.domains.course.course.application.port.in.CourseQueryUseCase;
 import com.mzc.backend.lms.domains.course.course.application.port.out.CourseRepositoryPort;
 import com.mzc.backend.lms.domains.course.course.application.port.out.CourseWeekRepositoryPort;
@@ -19,6 +20,7 @@ import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.Enroll
 import com.mzc.backend.lms.domains.course.exception.CourseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -338,6 +340,7 @@ public class CourseService implements CourseQueryUseCase {
      * 강의 상세 정보 조회
      */
     @Override
+    @Cacheable(value = CacheConfig.CACHE_COURSES, key = "#courseId")
     public CourseDetailDto getCourseDetail(Long courseId) {
         if(courseId == null) {
             throw CourseException.courseIdRequired();

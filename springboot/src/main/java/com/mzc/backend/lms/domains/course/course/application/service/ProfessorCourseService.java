@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.course.course.application.service;
 
+import com.mzc.backend.lms.common.config.CacheConfig;
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
 import com.mzc.backend.lms.domains.course.course.application.port.in.ProfessorCourseUseCase;
@@ -22,6 +23,7 @@ import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Departmen
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Professor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -386,6 +388,7 @@ public class ProfessorCourseService implements ProfessorCourseUseCase {
      * 강의 수정
      */
     @Override
+    @CacheEvict(value = CacheConfig.CACHE_COURSES, key = "#courseId")
     public CreateCourseResponseDto updateCourse(Long courseId, UpdateCourseRequestDto request, Long professorId) {
         log.info("강의 수정 요청: courseId={}, professorId={}", courseId, professorId);
 
@@ -508,6 +511,7 @@ public class ProfessorCourseService implements ProfessorCourseUseCase {
      * 강의 취소
      */
     @Override
+    @CacheEvict(value = CacheConfig.CACHE_COURSES, key = "#courseId")
     public void cancelCourse(Long courseId, Long professorId) {
         log.info("강의 취소 요청: courseId={}, professorId={}", courseId, professorId);
 
