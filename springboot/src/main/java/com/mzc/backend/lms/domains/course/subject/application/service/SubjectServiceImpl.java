@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.course.subject.application.service;
 
+import com.mzc.backend.lms.common.config.CacheConfig;
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
 import com.mzc.backend.lms.domains.course.exception.CourseException;
 import com.mzc.backend.lms.domains.course.subject.application.port.in.SubjectUseCase;
@@ -13,6 +14,7 @@ import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity
 import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
 import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Department;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -86,6 +88,7 @@ public class SubjectServiceImpl implements SubjectUseCase {
     }
 
     @Override
+    @Cacheable(value = CacheConfig.CACHE_SUBJECTS, key = "#subjectId")
     public SubjectDetailResponse getSubjectDetail(Long subjectId) {
         Subject subject = subjectRepository.findByIdWithDetails(subjectId)
                 .orElseThrow(() -> CourseException.subjectNotFound(subjectId));

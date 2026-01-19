@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.user.application.service;
 
+import com.mzc.backend.lms.common.config.CacheConfig;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.search.CollegeListResponseDto;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.search.DepartmentListResponseDto;
 import com.mzc.backend.lms.domains.user.adapter.in.web.dto.search.UserSearchCursorResponseDto;
@@ -14,6 +15,7 @@ import com.mzc.backend.lms.domains.user.application.port.out.CollegeQueryPort;
 import com.mzc.backend.lms.domains.user.application.port.out.DepartmentQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,7 @@ public class UserSearchService implements SearchUsersUseCase, GetCollegesUseCase
     }
 
     @Override
+    @Cacheable(value = CacheConfig.CACHE_COLLEGES, key = "'all'")
     public List<CollegeListResponseDto> getAllColleges() {
         return collegeQueryPort.findAll().stream()
                 .map(CollegeListResponseDto::from)
@@ -73,6 +76,7 @@ public class UserSearchService implements SearchUsersUseCase, GetCollegesUseCase
     }
 
     @Override
+    @Cacheable(value = CacheConfig.CACHE_DEPARTMENTS, key = "'college:' + #collegeId")
     public List<DepartmentListResponseDto> getDepartmentsByCollegeId(Long collegeId) {
         return departmentQueryPort.findByCollegeId(collegeId).stream()
                 .map(DepartmentListResponseDto::from)
@@ -80,6 +84,7 @@ public class UserSearchService implements SearchUsersUseCase, GetCollegesUseCase
     }
 
     @Override
+    @Cacheable(value = CacheConfig.CACHE_DEPARTMENTS, key = "'all'")
     public List<DepartmentListResponseDto> getAllDepartments() {
         return departmentQueryPort.findAll().stream()
                 .map(DepartmentListResponseDto::from)
