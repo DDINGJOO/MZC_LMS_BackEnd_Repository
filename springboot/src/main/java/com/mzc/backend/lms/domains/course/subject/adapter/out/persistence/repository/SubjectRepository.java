@@ -4,6 +4,7 @@ import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import jakarta.persistence.LockModeType;
@@ -16,7 +17,7 @@ import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Departmen
 import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
 
 @Repository
-public interface SubjectRepository extends JpaRepository<Subject, Long> {
+public interface SubjectRepository extends JpaRepository<Subject, Long>, JpaSpecificationExecutor<Subject> {
     /**
      * 학과로 과목 목록 조회
      */
