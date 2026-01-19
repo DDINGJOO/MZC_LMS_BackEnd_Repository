@@ -1,9 +1,7 @@
 package com.mzc.backend.lms.domains.user.email.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +44,7 @@ public class EmailMessage {
     /**
      * 템플릿 변수
      */
+
     @Builder.Default
     private Map<String, Object> variables = new HashMap<>();
 
