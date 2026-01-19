@@ -85,6 +85,9 @@ dependencies {
     // starter 대신 redisson만 사용 (Lettuce 연결 풀과 충돌 방지)
     implementation 'org.redisson:redisson:3.40.2'
 
+    // Rate Limiting - Bucket4j
+    implementation 'com.bucket4j:bucket4j-core:8.10.1'
+
     // Image Processing (WebP)
     implementation 'com.sksamuel.scrimage:scrimage-core:4.1.3'
     implementation 'com.sksamuel.scrimage:scrimage-webp:4.1.3'
