@@ -1,6 +1,5 @@
 package com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity;
 
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,8 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * 주차별 출석 엔티티
- * 학생이 해당 주차의 모든 VIDEO를 완료하면 출석으로 인정
- * 완료 시점 잠금: 출석 완료된 주차는 이후 콘텐츠 변경에 영향받지 않음
+ * MSA 전환을 위해 다른 도메인 Entity 직접 참조 대신 ID만 저장
  */
 @Entity
 @Table(name = "week_attendance",
@@ -24,9 +22,8 @@ public class WeekAttendance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @Column(name = "student_id", nullable = false)
+    private Long studentId;
 
     @Column(name = "week_id", nullable = false)
     private Long weekId;
@@ -54,9 +51,9 @@ public class WeekAttendance {
     /**
      * 출석 레코드 생성 팩토리 메서드
      */
-    public static WeekAttendance create(Student student, Long weekId, Long courseId, int totalVideoCount) {
+    public static WeekAttendance create(Long studentId, Long weekId, Long courseId, int totalVideoCount) {
         return WeekAttendance.builder()
-                .student(student)
+                .studentId(studentId)
                 .weekId(weekId)
                 .courseId(courseId)
                 .isCompleted(false)
@@ -68,7 +65,6 @@ public class WeekAttendance {
 
     /**
      * VIDEO 완료 시 진행 상황 업데이트
-     * 완료 시점 잠금: 이미 완료된 출석은 변경하지 않음
      */
     public void updateProgress(int completedVideoCount) {
         if (Boolean.TRUE.equals(this.isCompleted)) {
@@ -82,36 +78,19 @@ public class WeekAttendance {
         }
     }
 
-    /**
-     * 출석 완료 처리
-     */
     private void markAsCompleted() {
         this.isCompleted = true;
         this.completedAt = LocalDateTime.now();
     }
 
-    /**
-     * 출석 완료 여부 확인
-     */
     public boolean isAttendanceCompleted() {
         return Boolean.TRUE.equals(this.isCompleted);
     }
 
-    /**
-     * 진행률 계산 (0 ~ 100)
-     */
     public int getProgressPercentage() {
         if (this.totalVideoCount == 0) {
             return 100;
         }
         return (int) ((this.completedVideoCount * 100.0) / this.totalVideoCount);
     }
-
-    /**
-     * 학생 ID 반환 (편의 메서드)
-     */
-    public Long getStudentId() {
-        return this.student != null ? this.student.getStudentId() : null;
-    }
-
 }
