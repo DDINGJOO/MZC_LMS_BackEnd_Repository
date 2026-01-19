@@ -1,13 +1,12 @@
 package com.mzc.backend.lms.domains.dashboard.student.adapter.out.persistence.repository;
 
+import com.mzc.backend.lms.common.repository.BaseCustomRepository;
 import com.mzc.backend.lms.domains.board.adapter.out.persistence.enums.BoardType;
 import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.EnrollmentSummaryDto;
 import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.NoticeDto;
 import com.mzc.backend.lms.domains.dashboard.student.adapter.in.web.dto.PendingAssignmentDto;
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.DayOfWeek;
@@ -17,23 +16,17 @@ import java.util.List;
 
 /**
  * 대시보드 전용 조회 Repository
- * EntityManager + JPQL 기반
+ * BaseCustomRepository 상속으로 EntityManager 설정 및 공통 유틸리티 활용
  */
 @Repository
-@RequiredArgsConstructor
-public class DashboardQueryRepositoryJpa {
+public class DashboardQueryRepositoryJpa extends BaseCustomRepository<Void> {
 
-    private final EntityManager em;
+    public DashboardQueryRepositoryJpa() {
+        super();
+    }
 
     /**
      * 미제출 과제 목록 조회
-     * - 학생이 수강 중인 과목의 과제
-     * - 마감일이 현재 ~ 지정된 기한 이내
-     * - 아직 제출하지 않은 과제
-     *
-     * @param studentId 학생 ID
-     * @param withinDays 마감일 기준 일수 (예: 7일 이내)
-     * @return 미제출 과제 목록
      */
     public List<PendingAssignmentDto> findPendingAssignments(Long studentId, int withinDays) {
         LocalDateTime now = LocalDateTime.now();
@@ -69,7 +62,7 @@ public class DashboardQueryRepositoryJpa {
             ORDER BY a.dueDate ASC
             """;
 
-        TypedQuery<PendingAssignmentDto> query = em.createQuery(jpql, PendingAssignmentDto.class);
+        TypedQuery<PendingAssignmentDto> query = createQuery(jpql, PendingAssignmentDto.class);
         query.setParameter("studentId", studentId);
         query.setParameter("now", now);
         query.setParameter("deadline", deadline);
@@ -79,11 +72,6 @@ public class DashboardQueryRepositoryJpa {
 
     /**
      * 오늘의 강의 목록 조회
-     * - 학생이 수강 중인 과목
-     * - 오늘 요일에 해당하는 강의
-     *
-     * @param studentId 학생 ID
-     * @return 오늘 수업이 있는 Enrollment 목록
      */
     public List<Enrollment> findTodayEnrollments(Long studentId) {
         DayOfWeek today = LocalDate.now().getDayOfWeek();
@@ -101,7 +89,7 @@ public class DashboardQueryRepositoryJpa {
             AND cs.dayOfWeek = :today
             """;
 
-        TypedQuery<Enrollment> query = em.createQuery(jpql, Enrollment.class);
+        TypedQuery<Enrollment> query = createQuery(jpql, Enrollment.class);
         query.setParameter("studentId", studentId);
         query.setParameter("today", today);
 
@@ -110,12 +98,6 @@ public class DashboardQueryRepositoryJpa {
 
     /**
      * 최신 공지사항 목록 조회
-     * - 학교 공지사항 게시판의 게시글
-     * - 삭제되지 않은 게시글
-     * - 최신순 정렬
-     *
-     * @param limit 조회할 개수 (기본값: 5)
-     * @return 최신 공지사항 목록
      */
     public List<NoticeDto> findLatestNotices(int limit) {
         String jpql = """
@@ -132,20 +114,15 @@ public class DashboardQueryRepositoryJpa {
             ORDER BY p.createdAt DESC
             """;
 
-        TypedQuery<NoticeDto> query = em.createQuery(jpql, NoticeDto.class);
+        TypedQuery<NoticeDto> query = createQuery(jpql, NoticeDto.class);
         query.setParameter("boardType", BoardType.NOTICE);
-        query.setMaxResults(limit);
+        applyLimit(query, limit);
 
         return query.getResultList();
     }
 
     /**
      * 수강 현황 요약 조회
-     * - 수강 중인 과목 수
-     * - 수강 중인 총 학점
-     *
-     * @param studentId 학생 ID
-     * @return 수강 현황 요약
      */
     public EnrollmentSummaryDto findEnrollmentSummary(Long studentId) {
         String jpql = """
@@ -159,7 +136,7 @@ public class DashboardQueryRepositoryJpa {
             WHERE e.student.studentId = :studentId
             """;
 
-        TypedQuery<EnrollmentSummaryDto> query = em.createQuery(jpql, EnrollmentSummaryDto.class);
+        TypedQuery<EnrollmentSummaryDto> query = createQuery(jpql, EnrollmentSummaryDto.class);
         query.setParameter("studentId", studentId);
 
         return query.getSingleResult();
