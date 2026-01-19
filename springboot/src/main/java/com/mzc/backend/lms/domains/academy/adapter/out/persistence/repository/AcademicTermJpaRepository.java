@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository;
 
 import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * 학기 JPA Repository
  */
 @Repository
-public interface AcademicTermJpaRepository extends JpaRepository<AcademicTerm, Long> {
+public interface AcademicTermJpaRepository extends JpaRepository<AcademicTerm, Long>, JpaSpecificationExecutor<AcademicTerm> {
 
     /**
      * 학년도와 학기 구분으로 학기 조회
