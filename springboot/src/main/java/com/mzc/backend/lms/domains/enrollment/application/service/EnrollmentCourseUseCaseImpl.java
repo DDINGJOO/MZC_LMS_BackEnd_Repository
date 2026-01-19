@@ -13,14 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort;
 import com.mzc.backend.lms.domains.course.constants.CourseConstants;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseType;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.CourseInfo;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.ScheduleInfo;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.*;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.*;
@@ -33,6 +30,8 @@ import com.mzc.backend.lms.views.UserViewService;
 
 /**
  * 수강신청 강의 조회 UseCase 구현체
+ *
+ * Course 도메인과의 통신은 CoursePort를 통해 수행 (도메인 간 순환 의존성 방지)
  */
 @Slf4j
 @Service
@@ -40,10 +39,9 @@ import com.mzc.backend.lms.views.UserViewService;
 @Transactional(readOnly = true)
 public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
 
-    private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseCartRepository courseCartRepository;
-    private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
+    private final EnrollmentPeriodPort enrollmentPeriodPort;
     private final CoursePort coursePort;
     private final UserViewService userViewService;
 
@@ -52,21 +50,21 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         // 페이징 설정
         int page = request.getPage() != null ? request.getPage() : 0;
         int size = request.getSize() != null ? request.getSize() : 20;
-        
+
         // 정렬 설정
         Sort sort = parseSort(request.getSort());
 
-        // 필터링된 강의 조회
-        List<Course> courses = filterCourses(request);
-        
-        // 정렬 적용 (추가!)
+        // 필터링된 강의 조회 (CoursePort 사용)
+        List<CourseInfo> courses = filterCourses(request);
+
+        // 정렬 적용
         courses = sortCourses(courses, sort);
-        
+
         // 페이징 적용
         int start = page * size;
         int end = Math.min(start + size, courses.size());
-        List<Course> pagedCourses = start < courses.size() 
-                ? courses.subList(start, end) 
+        List<CourseInfo> pagedCourses = start < courses.size()
+                ? courses.subList(start, end)
                 : new ArrayList<>();
 
         // DTO 변환
@@ -83,29 +81,28 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
                 .build();
     }
 
-    private List<Course> filterCourses(CourseSearchRequestDto request) {
+    private List<CourseInfo> filterCourses(CourseSearchRequestDto request) {
         // enrollmentPeriodId 필수 체크
         if (request.getEnrollmentPeriodId() == null) {
             throw EnrollmentException.periodNotFound(null);
         }
 
-        // EnrollmentPeriod 조회
-        EnrollmentPeriod enrollmentPeriod = enrollmentPeriodRepository.findById(request.getEnrollmentPeriodId())
-                .orElseThrow(() -> EnrollmentException.periodNotFound(request.getEnrollmentPeriodId()));
+        // EnrollmentPeriod 조회 (Port 사용)
+        EnrollmentPeriodPort.PeriodInfo periodInfo = enrollmentPeriodPort.getPeriod(request.getEnrollmentPeriodId());
 
-        // EnrollmentPeriod의 AcademicTerm으로 강의 조회
-        Long academicTermId = enrollmentPeriod.getAcademicTerm().getId();
-        List<Course> courses = courseRepository.findByAcademicTermId(academicTermId);
-        
+        // EnrollmentPeriod의 AcademicTerm으로 강의 조회 (CoursePort 사용)
+        Long academicTermId = periodInfo.academicTermId();
+        List<CourseInfo> courses = coursePort.findByAcademicTermId(academicTermId);
+
         // 디버깅: 초기 강의 수 확인
-        log.debug("enrollmentPeriodId={}, academicTermId={}로 조회된 강의 수: {}", 
+        log.debug("enrollmentPeriodId={}, academicTermId={}로 조회된 강의 수: {}",
                 request.getEnrollmentPeriodId(), academicTermId, courses.size());
 
         // 학과 필터
         if (request.getDepartmentId() != null) {
             int beforeSize = courses.size();
             courses = courses.stream()
-                    .filter(c -> c.getSubject().getDepartment().getId().equals(request.getDepartmentId()))
+                    .filter(c -> c.departmentId().equals(request.getDepartmentId()))
                     .collect(Collectors.toList());
             log.debug("departmentId={} 필터 후: {} -> {}", request.getDepartmentId(), beforeSize, courses.size());
         }
@@ -115,7 +112,7 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
             int beforeSize = courses.size();
             int typeCode = request.getCourseType();
             courses = courses.stream()
-                    .filter(c -> c.getSubject().getCourseType().getTypeCode() == typeCode)
+                    .filter(c -> c.courseTypeId() == typeCode)
                     .collect(Collectors.toList());
             log.debug("courseType={} 필터 후: {} -> {}", typeCode, beforeSize, courses.size());
         }
@@ -124,7 +121,7 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         if (request.getCredits() != null) {
             int beforeSize = courses.size();
             courses = courses.stream()
-                    .filter(c -> c.getSubject().getCredits().equals(request.getCredits()))
+                    .filter(c -> c.credits() == request.getCredits())
                     .collect(Collectors.toList());
             log.debug("credits={} 필터 후: {} -> {}", request.getCredits(), beforeSize, courses.size());
         }
@@ -134,34 +131,32 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
             int beforeSize = courses.size();
             String keyword = request.getKeyword().trim();
             log.debug("키워드 검색 시작: keyword='{}', 필터 전 강의 수: {}", keyword, beforeSize);
-            
+
             courses = courses.stream()
                     .filter(c -> {
-                        // 과목명, 과목코드 매칭 (한글은 toLowerCase 불필요하지만 일관성을 위해 유지)
-                        String subjectName = c.getSubject().getSubjectName();
-                        String subjectCode = c.getSubject().getSubjectCode();
-                        
-                        boolean matchesSubjectName = subjectName != null && 
+                        // 과목명, 과목코드 매칭
+                        String subjectName = c.subjectName();
+                        String subjectCode = c.subjectCode();
+
+                        boolean matchesSubjectName = subjectName != null &&
                                 subjectName.toLowerCase().contains(keyword.toLowerCase());
-                        boolean matchesSubjectCode = subjectCode != null && 
+                        boolean matchesSubjectCode = subjectCode != null &&
                                 subjectCode.toLowerCase().contains(keyword.toLowerCase());
-                        
+
                         // 교수명 매칭
-                        String professorName = userViewService.getUserName(
-                                c.getProfessor().getProfessorId().toString()
-                        );
-                        boolean matchesProfessor = professorName != null && 
+                        String professorName = userViewService.getUserName(c.professorId().toString());
+                        boolean matchesProfessor = professorName != null &&
                                 professorName.toLowerCase().contains(keyword.toLowerCase());
-                        
+
                         boolean matches = matchesSubjectName || matchesSubjectCode || matchesProfessor;
                         if (matches) {
-                            log.debug("매칭된 강의: subjectName={}, subjectCode={}, professorName={}", 
+                            log.debug("매칭된 강의: subjectName={}, subjectCode={}, professorName={}",
                                     subjectName, subjectCode, professorName);
                         }
                         return matches;
                     })
                     .collect(Collectors.toList());
-            
+
             log.debug("키워드 검색 후: {} -> {}", beforeSize, courses.size());
         }
 
@@ -169,14 +164,12 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         return courses;
     }
 
-    private CourseItemDto convertToCourseItemDto(Course course, String studentId) {
+    private CourseItemDto convertToCourseItemDto(CourseInfo course, String studentId) {
         // 교수 이름 조회
-        String professorName = userViewService.getUserName(
-                course.getProfessor().getProfessorId().toString()
-        );
+        String professorName = userViewService.getUserName(course.professorId().toString());
 
         // 스케줄 변환
-        List<ScheduleDto> schedules = course.getSchedules().stream()
+        List<ScheduleDto> schedules = course.schedules().stream()
                 .map(this::convertToScheduleDto)
                 .sorted(Comparator.comparing(ScheduleDto::getDayOfWeek)
                         .thenComparing(ScheduleDto::getStartTime))
@@ -186,45 +179,47 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         String scheduleText = generateScheduleText(schedules);
 
         // CourseType 변환
-        CourseTypeDto courseTypeDto = convertToCourseTypeDto(course.getSubject().getCourseType());
+        CourseTypeDto courseTypeDto = CourseTypeDto.builder()
+                .code(course.courseTypeCode())
+                .name(course.courseTypeName())
+                .color(CourseConstants.getCourseTypeColor(course.courseTypeCode()))
+                .build();
 
         // 수강신청 정보
         EnrollmentDto enrollmentDto = EnrollmentDto.builder()
-                .current(course.getCurrentStudents())
-                .max(course.getMaxStudents())
-                .isFull(course.getCurrentStudents() >= course.getMaxStudents())
+                .current(course.currentStudents())
+                .max(course.maxStudents())
+                .isFull(course.isFull())
                 .build();
 
         // 장바구니/수강신청 여부 확인
         boolean isInCart = false;
         boolean isEnrolled = false;
-        boolean hasPrerequisites = true; // 선수과목 이수 여부
-        
+        boolean hasPrerequisites = true;
+
         if (studentId != null) {
             Long studentIdLong = Long.parseLong(studentId);
-            isInCart = courseCartRepository.existsByStudentIdAndCourseId(
-                    studentIdLong, course.getId());
-            isEnrolled = enrollmentRepository.existsByStudentIdAndCourseId(
-                    studentIdLong, course.getId());
-            
+            isInCart = courseCartRepository.existsByStudentIdAndCourseId(studentIdLong, course.id());
+            isEnrolled = enrollmentRepository.existsByStudentIdAndCourseId(studentIdLong, course.id());
+
             // 선수과목 이수 여부 확인
-            hasPrerequisites = checkPrerequisites(course, studentIdLong);
+            hasPrerequisites = checkPrerequisites(course.subjectId(), studentIdLong);
         }
 
         return CourseItemDto.builder()
-                .id(course.getId())
-                .courseCode(course.getSubject().getSubjectCode())
-                .courseName(course.getSubject().getSubjectName())
-                .section(course.getSectionNumber())
+                .id(course.id())
+                .courseCode(course.subjectCode())
+                .courseName(course.subjectName())
+                .section(course.sectionNumber())
                 .professor(ProfessorDto.builder()
-                        .id(course.getProfessor().getProfessorId())
+                        .id(course.professorId())
                         .name(professorName != null ? professorName : "교수")
                         .build())
                 .department(DepartmentDto.builder()
-                        .id(course.getSubject().getDepartment().getId())
-                        .name(course.getSubject().getDepartment().getDepartmentName())
+                        .id(course.departmentId())
+                        .name(course.departmentName())
                         .build())
-                .credits(course.getSubject().getCredits())
+                .credits(course.credits())
                 .courseType(courseTypeDto)
                 .schedule(schedules)
                 .scheduleText(scheduleText)
@@ -236,16 +231,16 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
                 .build();
     }
 
-    private ScheduleDto convertToScheduleDto(CourseSchedule schedule) {
-        DayOfWeek dayOfWeek = schedule.getDayOfWeek();
-        LocalTime startTime = schedule.getStartTime();
-        LocalTime endTime = schedule.getEndTime();
+    private ScheduleDto convertToScheduleDto(ScheduleInfo schedule) {
+        DayOfWeek dayOfWeek = schedule.dayOfWeek();
+        LocalTime startTime = schedule.startTime();
+        LocalTime endTime = schedule.endTime();
         return ScheduleDto.builder()
-                .dayOfWeek(dayOfWeek.getValue()) // DayOfWeek를 int로 변환
+                .dayOfWeek(dayOfWeek.getValue())
                 .dayName(CourseConstants.DAY_NAME_MAP.get(dayOfWeek))
                 .startTime(startTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")))
                 .endTime(endTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")))
-                .classroom(schedule.getScheduleRoom())
+                .classroom(schedule.classroom())
                 .build();
     }
 
@@ -254,7 +249,6 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
             return "";
         }
 
-        StringBuilder sb = new StringBuilder();
         Map<String, List<ScheduleDto>> byRoom = schedules.stream()
                 .collect(Collectors.groupingBy(ScheduleDto::getClassroom));
 
@@ -262,7 +256,7 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         for (Map.Entry<String, List<ScheduleDto>> entry : byRoom.entrySet()) {
             String room = entry.getKey();
             List<String> timeParts = entry.getValue().stream()
-                    .map(s -> String.format("%s %s-%s", s.getDayName(), 
+                    .map(s -> String.format("%s %s-%s", s.getDayName(),
                             s.getStartTime(), s.getEndTime()))
                     .collect(Collectors.toList());
             parts.add(String.join(", ", timeParts) + "\n" + room);
@@ -271,53 +265,41 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
         return String.join("\n", parts);
     }
 
-    private CourseTypeDto convertToCourseTypeDto(CourseType courseType) {
-        String code = CourseConstants.COURSE_TYPE_CODE_MAP.get(courseType.getTypeCode());
-        String name = CourseConstants.COURSE_TYPE_NAME_MAP.get(courseType.getTypeCode());
-        String color = CourseConstants.getCourseTypeColor(code);
-
-        return CourseTypeDto.builder()
-                .code(code)
-                .name(name)
-                .color(color)
-                .build();
-    }
-
     private Sort parseSort(String sort) {
         if (sort == null || sort.isEmpty()) {
-            return Sort.by(Sort.Direction.ASC, "subject.subjectCode");
+            return Sort.by(Sort.Direction.ASC, "subjectCode");
         }
 
         String[] parts = sort.split(",");
         String property = parts[0].trim();
-        Sort.Direction direction = parts.length > 1 && 
-                parts[1].trim().equalsIgnoreCase("desc") 
-                ? Sort.Direction.DESC 
+        Sort.Direction direction = parts.length > 1 &&
+                parts[1].trim().equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
                 : Sort.Direction.ASC;
 
         // property 매핑
         String mappedProperty = switch (property) {
-            case "courseCode" -> "subject.subjectCode";
-            case "courseName" -> "subject.subjectName";
-            case "credits" -> "subject.credits";
-            default -> "subject.subjectCode";
+            case "courseCode" -> "subjectCode";
+            case "courseName" -> "subjectName";
+            case "credits" -> "credits";
+            default -> "subjectCode";
         };
 
         return Sort.by(direction, mappedProperty);
     }
 
     /**
-     * 강의 리스트 정렬
+     * 강의 리스트 정렬 (CourseInfo 기반)
      */
-    private List<Course> sortCourses(List<Course> courses, Sort sort) {
+    private List<CourseInfo> sortCourses(List<CourseInfo> courses, Sort sort) {
         if (sort == null || sort.isEmpty()) {
             return courses;
         }
 
-        Comparator<Course> comparator = null;
+        Comparator<CourseInfo> comparator = null;
 
         for (Sort.Order order : sort) {
-            Comparator<Course> orderComparator = getComparator(order);
+            Comparator<CourseInfo> orderComparator = getComparator(order);
             if (comparator == null) {
                 comparator = orderComparator;
             } else {
@@ -335,30 +317,25 @@ public class EnrollmentCourseUseCaseImpl implements EnrollmentCourseUseCase {
     }
 
     /**
-     * Sort.Order에 따른 Comparator 생성
+     * Sort.Order에 따른 Comparator 생성 (CourseInfo 기반)
      */
-    private Comparator<Course> getComparator(Sort.Order order) {
-        Comparator<Course> comparator = switch (order.getProperty()) {
-            case "subject.subjectCode" -> Comparator.comparing(
-                    c -> c.getSubject().getSubjectCode());
-            case "subject.subjectName" -> Comparator.comparing(
-                    c -> c.getSubject().getSubjectName());
-            case "subject.credits" -> Comparator.comparing(
-                    c -> c.getSubject().getCredits());
-            default -> Comparator.comparing(
-                    c -> c.getSubject().getSubjectCode());
+    private Comparator<CourseInfo> getComparator(Sort.Order order) {
+        Comparator<CourseInfo> comparator = switch (order.getProperty()) {
+            case "subjectCode" -> Comparator.comparing(CourseInfo::subjectCode);
+            case "subjectName" -> Comparator.comparing(CourseInfo::subjectName);
+            case "credits" -> Comparator.comparing(CourseInfo::credits);
+            default -> Comparator.comparing(CourseInfo::subjectCode);
         };
 
-        return order.getDirection() == Sort.Direction.DESC 
-                ? comparator.reversed() 
+        return order.getDirection() == Sort.Direction.DESC
+                ? comparator.reversed()
                 : comparator;
     }
 
     /**
-     * 선수과목 이수 여부 확인
+     * 선수과목 이수 여부 확인 (CoursePort 사용)
      */
-    private boolean checkPrerequisites(Course course, Long studentId) {
-        Long subjectId = course.getSubject().getId();
+    private boolean checkPrerequisites(Long subjectId, Long studentId) {
         List<Long> prerequisiteSubjectIds = coursePort.getMandatoryPrerequisiteSubjectIds(subjectId);
 
         log.debug("과목 ID: {}, 필수 선수과목 개수: {}", subjectId, prerequisiteSubjectIds.size());
