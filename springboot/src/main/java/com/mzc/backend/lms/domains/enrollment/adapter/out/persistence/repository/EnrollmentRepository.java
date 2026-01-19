@@ -2,6 +2,7 @@ package com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repositor
 
 import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.entity.Enrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.Optional;
  */
 
 @Repository
-public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
+public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, JpaSpecificationExecutor<Enrollment> {
     /**
      * 학생 ID와 강의 ID로 수강신청 조회
      */
