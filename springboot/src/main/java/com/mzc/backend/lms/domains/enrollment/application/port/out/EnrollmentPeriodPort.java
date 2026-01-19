@@ -1,6 +1,7 @@
 package com.mzc.backend.lms.domains.enrollment.application.port.out;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * 수강신청 기간(Academy 도메인)과의 통신을 위한 Port
@@ -28,17 +29,35 @@ public interface EnrollmentPeriodPort {
      */
     PeriodInfo getCurrentActivePeriod();
 
+    /**
+     * 현재 활성화된 기간 조회 (Optional)
+     */
+    Optional<PeriodInfo> findCurrentActivePeriod();
+
+    /**
+     * 타입 코드로 현재 활성화된 기간 조회
+     */
+    Optional<PeriodInfo> findCurrentActivePeriodByTypeCode(String typeCode);
+
+    /**
+     * 타입 코드 유효성 검증
+     */
+    boolean isPeriodTypeValid(String typeCode);
+
     // DTO Records
 
     record PeriodInfo(
             Long id,
             String periodName,
-            String periodType,
+            String periodTypeCode,
+            String periodTypeName,
+            String periodTypeDescription,
             LocalDateTime startDatetime,
             LocalDateTime endDatetime,
             Long academicTermId,
             int year,
-            String termType
+            String termType,
+            Integer targetYear
     ) {
         public boolean isActive(LocalDateTime now) {
             return !now.isBefore(startDatetime) && !now.isAfter(endDatetime);

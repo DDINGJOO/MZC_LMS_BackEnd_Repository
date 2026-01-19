@@ -22,12 +22,11 @@ import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.Co
 import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.ScheduleInfo;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort.PeriodInfo;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
 
 /**
  * 수강신청 UseCase 구현체
- * Port를 통해 외부 도메인과 통신
+ *
+ * Course, User 도메인과의 통신은 Port를 통해 수행 (도메인 간 순환 의존성 방지)
  */
 @Slf4j
 @Service
@@ -47,9 +46,6 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
     // Event Port
     private final EnrollmentEventPort eventPort;
 
-    // 직접 의존 (헥사고날 전환 대상)
-    private final StudentRepository studentJpaRepository; // TODO: StudentPort로 완전 대체
-
     private static final int MAX_CREDITS_PER_TERM = 21;
 
     @Override
@@ -59,9 +55,10 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
             throw EnrollmentException.notEnrollmentPeriod();
         }
 
-        // 2. 학생 정보 조회
-        Student student = studentJpaRepository.findById(studentId)
-                .orElseThrow(() -> EnrollmentException.studentNotFound(studentId));
+        // 2. 학생 존재 여부 확인 (StudentPort 사용)
+        if (!studentPort.existsById(studentId)) {
+            throw EnrollmentException.studentNotFound(studentId);
+        }
 
         // 3. 과목 존재 여부 체크
         List<Long> courseIds = request.getCourseIds();
@@ -126,9 +123,9 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
                     continue;
                 }
 
-                // 수강신청 처리
+                // 수강신청 처리 (studentId 직접 사용)
                 Enrollment enrollment = Enrollment.builder()
-                        .student(student)
+                        .studentId(studentId)
                         .courseId(courseId)
                         .enrolledAt(now)
                         .build();
@@ -260,8 +257,8 @@ public class EnrollmentUseCaseImpl implements EnrollmentUseCase {
                 Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                         .orElseThrow(() -> EnrollmentException.enrollmentNotFound(enrollmentId));
 
-                // 본인 확인
-                if (!enrollment.getStudent().getId().equals(studentId)) {
+                // 본인 확인 (studentId로 비교)
+                if (!enrollment.getStudentId().equals(studentId)) {
                     failed.add(EnrollmentBulkCancelResponseDto.FailedCancelDto.builder()
                             .enrollmentId(enrollmentId)
                             .courseId(enrollment.getCourseId())

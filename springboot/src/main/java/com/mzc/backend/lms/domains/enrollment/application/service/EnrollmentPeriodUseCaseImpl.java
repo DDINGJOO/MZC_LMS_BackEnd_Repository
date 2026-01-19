@@ -10,12 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.AcademicTerm;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.entity.EnrollmentPeriod;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.PeriodTypeJpaRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.EnrollmentPeriodResponseDto;
 import com.mzc.backend.lms.domains.enrollment.application.port.in.EnrollmentPeriodUseCase;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort.PeriodInfo;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
 
 /**
@@ -27,29 +25,27 @@ import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentExcepti
 @Transactional(readOnly = true)
 public class EnrollmentPeriodUseCaseImpl implements EnrollmentPeriodUseCase {
 
-    private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
-    private final PeriodTypeJpaRepository periodTypeRepository;
+    private final EnrollmentPeriodPort enrollmentPeriodPort;
 
     @Override
     public EnrollmentPeriodResponseDto getCurrentPeriod(String typeCode) {
         LocalDateTime now = LocalDateTime.now();
-        
-        Optional<EnrollmentPeriod> currentPeriodOpt;
-        
+
+        Optional<PeriodInfo> currentPeriodOpt;
+
         // typeCode가 null이거나 빈 문자열이면 현재 활성화된 기간 중 하나를 반환
         if (typeCode == null || typeCode.trim().isEmpty()) {
-            currentPeriodOpt = enrollmentPeriodRepository.findFirstActivePeriod(now);
+            currentPeriodOpt = enrollmentPeriodPort.findCurrentActivePeriod();
         } else {
             String periodTypeCode = typeCode.toUpperCase();
-            
+
             // 타입 코드 유효성 검증
-            if (!periodTypeRepository.existsByTypeCode(periodTypeCode)) {
+            if (!enrollmentPeriodPort.isPeriodTypeValid(periodTypeCode)) {
                 throw EnrollmentException.invalidPeriodType(periodTypeCode);
             }
 
             // 현재 활성화된 기간 찾기
-            currentPeriodOpt = enrollmentPeriodRepository
-                    .findFirstActivePeriodByTypeCode(periodTypeCode, now);
+            currentPeriodOpt = enrollmentPeriodPort.findCurrentActivePeriodByTypeCode(periodTypeCode);
         }
 
         // 활성화된 기간이 없으면 null 반환
@@ -60,17 +56,11 @@ public class EnrollmentPeriodUseCaseImpl implements EnrollmentPeriodUseCase {
                     .build();
         }
 
-        EnrollmentPeriod currentPeriod = currentPeriodOpt.get();
+        PeriodInfo currentPeriod = currentPeriodOpt.get();
 
-        // 학기 정보 가져오기
-        AcademicTerm term = currentPeriod.getAcademicTerm();
-        
-        // PeriodType 정보 가져오기 (이미 fetch join으로 로딩됨)
-        var periodType = currentPeriod.getPeriodType();
-        
         // 날짜를 LocalDateTime으로 변환 (시작일은 00:00:00, 종료일은 23:59:59)
-        LocalDateTime startDateTime = currentPeriod.getStartDatetime();
-        LocalDateTime endDateTime = currentPeriod.getEndDatetime();
+        LocalDateTime startDateTime = currentPeriod.startDatetime();
+        LocalDateTime endDateTime = currentPeriod.endDatetime();
 
         // 남은 시간 계산
         Duration remaining = Duration.between(now, endDateTime);
@@ -80,28 +70,28 @@ public class EnrollmentPeriodUseCaseImpl implements EnrollmentPeriodUseCase {
         long minutes = (totalSeconds % 3600) / 60;
 
         // 학기 이름 생성
-        String termName = String.format("%d학년도 %s", term.getYear(), getTermTypeName(term.getTermType()));
+        String termName = String.format("%d학년도 %s", currentPeriod.year(), getTermTypeName(currentPeriod.termType()));
 
         return EnrollmentPeriodResponseDto.builder()
                 .isActive(true)
                 .currentPeriod(EnrollmentPeriodResponseDto.CurrentPeriodDto.builder()
-                        .id(currentPeriod.getId())
+                        .id(currentPeriod.id())
                         .term(EnrollmentPeriodResponseDto.TermDto.builder()
-                                .termId(term.getId())
-                                .year(term.getYear())
-                                .termType(term.getTermType())
+                                .termId(currentPeriod.academicTermId())
+                                .year(currentPeriod.year())
+                                .termType(currentPeriod.termType())
                                 .termName(termName)
                                 .build())
-                        .periodName(currentPeriod.getPeriodName())
-                        .periodType(periodType != null ? EnrollmentPeriodResponseDto.PeriodTypeDto.builder()
-                                .id(periodType.getId())
-                                .typeCode(periodType.getTypeCode())
-                                .typeName(periodType.getTypeName())
-                                .description(periodType.getDescription())
+                        .periodName(currentPeriod.periodName())
+                        .periodType(currentPeriod.periodTypeCode() != null ? EnrollmentPeriodResponseDto.PeriodTypeDto.builder()
+                                .id(null) // ID는 Port에서 제공하지 않음
+                                .typeCode(currentPeriod.periodTypeCode())
+                                .typeName(currentPeriod.periodTypeName())
+                                .description(currentPeriod.periodTypeDescription())
                                 .build() : null)
                         .startDatetime(startDateTime)
                         .endDatetime(endDateTime)
-                        .targetYear(currentPeriod.getTargetYear() == 0 ? null : currentPeriod.getTargetYear())
+                        .targetYear(currentPeriod.targetYear() == null || currentPeriod.targetYear() == 0 ? null : currentPeriod.targetYear())
                         .remainingTime(EnrollmentPeriodResponseDto.RemainingTimeDto.builder()
                                 .days(days > 0 ? days : 0)
                                 .hours(hours > 0 ? hours : 0)

@@ -1,4 +1,4 @@
-package com.mzc.backend.lms.domains.enrollment.adapter.out.external;
+package com.mzc.backend.lms.integration.enrollment;
 
 import com.mzc.backend.lms.domains.course.notice.application.port.out.NoticeEnrollmentPort;
 import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentRepositoryPort;
@@ -9,8 +9,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 수강신청 외부 Adapter (course.notice 도메인용)
- * course.notice 도메인의 NoticeEnrollmentPort를 구현하여 수강신청 데이터 제공
+ * Enrollment → Course.Notice 통합 Adapter
+ *
+ * Notice 도메인이 Enrollment 도메인의 데이터에 접근할 때 사용
+ * integration 패키지에 위치하여 도메인 간 순환 의존성 방지
+ *
+ * MSA 전환 시: HTTP Client로 교체
  */
 @Component
 @RequiredArgsConstructor
@@ -26,7 +30,7 @@ public class NoticeEnrollmentAdapter implements NoticeEnrollmentPort {
     @Override
     public List<Long> findStudentIdsByCourseId(Long courseId) {
         return enrollmentRepository.findByCourseId(courseId).stream()
-                .map(enrollment -> enrollment.getStudent().getStudentId())
+                .map(enrollment -> enrollment.getStudentId())
                 .collect(Collectors.toList());
     }
 }
