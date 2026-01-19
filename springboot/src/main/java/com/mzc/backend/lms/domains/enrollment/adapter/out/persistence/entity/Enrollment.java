@@ -10,15 +10,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
-
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
 
 import java.time.LocalDateTime;
 
+/**
+ * Enrollment 엔티티
+ * enrollments 테이블과 매핑
+ *
+ * Student 엔티티 직접 참조 → studentId로 변경 (도메인 간 순환 의존성 방지)
+ */
 @Entity
 @Table(name = "enrollments")
 @Getter
@@ -32,10 +33,9 @@ public class Enrollment {
     @Column(name = "course_id", nullable = false)
     private Long courseId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @Column(name = "student_id", nullable = false)
+    private Long studentId;
 
     @Column(name = "enrolled_at", nullable = false)
     private LocalDateTime enrolledAt;
-}       
+}
