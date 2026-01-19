@@ -16,6 +16,11 @@ public interface CoursePort {
     CourseInfo getCourse(Long courseId);
 
     /**
+     * 학기 ID로 강의 목록 조회
+     */
+    List<CourseInfo> findByAcademicTermId(Long academicTermId);
+
+    /**
      * 강의 정보 조회 (비관적 락)
      * 수강신청 시 정원 체크를 위해 사용
      */
@@ -56,6 +61,9 @@ public interface CoursePort {
             Long academicTermId,
             String courseTypeCode,
             String courseTypeName,
+            int courseTypeId,
+            Long departmentId,
+            String departmentName,
             List<ScheduleInfo> schedules
     ) {
         public boolean isFull() {
