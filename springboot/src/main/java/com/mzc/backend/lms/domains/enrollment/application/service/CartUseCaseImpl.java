@@ -13,13 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.mzc.backend.lms.domains.academy.adapter.out.persistence.repository.EnrollmentPeriodJpaRepository;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.EnrollmentPeriodPort;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.CourseInfo;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.CoursePort.ScheduleInfo;
+import com.mzc.backend.lms.domains.enrollment.application.port.out.StudentPort;
 import com.mzc.backend.lms.domains.course.constants.CourseConstants;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.Course;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.entity.CourseSchedule;
-import com.mzc.backend.lms.domains.course.course.adapter.out.persistence.repository.CourseRepository;
-import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.entity.SubjectPrerequisites;
-import com.mzc.backend.lms.domains.course.subject.adapter.out.persistence.repository.SubjectPrerequisitesRepository;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.common.*;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.request.*;
 import com.mzc.backend.lms.domains.enrollment.adapter.in.web.dto.response.*;
@@ -30,12 +29,12 @@ import com.mzc.backend.lms.domains.enrollment.adapter.out.persistence.repository
 import com.mzc.backend.lms.domains.enrollment.application.port.in.CartUseCase;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentErrorCode;
 import com.mzc.backend.lms.domains.enrollment.domain.exception.EnrollmentException;
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.entity.Student;
-import com.mzc.backend.lms.domains.user.adapter.out.persistence.repository.StudentRepository;
 import com.mzc.backend.lms.views.UserViewService;
 
 /**
  * 장바구니 UseCase 구현체
+ *
+ * Course, User 도메인과의 통신은 Port를 통해 수행 (도메인 간 순환 의존성 방지)
  */
 @Slf4j
 @Service
@@ -44,11 +43,10 @@ import com.mzc.backend.lms.views.UserViewService;
 public class CartUseCaseImpl implements CartUseCase {
 
     private final CourseCartRepository courseCartRepository;
-    private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
-    private final EnrollmentPeriodJpaRepository enrollmentPeriodRepository;
-    private final SubjectPrerequisitesRepository subjectPrerequisitesRepository;
-    private final StudentRepository studentRepository;
+    private final EnrollmentPeriodPort enrollmentPeriodPort;
+    private final CoursePort coursePort;
+    private final StudentPort studentPort;
     private final UserViewService userViewService;
 
     private static final int MAX_CREDITS_PER_TERM = 21; // 학기당 최대 학점
@@ -60,13 +58,13 @@ public class CartUseCaseImpl implements CartUseCase {
         // 학생의 장바구니 목록 조회
         List<CourseCart> cartItems = courseCartRepository.findByStudentId(studentIdLong);
 
-        // 장바구니에 있는 과목들의 ID 수집 및 조회
+        // 장바구니에 있는 과목들의 ID 수집 및 조회 (CoursePort 사용)
         List<Long> courseIds = cartItems.stream()
                 .map(CourseCart::getCourseId)
                 .collect(Collectors.toList());
 
-        Map<Long, Course> courseMap = courseRepository.findAllById(courseIds).stream()
-                .collect(Collectors.toMap(Course::getId, course -> course));
+        Map<Long, CourseInfo> courseMap = coursePort.getCourses(courseIds).stream()
+                .collect(Collectors.toMap(CourseInfo::id, course -> course));
 
         // DTO 변환
         List<CartItemDto> cartItemDtos = cartItems.stream()
@@ -88,48 +86,40 @@ public class CartUseCaseImpl implements CartUseCase {
                 .build();
     }
 
-    private CartItemDto convertToCartItemDto(CourseCart cart, Course course) {
-
+    private CartItemDto convertToCartItemDto(CourseCart cart, CourseInfo course) {
         // 교수 이름 조회
-        String professorName = userViewService.getUserName(
-                course.getProfessor().getProfessorId().toString()
-        );
+        String professorName = userViewService.getUserName(course.professorId().toString());
 
         // 스케줄 변환
-        List<ScheduleDto> schedules = course.getSchedules().stream()
+        List<ScheduleDto> schedules = course.schedules().stream()
                 .map(this::convertToScheduleDto)
                 .sorted(Comparator.comparing(ScheduleDto::getDayOfWeek)
                         .thenComparing(ScheduleDto::getStartTime))
                 .collect(Collectors.toList());
 
-        // CourseType 이름 변환
-        String courseTypeName = CourseConstants.COURSE_TYPE_NAME_MAP.getOrDefault(
-                course.getSubject().getCourseType().getTypeCode(), "기타"
-        );
-
         // 강의 정보 DTO
         CartItemDto.CourseInfoDto courseInfo = CartItemDto.CourseInfoDto.builder()
-                .id(course.getId())
-                .code(course.getSubject().getSubjectCode())
-                .name(course.getSubject().getSubjectName())
-                .section(course.getSectionNumber())
-                .credits(course.getSubject().getCredits())
-                .courseType(courseTypeName)
-                .currentStudents(course.getCurrentStudents())  // 수강인원 추가
-                .maxStudents(course.getMaxStudents())          // 전체 인원 추가
+                .id(course.id())
+                .code(course.subjectCode())
+                .name(course.subjectName())
+                .section(course.sectionNumber())
+                .credits(course.credits())
+                .courseType(course.courseTypeName())
+                .currentStudents(course.currentStudents())
+                .maxStudents(course.maxStudents())
                 .build();
 
         // 교수 정보 DTO
         ProfessorDto professorDto = ProfessorDto.builder()
-                .id(course.getProfessor().getProfessorId())
+                .id(course.professorId())
                 .name(professorName != null ? professorName : "교수")
                 .build();
 
         // 수강신청 정보 DTO
         EnrollmentDto enrollmentDto = EnrollmentDto.builder()
-                .current(course.getCurrentStudents())
-                .max(course.getMaxStudents())
-                .isFull(course.getCurrentStudents() >= course.getMaxStudents())
+                .current(course.currentStudents())
+                .max(course.maxStudents())
+                .isFull(course.isFull())
                 .build();
 
         return CartItemDto.builder()
@@ -142,23 +132,22 @@ public class CartUseCaseImpl implements CartUseCase {
                 .build();
     }
 
-    private ScheduleDto convertToScheduleDto(CourseSchedule schedule) {
-        DayOfWeek dayOfWeek = schedule.getDayOfWeek();
-        
-        LocalTime startTime = schedule.getStartTime();
-        LocalTime endTime = schedule.getEndTime();
+    private ScheduleDto convertToScheduleDto(ScheduleInfo schedule) {
+        DayOfWeek dayOfWeek = schedule.dayOfWeek();
+        LocalTime startTime = schedule.startTime();
+        LocalTime endTime = schedule.endTime();
         return ScheduleDto.builder()
                 .dayOfWeek(dayOfWeek.getValue())
                 .dayName(CourseConstants.DAY_NAME_MAP.get(dayOfWeek))
                 .startTime(startTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")))
                 .endTime(endTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")))
-                .classroom(schedule.getScheduleRoom())
+                .classroom(schedule.classroom())
                 .build();
     }
 
     @Override
     public CartBulkAddResponseDto addToCartBulk(CourseIdsRequestDto request, String studentId) {
-        
+
         // 1. 수강신청 기간 체크
         if (!isEnrollmentPeriodActive()) {
             throw EnrollmentException.notEnrollmentPeriod();
@@ -166,17 +155,18 @@ public class CartUseCaseImpl implements CartUseCase {
 
         Long studentIdLong = Long.parseLong(studentId);
 
-        // 2. 학생 정보 조회
-        Student student = studentRepository.findById(studentIdLong)
-                .orElseThrow(() -> EnrollmentException.studentNotFound(studentIdLong));
+        // 2. 학생 존재 여부 확인 (StudentPort 사용)
+        if (!studentPort.existsById(studentIdLong)) {
+            throw EnrollmentException.studentNotFound(studentIdLong);
+        }
 
-        // 3. 과목 존재 여부 체크 및 조회
+        // 3. 과목 존재 여부 체크 및 조회 (CoursePort 사용)
         List<Long> courseIds = request.getCourseIds();
         if (courseIds == null || courseIds.isEmpty()) {
             throw EnrollmentException.emptyCourseList();
         }
 
-        List<Course> courses = courseRepository.findAllById(courseIds);
+        List<CourseInfo> courses = coursePort.getCourses(courseIds);
         if (courses.size() != courseIds.size()) {
             throw EnrollmentException.courseNotExists(null);
         }
@@ -192,7 +182,7 @@ public class CartUseCaseImpl implements CartUseCase {
                 .map(Enrollment::getCourseId)
                 .collect(Collectors.toSet());
 
-        // 기존 장바구니 및 수강신청의 Course 엔티티 조회
+        // 기존 장바구니 및 수강신청의 Course 정보 조회 (CoursePort 사용)
         List<Long> existingCartCourseIds = existingCarts.stream()
                 .map(CourseCart::getCourseId)
                 .collect(Collectors.toList());
@@ -200,69 +190,66 @@ public class CartUseCaseImpl implements CartUseCase {
                 .map(Enrollment::getCourseId)
                 .collect(Collectors.toList());
 
-        List<Course> existingCartCourses = courseRepository.findAllById(existingCartCourseIds);
-        List<Course> existingEnrollmentCourses = courseRepository.findAllById(existingEnrollmentCourseIds);
+        List<CourseInfo> existingCartCourses = coursePort.getCourses(existingCartCourseIds);
+        List<CourseInfo> existingEnrollmentCourses = coursePort.getCourses(existingEnrollmentCourseIds);
 
         Set<Long> enrolledSubjectIds = existingEnrollmentCourses.stream()
-                .map(course -> course.getSubject().getId())
+                .map(CourseInfo::subjectId)
                 .collect(Collectors.toSet());
 
         // 장바구니에 있는 과목의 subject_id도 체크용으로 수집
         Set<Long> cartSubjectIds = existingCartCourses.stream()
-                .map(course -> course.getSubject().getId())
+                .map(CourseInfo::subjectId)
                 .collect(Collectors.toSet());
 
         // 5. 각 강의에 대한 검증
         Set<Long> newSubjectIds = new HashSet<>(); // 새로 추가하려는 강의들의 subject_id
         List<String> validationErrors = new ArrayList<>();
-        
-        for (Course course : courses) {
-            Long subjectId = course.getSubject().getId();
-            
+
+        for (CourseInfo course : courses) {
+            Long subjectId = course.subjectId();
+
             // 5-1. 이미 장바구니에 있는지 체크
-            if (cartCourseIds.contains(course.getId())) {
-                validationErrors.add(String.format("강의 %s(%s)는 이미 장바구니에 있습니다.", 
-                        course.getSubject().getSubjectName(), course.getSubject().getSubjectCode()));
+            if (cartCourseIds.contains(course.id())) {
+                validationErrors.add(String.format("강의 %s(%s)는 이미 장바구니에 있습니다.",
+                        course.subjectName(), course.subjectCode()));
                 continue;
             }
 
             // 5-2. 이미 수강신청했는지 체크
-            if (enrolledCourseIds.contains(course.getId())) {
-                validationErrors.add(String.format("강의 %s(%s)는 이미 수강신청했습니다.", 
-                        course.getSubject().getSubjectName(), course.getSubject().getSubjectCode()));
+            if (enrolledCourseIds.contains(course.id())) {
+                validationErrors.add(String.format("강의 %s(%s)는 이미 수강신청했습니다.",
+                        course.subjectName(), course.subjectCode()));
                 continue;
             }
 
             // 5-3. 동일 과목 다른 분반 체크 (장바구니 + 수강신청 + 새로 추가하는 강의들 간)
             if (cartSubjectIds.contains(subjectId) || enrolledSubjectIds.contains(subjectId)) {
-                validationErrors.add(String.format("강의 %s(%s)는 이미 다른 분반이 장바구니나 수강신청 목록에 있습니다.", 
-                        course.getSubject().getSubjectName(), course.getSubject().getSubjectCode()));
+                validationErrors.add(String.format("강의 %s(%s)는 이미 다른 분반이 장바구니나 수강신청 목록에 있습니다.",
+                        course.subjectName(), course.subjectCode()));
                 continue;
             }
-            
+
             // 새로 추가하는 강의들 간 중복 체크
             if (newSubjectIds.contains(subjectId)) {
-                validationErrors.add(String.format("강의 %s(%s)는 같은 요청에 중복된 과목입니다.", 
-                        course.getSubject().getSubjectName(), course.getSubject().getSubjectCode()));
+                validationErrors.add(String.format("강의 %s(%s)는 같은 요청에 중복된 과목입니다.",
+                        course.subjectName(), course.subjectCode()));
                 continue;
             }
-            
+
             newSubjectIds.add(subjectId);
 
-            // 5-4. 선수과목 이수 여부 체크
-            List<SubjectPrerequisites> prerequisites = subjectPrerequisitesRepository.findBySubjectId(subjectId);
-            for (SubjectPrerequisites prerequisite : prerequisites) {
-                Long prerequisiteSubjectId = prerequisite.getPrerequisite().getId();
+            // 5-4. 선수과목 이수 여부 체크 (CoursePort 사용)
+            List<Long> prerequisiteSubjectIds = coursePort.getMandatoryPrerequisiteSubjectIds(subjectId);
+            for (Long prerequisiteSubjectId : prerequisiteSubjectIds) {
                 // 선수과목을 이수했는지 확인 (수강신청한 강의 중에서)
                 boolean hasPrerequisite = existingEnrollmentCourses.stream()
-                        .anyMatch(enrolledCourse -> enrolledCourse.getSubject().getId().equals(prerequisiteSubjectId));
+                        .anyMatch(enrolledCourse -> enrolledCourse.subjectId().equals(prerequisiteSubjectId));
 
-                if (!hasPrerequisite && prerequisite.getIsMandatory()) {
-                    validationErrors.add(String.format("강의 %s(%s)의 필수 선수과목 %s(%s)를 이수하지 않았습니다.",
-                            course.getSubject().getSubjectName(),
-                            course.getSubject().getSubjectCode(),
-                            prerequisite.getPrerequisite().getSubjectName(),
-                            prerequisite.getPrerequisite().getSubjectCode()));
+                if (!hasPrerequisite) {
+                    // 선수과목 정보 조회 (에러 메시지를 위해)
+                    validationErrors.add(String.format("강의 %s(%s)의 필수 선수과목을 이수하지 않았습니다.",
+                            course.subjectName(), course.subjectCode()));
                     break;
                 }
             }
@@ -275,10 +262,10 @@ public class CartUseCaseImpl implements CartUseCase {
 
         // 6. 학점 제한 체크
         int currentCredits = existingCartCourses.stream()
-                .mapToInt(course -> course.getSubject().getCredits())
+                .mapToInt(CourseInfo::credits)
                 .sum();
         int newCredits = courses.stream()
-                .mapToInt(course -> course.getSubject().getCredits())
+                .mapToInt(CourseInfo::credits)
                 .sum();
 
         if (currentCredits + newCredits > MAX_CREDITS_PER_TERM) {
@@ -286,45 +273,50 @@ public class CartUseCaseImpl implements CartUseCase {
         }
 
         // 7. 시간표 충돌 체크
-        List<CourseSchedule> existingSchedules = new ArrayList<>();
-        for (Course course : existingCartCourses) {
-            existingSchedules.addAll(course.getSchedules());
+        List<ScheduleInfo> existingSchedules = new ArrayList<>();
+        for (CourseInfo course : existingCartCourses) {
+            existingSchedules.addAll(course.schedules());
         }
-        for (Course course : existingEnrollmentCourses) {
-            existingSchedules.addAll(course.getSchedules());
+        for (CourseInfo course : existingEnrollmentCourses) {
+            existingSchedules.addAll(course.schedules());
         }
 
         // 모든 새 강의의 스케줄 수집
-        List<CourseSchedule> newSchedules = courses.stream()
-                .flatMap(course -> course.getSchedules().stream())
-                .collect(Collectors.toList());
+        Map<ScheduleInfo, CourseInfo> newScheduleMap = new HashMap<>();
+        for (CourseInfo course : courses) {
+            for (ScheduleInfo schedule : course.schedules()) {
+                newScheduleMap.put(schedule, course);
+            }
+        }
 
         // 기존 강의와의 충돌 체크
-        for (CourseSchedule newSchedule : newSchedules) {
-            Course newCourse = findCourseBySchedule(newSchedule, courses);
-            for (CourseSchedule existingSchedule : existingSchedules) {
+        for (Map.Entry<ScheduleInfo, CourseInfo> entry : newScheduleMap.entrySet()) {
+            ScheduleInfo newSchedule = entry.getKey();
+            CourseInfo newCourse = entry.getValue();
+            for (ScheduleInfo existingSchedule : existingSchedules) {
                 if (hasScheduleConflict(newSchedule, existingSchedule)) {
                     String conflictInfo = String.format("강의 %s(%s)의 시간표가 기존 강의와 충돌합니다.",
-                        newCourse.getSubject().getSubjectName(), newCourse.getSubject().getSubjectCode());
+                            newCourse.subjectName(), newCourse.subjectCode());
                     throw EnrollmentException.scheduleConflict(conflictInfo);
                 }
             }
         }
 
         // 새로 추가하는 강의들 간의 충돌 체크
-        for (int i = 0; i < newSchedules.size(); i++) {
-            CourseSchedule schedule1 = newSchedules.get(i);
-            Course course1 = findCourseBySchedule(schedule1, courses);
+        List<Map.Entry<ScheduleInfo, CourseInfo>> newScheduleList = new ArrayList<>(newScheduleMap.entrySet());
+        for (int i = 0; i < newScheduleList.size(); i++) {
+            ScheduleInfo schedule1 = newScheduleList.get(i).getKey();
+            CourseInfo course1 = newScheduleList.get(i).getValue();
 
-            for (int j = i + 1; j < newSchedules.size(); j++) {
-                CourseSchedule schedule2 = newSchedules.get(j);
-                Course course2 = findCourseBySchedule(schedule2, courses);
+            for (int j = i + 1; j < newScheduleList.size(); j++) {
+                ScheduleInfo schedule2 = newScheduleList.get(j).getKey();
+                CourseInfo course2 = newScheduleList.get(j).getValue();
 
                 if (hasScheduleConflict(schedule1, schedule2) &&
-                    !course1.getId().equals(course2.getId())) {
+                        !course1.id().equals(course2.id())) {
                     String conflictInfo = String.format("강의 %s(%s)와 %s(%s)의 시간표가 충돌합니다.",
-                        course1.getSubject().getSubjectName(), course1.getSubject().getSubjectCode(),
-                        course2.getSubject().getSubjectName(), course2.getSubject().getSubjectCode());
+                            course1.subjectName(), course1.subjectCode(),
+                            course2.subjectName(), course2.subjectCode());
                     throw EnrollmentException.scheduleConflict(conflictInfo);
                 }
             }
@@ -334,24 +326,24 @@ public class CartUseCaseImpl implements CartUseCase {
         LocalDateTime now = LocalDateTime.now();
         List<CartBulkAddResponseDto.SucceededItemDto> succeededItems = new ArrayList<>();
 
-        for (Course course : courses) {
+        for (CourseInfo course : courses) {
             CourseCart cart = CourseCart.builder()
-                    .student(student)
-                    .courseId(course.getId())
+                    .studentId(studentIdLong)
+                    .courseId(course.id())
                     .addedAt(now)
                     .build();
-            
+
             CourseCart savedCart = courseCartRepository.save(cart);
             if (savedCart == null || savedCart.getId() == null) {
                 throw new EnrollmentException(EnrollmentErrorCode.ENROLLMENT_NOT_FOUND);
             }
-            
+
             succeededItems.add(CartBulkAddResponseDto.SucceededItemDto.builder()
                     .cartId(savedCart.getId())
-                    .courseId(course.getId())
-                    .courseCode(course.getSubject().getSubjectCode())
-                    .courseName(course.getSubject().getSubjectName())
-                    .credits(course.getSubject().getCredits())
+                    .courseId(course.id())
+                    .courseCode(course.subjectCode())
+                    .courseName(course.subjectName())
+                    .credits(course.credits())
                     .addedAt(savedCart.getAddedAt())
                     .build());
         }
@@ -372,36 +364,25 @@ public class CartUseCaseImpl implements CartUseCase {
      * 수강신청 기간 활성화 여부 확인
      */
     private boolean isEnrollmentPeriodActive() {
-        LocalDateTime now = LocalDateTime.now();
-        return enrollmentPeriodRepository.existsActiveEnrollmentPeriod(now);
+        return enrollmentPeriodPort.isEnrollmentPeriodActive();
     }
 
     /**
-     * 시간표 충돌 확인
+     * 시간표 충돌 확인 (ScheduleInfo 기반)
      */
-    private boolean hasScheduleConflict(CourseSchedule schedule1, CourseSchedule schedule2) {
+    private boolean hasScheduleConflict(ScheduleInfo schedule1, ScheduleInfo schedule2) {
         // 같은 요일이 아니면 충돌 없음
-        if (!schedule1.getDayOfWeek().equals(schedule2.getDayOfWeek())) {
+        if (!schedule1.dayOfWeek().equals(schedule2.dayOfWeek())) {
             return false;
         }
 
-        LocalTime start1 = schedule1.getStartTime();
-        LocalTime end1 = schedule1.getEndTime();
-        LocalTime start2 = schedule2.getStartTime();
-        LocalTime end2 = schedule2.getEndTime();
+        LocalTime start1 = schedule1.startTime();
+        LocalTime end1 = schedule1.endTime();
+        LocalTime start2 = schedule2.startTime();
+        LocalTime end2 = schedule2.endTime();
 
         // 시간 겹침 확인
         return start1.isBefore(end2) && start2.isBefore(end1);
-    }
-
-    /**
-     * 스케줄로부터 해당하는 강의 찾기
-     */
-    private Course findCourseBySchedule(CourseSchedule schedule, List<Course> courses) {
-        return courses.stream()
-                .filter(course -> course.getSchedules().contains(schedule))
-                .findFirst()
-                .orElse(null);
     }
 
     @Override
@@ -420,12 +401,12 @@ public class CartUseCaseImpl implements CartUseCase {
             throw EnrollmentException.enrollmentNotFound(null);
         }
 
-        // 삭제할 Course 엔티티들 조회
+        // 삭제할 Course 정보 조회 (CoursePort 사용)
         List<Long> courseIds = cartsToDelete.stream()
                 .map(CourseCart::getCourseId)
                 .collect(Collectors.toList());
-        Map<Long, Course> courseMap = courseRepository.findAllById(courseIds).stream()
-                .collect(Collectors.toMap(Course::getId, course -> course));
+        Map<Long, CourseInfo> courseMap = coursePort.getCourses(courseIds).stream()
+                .collect(Collectors.toMap(CourseInfo::id, course -> course));
 
         // 소유권 확인 및 삭제할 항목 수집
         List<CartBulkDeleteResponseDto.RemovedCourseDto> removedCourses = new ArrayList<>();
@@ -433,21 +414,21 @@ public class CartUseCaseImpl implements CartUseCase {
 
         for (CourseCart cart : cartsToDelete) {
             // 소유권 확인
-            if (!cart.getStudent().getStudentId().equals(studentIdLong)) {
+            if (!cart.getStudentId().equals(studentIdLong)) {
                 throw EnrollmentException.validationFailed(
-                    String.format("장바구니 항목 %d에 대한 접근 권한이 없습니다.", cart.getId()));
+                        String.format("장바구니 항목 %d에 대한 접근 권한이 없습니다.", cart.getId()));
             }
 
             // 삭제할 항목 정보 수집
-            Course course = courseMap.get(cart.getCourseId());
+            CourseInfo course = courseMap.get(cart.getCourseId());
             removedCourses.add(CartBulkDeleteResponseDto.RemovedCourseDto.builder()
                     .cartId(cart.getId())
-                    .courseCode(course.getSubject().getSubjectCode())
-                    .courseName(course.getSubject().getSubjectName())
-                    .credits(course.getSubject().getCredits())
+                    .courseCode(course.subjectCode())
+                    .courseName(course.subjectName())
+                    .credits(course.credits())
                     .build());
 
-            totalRemovedCredits += course.getSubject().getCredits();
+            totalRemovedCredits += course.credits();
         }
 
         // 장바구니에서 삭제
@@ -467,12 +448,12 @@ public class CartUseCaseImpl implements CartUseCase {
         // 장바구니 항목 조회 및 소유권 확인
         List<CourseCart> cartsToDelete = courseCartRepository.findByStudentId(studentIdLong);
 
-        // 삭제할 Course 엔티티들 조회
+        // 삭제할 Course 정보 조회 (CoursePort 사용)
         List<Long> courseIds = cartsToDelete.stream()
                 .map(CourseCart::getCourseId)
                 .collect(Collectors.toList());
-        Map<Long, Course> courseMap = courseRepository.findAllById(courseIds).stream()
-                .collect(Collectors.toMap(Course::getId, course -> course));
+        Map<Long, CourseInfo> courseMap = coursePort.getCourses(courseIds).stream()
+                .collect(Collectors.toMap(CourseInfo::id, course -> course));
 
         // 장바구니에서 삭제
         courseCartRepository.deleteByStudentId(studentIdLong);
@@ -480,16 +461,16 @@ public class CartUseCaseImpl implements CartUseCase {
         return CartBulkDeleteResponseDto.builder()
                 .removedCount(cartsToDelete.size())
                 .removedCredits(cartsToDelete.stream()
-                        .mapToInt(cart -> courseMap.get(cart.getCourseId()).getSubject().getCredits())
+                        .mapToInt(cart -> courseMap.get(cart.getCourseId()).credits())
                         .sum())
                 .removedCourses(cartsToDelete.stream()
                         .map(cart -> {
-                            Course course = courseMap.get(cart.getCourseId());
+                            CourseInfo course = courseMap.get(cart.getCourseId());
                             return CartBulkDeleteResponseDto.RemovedCourseDto.builder()
                                     .cartId(cart.getId())
-                                    .courseCode(course.getSubject().getSubjectCode())
-                                    .courseName(course.getSubject().getSubjectName())
-                                    .credits(course.getSubject().getCredits())
+                                    .courseCode(course.subjectCode())
+                                    .courseName(course.subjectName())
+                                    .credits(course.credits())
                                     .build();
                         })
                         .collect(Collectors.toList()))
