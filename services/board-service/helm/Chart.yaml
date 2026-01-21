@@ -1,0 +1,15 @@
+apiVersion: v2
+name: board-service
+description: LMS Board Service Helm Chart
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - lms
+  - board
+  - post
+  - comment
+  - spring-boot
+maintainers:
+  - name: MZC LMS Team
+    email: lms@mzc.com
