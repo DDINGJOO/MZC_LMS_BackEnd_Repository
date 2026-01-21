@@ -127,13 +127,15 @@ public class HexagonalArchitectureTest {
                 "..adapter.in.web..",           // 같은 패키지 (DTO 포함)
                 "..application.port.in..",      // UseCase Port
                 "..application.service..",      // Service (현재 직접 주입 허용)
+                "..domain.model..",             // Domain Model (DTO 변환용)
                 "..common..",                   // 공통 모듈
                 "..exception..",                // 예외 클래스
                 "java..",                       // Java 기본
                 "jakarta..",                    // Jakarta (validation 등)
                 "lombok..",                     // Lombok
                 "org.springframework..",        // Spring Framework
-                "org.slf4j.."                   // Logging
+                "org.slf4j..",                  // Logging
+                "io.swagger.."                  // OpenAPI/Swagger
             )
             .because("컨트롤러는 허용된 패키지에만 의존해야 합니다"));
 }
