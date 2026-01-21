@@ -1,0 +1,26 @@
+spring:
+  data:
+    redis:
+      # Cluster 모드 활성화
+      cluster:
+        enabled: true
+        nodes:
+          - ${REDIS_CLUSTER_NODE1:localhost:6379}
+          - ${REDIS_CLUSTER_NODE2:localhost:6380}
+          - ${REDIS_CLUSTER_NODE3:localhost:6381}
+        max-redirects: 3
+      # Lettuce Cluster 설정
+      # Note: Topology refresh settings (adaptive, period) are configured programmatically in RedisClusterConfig.java
+      lettuce:
+        pool:
+          enabled: true
+          max-active: 32  # 클러스터에서는 더 많은 연결 필요
+          max-idle: 16
+          min-idle: 8
+        shutdown-timeout: 100ms
+      timeout: 10000ms
+
+logging:
+  level:
+    io.lettuce.core.cluster: INFO  # 클러스터 토폴로지 갱신 로그
+    org.redisson.cluster: INFO     # Redisson 클러스터 로그
