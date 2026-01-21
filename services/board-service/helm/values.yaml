@@ -1,0 +1,117 @@
+replicaCount: 2
+
+image:
+  repository: mzc-lms/board-service
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8089"
+  prometheus.io/path: "/actuator/prometheus"
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 8089
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  hosts:
+    - host: board.lms.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+env:
+  SPRING_PROFILES_ACTIVE: "production"
+  DB_HOST: "mysql-board"
+  DB_PORT: "3306"
+  DB_NAME: "lms_board"
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+secrets:
+  dbUsername: "board_user"
+  dbPassword: ""
+  redisPassword: ""
+
+fileStorage:
+  basePath: "/var/lms/files"
+  baseUrl: "http://files.lms.local"
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClass: ""
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8089
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8089
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+mysql:
+  enabled: true
+  auth:
+    database: lms_board
+    username: board_user
+    rootPassword: ""
+    password: ""
+  primary:
+    persistence:
+      size: 10Gi
