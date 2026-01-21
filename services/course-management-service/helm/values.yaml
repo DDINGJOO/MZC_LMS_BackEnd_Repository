@@ -1,0 +1,116 @@
+replicaCount: 2
+
+image:
+  repository: course-management-service
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/api/v1/actuator/prometheus"
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: course-management-service.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  SPRING_PROFILES_ACTIVE: "kubernetes"
+  SERVER_PORT: "8080"
+  JPA_DDL_AUTO: "update"
+  JPA_SHOW_SQL: "false"
+  LOG_LEVEL: "INFO"
+  KUBERNETES_CONFIG_ENABLED: "true"
+  KUBERNETES_SECRETS_ENABLED: "true"
+
+secrets:
+  MYSQL_HOST: "course-management-service-mysql"
+  MYSQL_PORT: "3306"
+  MYSQL_DATABASE: "course_db"
+  MYSQL_USER: "course_user"
+  MYSQL_PASSWORD: "course_password"
+  REDIS_HOST: "course-management-service-redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+mysql:
+  enabled: true
+  auth:
+    rootPassword: rootpassword
+    database: course_db
+    username: course_user
+    password: course_password
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 2Gi
+
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
