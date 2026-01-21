@@ -30,4 +30,24 @@ public class WeekAttendanceMapper {
                 .completedAt(entity.getCompletedAt())
                 .build();
     }
+
+    /**
+     * Domain -> Entity 변환
+     */
+    public static WeekAttendance toEntity(WeekAttendanceDomain domain) {
+        if (domain == null) {
+            return null;
+        }
+        return WeekAttendance.builder()
+                .id(domain.getId())
+                .studentId(domain.getStudentId())
+                .weekId(domain.getWeekId())
+                .courseId(domain.getCourseId())
+                .isCompleted(domain.getIsCompleted())
+                .completedVideoCount(domain.getCompletedVideoCount())
+                .totalVideoCount(domain.getTotalVideoCount())
+                .firstAccessedAt(domain.getFirstAccessedAt())
+                .completedAt(domain.getCompletedAt())
+                .build();
+    }
 }

@@ -19,17 +19,17 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
     /**
      * 학생 ID와 주차 ID로 출석 조회
      */
-    Optional<WeekAttendance> findByStudentStudentIdAndWeekId(Long studentId, Long weekId);
+    Optional<WeekAttendance> findByStudentIdAndWeekId(Long studentId, Long weekId);
 
     /**
      * 학생의 특정 강의 출석 목록 조회
      */
-    List<WeekAttendance> findByStudentStudentIdAndCourseId(Long studentId, Long courseId);
+    List<WeekAttendance> findByStudentIdAndCourseId(Long studentId, Long courseId);
 
     /**
      * 학생의 모든 출석 목록 조회
      */
-    List<WeekAttendance> findByStudentStudentId(Long studentId);
+    List<WeekAttendance> findByStudentId(Long studentId);
 
     /**
      * 특정 강의의 모든 학생 출석 목록 조회 (교수용)
@@ -45,7 +45,7 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
      * 학생의 특정 강의 출석 완료 주차 수 조회
      */
     @Query("SELECT COUNT(wa) FROM WeekAttendance wa " +
-            "WHERE wa.student.studentId = :studentId " +
+            "WHERE wa.studentId = :studentId " +
             "AND wa.courseId = :courseId " +
             "AND wa.isCompleted = true")
     int countCompletedByStudentAndCourse(
@@ -71,19 +71,19 @@ public interface WeekAttendanceJpaRepository extends JpaRepository<WeekAttendanc
     /**
      * 학생-강의별 출석 통계 조회
      */
-    @Query("SELECT wa.student.studentId, " +
+    @Query("SELECT wa.studentId, " +
             "COUNT(wa), " +
             "SUM(CASE WHEN wa.isCompleted = true THEN 1 ELSE 0 END) " +
             "FROM WeekAttendance wa " +
             "WHERE wa.courseId = :courseId " +
-            "GROUP BY wa.student.studentId")
+            "GROUP BY wa.studentId")
     List<Object[]> getAttendanceStatsByCourse(@Param("courseId") Long courseId);
 
     /**
      * 학생 ID와 주차 ID 목록으로 출석 조회
      */
     @Query("SELECT wa FROM WeekAttendance wa " +
-            "WHERE wa.student.studentId = :studentId " +
+            "WHERE wa.studentId = :studentId " +
             "AND wa.weekId IN :weekIds")
     List<WeekAttendance> findByStudentAndWeekIds(
             @Param("studentId") Long studentId,

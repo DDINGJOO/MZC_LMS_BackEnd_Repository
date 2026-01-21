@@ -1,5 +1,6 @@
 package com.mzc.backend.lms.domains.attendance.adapter.out.persistence;
 
+import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.entity.WeekAttendance;
 import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.mapper.WeekAttendanceMapper;
 import com.mzc.backend.lms.domains.attendance.adapter.out.persistence.repository.WeekAttendanceJpaRepository;
 import com.mzc.backend.lms.domains.attendance.application.port.out.WeekAttendanceRepositoryPort;
@@ -21,7 +22,9 @@ public class WeekAttendancePersistenceAdapter implements WeekAttendanceRepositor
 
     @Override
     public WeekAttendanceDomain save(WeekAttendanceDomain weekAttendance) {
-        throw new UnsupportedOperationException("WeekAttendance save operation requires Entity conversion - not yet implemented");
+        WeekAttendance entity = WeekAttendanceMapper.toEntity(weekAttendance);
+        WeekAttendance savedEntity = weekAttendanceJpaRepository.save(entity);
+        return WeekAttendanceMapper.toDomain(savedEntity);
     }
 
     @Override
@@ -32,20 +35,20 @@ public class WeekAttendancePersistenceAdapter implements WeekAttendanceRepositor
 
     @Override
     public Optional<WeekAttendanceDomain> findByStudentIdAndWeekId(Long studentId, Long weekId) {
-        return weekAttendanceJpaRepository.findByStudentStudentIdAndWeekId(studentId, weekId)
+        return weekAttendanceJpaRepository.findByStudentIdAndWeekId(studentId, weekId)
                 .map(WeekAttendanceMapper::toDomain);
     }
 
     @Override
     public List<WeekAttendanceDomain> findByStudentIdAndCourseId(Long studentId, Long courseId) {
-        return weekAttendanceJpaRepository.findByStudentStudentIdAndCourseId(studentId, courseId).stream()
+        return weekAttendanceJpaRepository.findByStudentIdAndCourseId(studentId, courseId).stream()
                 .map(WeekAttendanceMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<WeekAttendanceDomain> findByStudentId(Long studentId) {
-        return weekAttendanceJpaRepository.findByStudentStudentId(studentId).stream()
+        return weekAttendanceJpaRepository.findByStudentId(studentId).stream()
                 .map(WeekAttendanceMapper::toDomain)
                 .toList();
     }

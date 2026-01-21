@@ -84,7 +84,6 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
         WeekAttendanceDomain attendance = weekAttendanceRepository
                 .findByStudentIdAndWeekId(studentId, weekId)
                 .orElseGet(() -> {
-                    // TODO: save() 구현 필요 - 현재 UnsupportedOperationException 발생
                     WeekAttendanceDomain newAttendance = WeekAttendanceDomain.builder()
                             .studentId(studentId)
                             .weekId(weekId)
@@ -92,6 +91,7 @@ public class AttendanceService implements StudentAttendanceUseCase, ProfessorAtt
                             .isCompleted(false)
                             .completedVideoCount(0)
                             .totalVideoCount(totalVideoCount)
+                            .firstAccessedAt(java.time.LocalDateTime.now())
                             .build();
                     return weekAttendanceRepository.save(newAttendance);
                 });

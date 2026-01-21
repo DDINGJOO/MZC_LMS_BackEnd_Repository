@@ -11,7 +11,13 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "week_attendance",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "week_id"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "week_id"}),
+        indexes = {
+            @Index(name = "idx_week_attendance_student", columnList = "student_id"),
+            @Index(name = "idx_week_attendance_course", columnList = "course_id"),
+            @Index(name = "idx_week_attendance_week", columnList = "week_id"),
+            @Index(name = "idx_week_attendance_student_course", columnList = "student_id, course_id")
+        })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
