@@ -118,15 +118,8 @@ dependencies {
 
 }
 
-tasks.named('compileTestJava') {
-    // Notification 테스트 컴파일 제외
-    exclude '**/notification/**'
-}
-
 tasks.named('test') {
     useJUnitPlatform()
-    // Notification 테스트 제외
-    exclude '**/notification/**'
 }
 
 
