@@ -195,8 +195,8 @@ public class NotificationQueueConsumer implements SmartLifecycle {
                 log.warn("알림 처리 실패 (시도 {}/{}): {}", attempt, maxRetries, e.getMessage());
 
                 if (attempt >= maxRetries) {
-                    log.error("알림 처리 최종 실패, 메시지 폐기: recipientId={}", message.getRecipientId());
-                    // TODO: Dead Letter Queue 처리
+                    log.error("알림 처리 최종 실패, DLQ 저장: recipientId={}", message.getRecipientId());
+                    queuePort.publishToDeadLetterQueue(message, e.getMessage(), maxRetries);
                 }
 
                 sleepOnError();
@@ -220,8 +220,8 @@ public class NotificationQueueConsumer implements SmartLifecycle {
                 log.warn("배치 알림 처리 실패 (시도 {}/{}): {}", attempt, maxRetries, e.getMessage());
 
                 if (attempt >= maxRetries) {
-                    log.error("배치 알림 처리 최종 실패, 메시지 폐기: batchId={}", message.getBatchId());
-                    // TODO: Dead Letter Queue 처리
+                    log.error("배치 알림 처리 최종 실패, DLQ 저장: batchId={}", message.getBatchId());
+                    queuePort.publishBatchToDeadLetterQueue(message, e.getMessage(), maxRetries);
                 }
 
                 sleepOnError();

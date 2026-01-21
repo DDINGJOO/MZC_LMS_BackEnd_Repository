@@ -21,6 +21,8 @@ public class NotificationRedisConfig {
     public static final String NOTIFICATION_QUEUE_KEY = "notification:queue";
     public static final String BATCH_NOTIFICATION_QUEUE_KEY = "notification:batch:queue";
     public static final String NOTIFICATION_PROCESSING_KEY = "notification:processing";
+    public static final String DEAD_LETTER_QUEUE_KEY = "notification:dlq";
+    public static final String DEAD_LETTER_INDEX_KEY = "notification:dlq:index";
 
     /**
      * Redis 전용 ObjectMapper 생성 (Bean으로 등록하지 않음)
