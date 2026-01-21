@@ -472,13 +472,13 @@ public class PostService implements PostUseCase {
     
     /**
      * 역할 기반 게시판 접근 권한 검증 (RBAC)
-     * 
-     * 향후 개선 고려사항:
-     * - TODO: ADMIN 역할에 대한 모든 게시판 접근 권한 추가
-     *   (UserRole enum에 ADMIN은 정의되어 있으나 이 메서드에서는 아직 활용되지 않음)
-     * - TODO: JWT 토큰에서 userType 직접 추출하여 DB 조회 최소화
-     *   (JWT claims에 userType이 포함되어 있으나 현재는 캐시/DB 조회 방식 사용 중)
-     * 
+     *
+     * ADMIN 역할은 모든 게시판에 접근 가능합니다.
+     *
+     * 성능 최적화:
+     * - UserInfoCacheService를 통해 Redis 캐시에서 사용자 정보 조회
+     * - 캐시 미스 시에만 DB 조회 (UserTypeQueryPort 사용)
+     *
      * 참고: SecurityConfig에서 이미 URL 기반 접근 제어가 작동하므로,
      *       이 메서드는 게시글 작성 시에만 사용됩니다.
      */
@@ -487,22 +487,28 @@ public class PostService implements PostUseCase {
         if (!boardType.isRoleRestrictedBoard()) {
             return;
         }
-        
+
         String userType = determineUserType(userId);
         log.info("게시판 접근 권한 검증: boardType={}, userId={}, userType={}", boardType, userId, userType);
-        
+
+        // ADMIN은 모든 게시판 접근 가능
+        if ("ADMIN".equals(userType)) {
+            log.debug("ADMIN 권한으로 게시판 접근 허용: boardType={}, userId={}", boardType, userId);
+            return;
+        }
+
         // 교수 게시판 접근 제어
         if (boardType == BoardType.PROFESSOR && !"PROFESSOR".equals(userType)) {
             log.warn("교수 게시판 접근 거부: userId={}, userType={}", userId, userType);
             throw new BoardException(BoardErrorCode.PROFESSOR_ONLY_BOARD);
         }
-        
+
         // 학생 게시판 접근 제어
         if (boardType == BoardType.STUDENT && !"STUDENT".equals(userType)) {
             log.warn("학생 게시판 접근 거부: userId={}, userType={}", userId, userType);
             throw new BoardException(BoardErrorCode.STUDENT_ONLY_BOARD);
         }
-        
+
         log.debug("게시판 접근 권한 확인 완료: boardType={}, userId={}, userType={}", boardType, userId, userType);
     }
     
