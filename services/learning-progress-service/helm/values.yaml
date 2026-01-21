@@ -1,0 +1,110 @@
+replicaCount: 2
+
+image:
+  repository: mzc-lms/learning-progress-service
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8087"
+  prometheus.io/path: "/api/v1/actuator/prometheus"
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 8087
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: progress.lms.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+env:
+  SPRING_PROFILES_ACTIVE: "kubernetes"
+  JPA_DDL_AUTO: "validate"
+  JPA_SHOW_SQL: "false"
+  LOG_LEVEL: "INFO"
+  EUREKA_CLIENT_ENABLED: "true"
+  CONFIG_SERVER_ENABLED: "true"
+
+secrets:
+  MYSQL_USERNAME: "progress_user"
+  MYSQL_PASSWORD: "progress_password"
+
+mysql:
+  enabled: true
+  auth:
+    database: lms_progress
+    username: progress_user
+    password: progress_password
+    rootPassword: root_password
+  primary:
+    persistence:
+      size: 10Gi
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      size: 1Gi
