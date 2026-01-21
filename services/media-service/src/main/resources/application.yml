@@ -1,0 +1,111 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: media-service
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:lms_media}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+
+  cloud:
+    config:
+      enabled: ${CONFIG_SERVER_ENABLED:false}
+      uri: ${CONFIG_SERVER_URI:http://localhost:8888}
+
+eureka:
+  client:
+    enabled: ${EUREKA_CLIENT_ENABLED:false}
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+# Media Storage Configuration
+# Nginx에서 static file serving을 위한 설정
+# storage.base-path: 실제 파일이 저장되는 경로 (Nginx root와 일치해야 함)
+# storage.base-url: Nginx에서 서빙하는 URL prefix
+media:
+  storage:
+    base-path: ${MEDIA_STORAGE_PATH:/var/lms/media}
+    base-url: ${MEDIA_BASE_URL:http://cdn.lms.local/media}
+    temp-path: ${MEDIA_TEMP_PATH:/tmp/lms/media}
+  image:
+    allowed-types: image/jpeg,image/png,image/gif,image/webp
+    max-size: 10485760  # 10MB
+    thumbnail:
+      enabled: true
+      widths: 150,300,600
+  video:
+    allowed-types: video/mp4,video/webm,video/mpeg
+    max-size: 524288000  # 500MB
+  document:
+    allowed-types: application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    max-size: 52428800  # 50MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+logging:
+  level:
+    com.mzc.lms.media: ${LOG_LEVEL:INFO}
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:INFO}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
