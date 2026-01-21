@@ -1,0 +1,10 @@
+apiVersion: v2
+name: media-service
+description: Media Service for LMS - Handles file uploads, image processing, and serves static files via Nginx
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: common
+    version: "0.1.0"
+    repository: "file://../../../helm/charts/common"
