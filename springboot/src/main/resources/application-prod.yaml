@@ -1,10 +1,44 @@
 spring:
 
   datasource:
-    url: jdbc:mysql://${DATABASE_URL}:${DATABASE_PORT}/${DATABASE_NAME}?useSSL=false&serverTimezone=seoul
+    # Single DataSource configuration (fallback when routing is disabled)
+    url: jdbc:mysql://${DATABASE_URL}:${DATABASE_PORT}/${DATABASE_NAME}?useSSL=false&serverTimezone=Asia/Seoul
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # Multi-DataSource Routing Configuration (enabled for production)
+    routing:
+      enabled: ${DATABASE_ROUTING_ENABLED:true}  # Enable Read/Write separation in production
+
+    # Primary (Master) DataSource - for Write operations
+    primary:
+      jdbc-url: jdbc:mysql://${DATABASE_URL}:${DATABASE_PORT}/${DATABASE_NAME}?useSSL=false&serverTimezone=Asia/Seoul
+      username: ${DATABASE_USER}
+      password: ${DATABASE_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      hikari:
+        maximum-pool-size: ${DATABASE_PRIMARY_MAX_POOL_SIZE:20}
+        minimum-idle: ${DATABASE_PRIMARY_MIN_IDLE:10}
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        pool-name: PrimaryHikariPool
+
+    # Replica (Slave) DataSource - for Read operations
+    replica:
+      jdbc-url: jdbc:mysql://${DATABASE_REPLICA_URL:${DATABASE_URL}}:${DATABASE_REPLICA_PORT:${DATABASE_PORT}}/${DATABASE_NAME}?useSSL=false&serverTimezone=Asia/Seoul
+      username: ${DATABASE_REPLICA_USER:${DATABASE_USER}}
+      password: ${DATABASE_REPLICA_PASSWORD:${DATABASE_PASSWORD}}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      hikari:
+        maximum-pool-size: ${DATABASE_REPLICA_MAX_POOL_SIZE:20}
+        minimum-idle: ${DATABASE_REPLICA_MIN_IDLE:10}
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        read-only: true
+        pool-name: ReplicaHikariPool
 
   jpa:
     show-sql: false

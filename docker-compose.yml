@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # MySQL Primary (Master) Database
+  mysql-primary:
+    image: mysql:8.0
+    container_name: lms-mysql-primary
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DATABASE_NAME:-lms_db}
+      MYSQL_USER: ${DATABASE_USER:-lmsuser}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-lmspassword}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql-primary-data:/var/lib/mysql
+      - ./docker/mysql/primary/conf.d:/etc/mysql/conf.d
+    command: --server-id=1 --log-bin=mysql-bin --binlog-format=ROW
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DATABASE_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # MySQL Replica (Slave) Database
+  mysql-replica:
+    image: mysql:8.0
+    container_name: lms-mysql-replica
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DATABASE_NAME:-lms_db}
+      MYSQL_USER: ${DATABASE_USER:-lmsuser}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-lmspassword}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql-replica-data:/var/lib/mysql
+      - ./docker/mysql/replica/conf.d:/etc/mysql/conf.d
+    command: --server-id=2 --relay-log=mysql-relay-bin
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DATABASE_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: lms-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  lms-network:
+    driver: bridge
+
+volumes:
+  mysql-primary-data:
+  mysql-replica-data:
+  redis-data:
