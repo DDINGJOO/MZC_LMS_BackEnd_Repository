@@ -1,0 +1,53 @@
+# Bitnami MySQL values for LMS
+auth:
+  rootPassword: "rootpassword"
+  database: "lms_identity"
+  username: "lmsuser"
+  password: "lmspassword"
+
+primary:
+  persistence:
+    enabled: true
+    size: 8Gi
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+
+secondary:
+  replicaCount: 0  # Minikube에서는 replica 없이 시작
+
+initdbScripts:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS lms_identity;
+    CREATE DATABASE IF NOT EXISTS lms_user_profile;
+    CREATE DATABASE IF NOT EXISTS lms_organization;
+    CREATE DATABASE IF NOT EXISTS lms_catalog;
+    CREATE DATABASE IF NOT EXISTS lms_course;
+    CREATE DATABASE IF NOT EXISTS lms_enrollment;
+    CREATE DATABASE IF NOT EXISTS lms_progress;
+    CREATE DATABASE IF NOT EXISTS lms_assessment;
+    CREATE DATABASE IF NOT EXISTS lms_board;
+    CREATE DATABASE IF NOT EXISTS lms_media;
+    CREATE DATABASE IF NOT EXISTS lms_messaging;
+    CREATE DATABASE IF NOT EXISTS lms_notification;
+
+    GRANT ALL PRIVILEGES ON lms_identity.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_user_profile.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_organization.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_catalog.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_course.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_enrollment.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_progress.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_assessment.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_board.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_media.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_messaging.* TO 'lmsuser'@'%';
+    GRANT ALL PRIVILEGES ON lms_notification.* TO 'lmsuser'@'%';
+    FLUSH PRIVILEGES;
+
+metrics:
+  enabled: false

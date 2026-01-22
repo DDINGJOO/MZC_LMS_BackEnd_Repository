@@ -1,0 +1,29 @@
+# Bitnami Elasticsearch values for LMS
+master:
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 4Gi
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+  heapSize: 512m
+
+data:
+  replicaCount: 0  # Minikube에서는 master만
+
+coordinating:
+  replicaCount: 0
+
+ingest:
+  replicaCount: 0
+
+security:
+  enabled: false  # 로컬 테스트용
+
+metrics:
+  enabled: false

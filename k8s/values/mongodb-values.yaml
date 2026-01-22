@@ -1,0 +1,28 @@
+# Bitnami MongoDB values for LMS
+architecture: standalone
+
+auth:
+  enabled: true
+  rootUser: root
+  rootPassword: "mongopassword"
+  databases:
+    - lms_messaging
+  usernames:
+    - lmsuser
+  passwords:
+    - lmspassword
+
+persistence:
+  enabled: true
+  size: 4Gi
+
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 512Mi
+    cpu: 300m
+
+metrics:
+  enabled: false
