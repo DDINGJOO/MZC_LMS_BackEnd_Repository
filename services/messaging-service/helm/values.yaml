@@ -1,0 +1,72 @@
+replicaCount: 2
+
+image:
+  repository: lms/messaging-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+env:
+  SPRING_PROFILES_ACTIVE: kubernetes
+  SERVER_PORT: "8080"
+
+configMap:
+  data:
+    SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/lms_messaging?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/lms_messages
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    SPRING_REDIS_HOST: redis
+    SPRING_REDIS_PORT: "6379"
+
+secret:
+  data:
+    SPRING_DATASOURCE_USERNAME: lms_user
+    SPRING_DATASOURCE_PASSWORD: lms_password
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/websocket-services: messaging-service
+  hosts:
+    - host: api.lms.local
+      paths:
+        - path: /api/v1/chat-rooms
+          pathType: Prefix
+        - path: /api/v1/messages
+          pathType: Prefix
+        - path: /ws/messaging
+          pathType: Prefix
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 5
