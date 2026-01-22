@@ -13,7 +13,8 @@ RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
 
 # Copy source and build
 COPY src src
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew bootJar --no-daemon && \
+    mv build/libs/*.jar build/libs/app.jar
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine
@@ -24,7 +25,7 @@ WORKDIR /app
 RUN addgroup -g 1000 spring && adduser -u 1000 -G spring -s /bin/sh -D spring
 
 # Copy jar from builder
-COPY --from=builder /app/build/libs/search-service.jar app.jar
+COPY --from=builder /app/build/libs/app.jar app.jar
 
 # Change ownership
 RUN chown -R spring:spring /app

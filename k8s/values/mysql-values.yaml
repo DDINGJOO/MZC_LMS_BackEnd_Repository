@@ -1,4 +1,9 @@
 # Bitnami MySQL values for LMS
+image:
+  registry: docker.io
+  repository: mysql
+  tag: "8.0"
+
 auth:
   rootPassword: "rootpassword"
   database: "lms_identity"

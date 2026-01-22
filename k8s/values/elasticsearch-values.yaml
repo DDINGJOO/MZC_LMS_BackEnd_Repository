@@ -1,4 +1,9 @@
 # Bitnami Elasticsearch values for LMS
+image:
+  registry: docker.io
+  repository: bitnami/elasticsearch
+  tag: latest
+
 master:
   replicaCount: 1
   persistence:

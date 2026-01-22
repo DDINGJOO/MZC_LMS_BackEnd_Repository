@@ -90,21 +90,17 @@ build_images() {
 
     for service in "${services[@]}"; do
         local service_path="$PROJECT_ROOT/services/$service"
-        if [ -f "$service_path/build.gradle" ]; then
-            log_info "Building $service..."
+        if [ -f "$service_path/Dockerfile" ]; then
+            log_info "Building Docker image for $service..."
 
-            # Build JAR
-            cd "$service_path"
-            ./gradlew bootJar -x test || {
-                log_warn "Failed to build $service"
+            # Build Docker image using multi-stage Dockerfile
+            docker build -t lms/$service:latest "$service_path" || {
+                log_warn "Failed to build Docker image for $service"
                 continue
             }
-
-            # Build Docker image
-            docker build -t lms/$service:latest . || {
-                log_warn "Failed to build Docker image for $service"
-            }
-            cd "$PROJECT_ROOT"
+            log_info "$service image built successfully"
+        else
+            log_warn "No Dockerfile found for $service, skipping"
         fi
     done
 

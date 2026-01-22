@@ -1,4 +1,9 @@
 # Bitnami Kafka values for LMS
+image:
+  registry: docker.io
+  repository: bitnami/kafka
+  tag: latest
+
 # KRaft mode (no Zookeeper)
 kraft:
   enabled: true
@@ -37,9 +42,10 @@ listeners:
   interbroker:
     protocol: PLAINTEXT
 
-# Auto create topics
+# Auto create topics - disabled for faster startup
+# Topics will be auto-created by services
 provisioning:
-  enabled: true
+  enabled: false
   topics:
     - name: course-events
       partitions: 3

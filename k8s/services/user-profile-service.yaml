@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-profile-service
+  namespace: lms-services
+  labels:
+    app: user-profile-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-profile-service
+  template:
+    metadata:
+      labels:
+        app: user-profile-service
+        version: v1
+    spec:
+      containers:
+      - name: user-profile-service
+        image: lms/user-profile-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8082
+          name: http
+        envFrom:
+        - configMapRef:
+            name: lms-common-config
+        - secretRef:
+            name: lms-common-secrets
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.lms-infra.svc.cluster.local:3306/user_profile_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: lms-common-secrets
+              key: MYSQL_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: lms-common-secrets
+              key: MYSQL_PASSWORD
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 90
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-profile-service
+  namespace: lms-services
+  labels:
+    app: user-profile-service
+spec:
+  ports:
+  - port: 8082
+    name: http
+    targetPort: 8082
+  selector:
+    app: user-profile-service

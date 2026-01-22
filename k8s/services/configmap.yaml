@@ -1,0 +1,41 @@
+# Common ConfigMap for all LMS services
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lms-common-config
+  namespace: lms-services
+data:
+  # Database
+  MYSQL_HOST: "mysql.lms-infra.svc.cluster.local"
+  MYSQL_PORT: "3306"
+
+  # Redis
+  REDIS_HOST: "redis.lms-infra.svc.cluster.local"
+  REDIS_PORT: "6379"
+
+  # Kafka
+  KAFKA_BOOTSTRAP_SERVERS: "kafka.lms-infra.svc.cluster.local:9092"
+
+  # MongoDB
+  MONGODB_HOST: "mongodb.lms-infra.svc.cluster.local"
+  MONGODB_PORT: "27017"
+
+  # Elasticsearch
+  ELASTICSEARCH_HOST: "elasticsearch.lms-infra.svc.cluster.local"
+  ELASTICSEARCH_PORT: "9200"
+
+  # Spring profile
+  SPRING_PROFILES_ACTIVE: "k8s"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: lms-common-secrets
+  namespace: lms-services
+type: Opaque
+stringData:
+  MYSQL_USERNAME: "root"
+  MYSQL_PASSWORD: "lmspassword"
+  MONGODB_USERNAME: "root"
+  MONGODB_PASSWORD: "mongopassword"
+  JWT_SECRET: "lms-jwt-secret-key-for-development-only-change-in-production"
