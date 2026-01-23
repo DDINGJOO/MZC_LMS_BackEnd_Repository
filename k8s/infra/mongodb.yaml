@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secret
+  namespace: lms-infra
+type: Opaque
+stringData:
+  root-password: "mongopassword"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: lms-infra
+spec:
+  serviceName: mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "root"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: root-password
+        ports:
+        - containerPort: 27017
+          name: mongodb
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+          limits:
+            memory: 512Mi
+            cpu: 300m
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        readinessProbe:
+          exec:
+            command: ["mongosh", "--eval", "db.adminCommand('ping')"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: lms-infra
+spec:
+  ports:
+  - port: 27017
+    name: mongodb
+  selector:
+    app: mongodb
+  clusterIP: None

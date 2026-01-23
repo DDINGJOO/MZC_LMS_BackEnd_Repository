@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: lms-infra
+type: Opaque
+stringData:
+  root-password: "rootpassword"
+  user-password: "lmspassword"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init
+  namespace: lms-infra
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS lms_identity;
+    CREATE DATABASE IF NOT EXISTS lms_user_profile;
+    CREATE DATABASE IF NOT EXISTS lms_organization;
+    CREATE DATABASE IF NOT EXISTS lms_catalog;
+    CREATE DATABASE IF NOT EXISTS lms_course;
+    CREATE DATABASE IF NOT EXISTS lms_enrollment;
+    CREATE DATABASE IF NOT EXISTS lms_progress;
+    CREATE DATABASE IF NOT EXISTS lms_assessment;
+    CREATE DATABASE IF NOT EXISTS lms_board;
+    CREATE DATABASE IF NOT EXISTS lms_media;
+    CREATE DATABASE IF NOT EXISTS lms_messaging;
+    CREATE DATABASE IF NOT EXISTS lms_notification;
+
+    CREATE USER IF NOT EXISTS 'lmsuser'@'%' IDENTIFIED BY 'lmspassword';
+    GRANT ALL PRIVILEGES ON *.* TO 'lmsuser'@'%';
+    FLUSH PRIVILEGES;
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: lms-infra
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: root-password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        - name: init-scripts
+          mountPath: /docker-entrypoint-initdb.d
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 250m
+          limits:
+            memory: 1Gi
+            cpu: 500m
+        readinessProbe:
+          exec:
+            command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: mysql-init
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: lms-infra
+spec:
+  ports:
+  - port: 3306
+    name: mysql
+  selector:
+    app: mysql
+  clusterIP: None

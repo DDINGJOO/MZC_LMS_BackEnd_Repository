@@ -1,0 +1,168 @@
+# ============================================
+# Phase 5: Support Services (Media, Search)
+# ============================================
+
+# ============================================
+# 1. Media Service (8092)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-service
+  namespace: lms-services
+  labels:
+    app: media-service
+    phase: support
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: media-service
+  template:
+    metadata:
+      labels:
+        app: media-service
+        phase: support
+    spec:
+      containers:
+      - name: media-service
+        image: lms/media-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8090
+        env:
+        - name: MYSQL_HOST
+          value: "mysql.lms-infra.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "lms_media"
+        - name: MYSQL_USERNAME
+          value: "root"
+        - name: MYSQL_PASSWORD
+          value: "rootpassword"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: JPA_DDL_AUTO
+          value: "update"
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: CONFIG_SERVER_ENABLED
+          value: "false"
+        - name: MEDIA_STORAGE_PATH
+          value: "/app/media"
+        - name: MEDIA_TEMP_PATH
+          value: "/app/tmp"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8090
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8090
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8092
+    targetPort: 8090
+    name: http
+  selector:
+    app: media-service
+
+# ============================================
+# 2. Search Service (8093)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-service
+  namespace: lms-services
+  labels:
+    app: search-service
+    phase: support
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search-service
+  template:
+    metadata:
+      labels:
+        app: search-service
+        phase: support
+    spec:
+      containers:
+      - name: search-service
+        image: lms/search-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SERVER_PORT
+          value: "8080"
+        - name: ELASTICSEARCH_URIS
+          value: "http://elasticsearch.lms-infra.svc.cluster.local:9200"
+        - name: ELASTICSEARCH_USERNAME
+          value: "elastic"
+        - name: ELASTICSEARCH_PASSWORD
+          value: "changeme"
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8093
+    targetPort: 8080
+    name: http
+  selector:
+    app: search-service

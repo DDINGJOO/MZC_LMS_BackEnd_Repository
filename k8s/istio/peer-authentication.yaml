@@ -1,0 +1,19 @@
+# Strict mTLS for service-to-service communication
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: lms-services
+spec:
+  mtls:
+    mode: STRICT
+---
+# Allow non-mTLS for infrastructure namespace
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: infra-permissive
+  namespace: lms-infra
+spec:
+  mtls:
+    mode: PERMISSIVE

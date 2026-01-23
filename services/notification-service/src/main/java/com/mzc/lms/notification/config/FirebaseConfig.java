@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(name = "notification.firebase.enabled", havingValue = "true", matchIfMissing = false)
 public class FirebaseConfig {
 
     @Value("${notification.firebase.credentials-path}")
@@ -36,8 +38,6 @@ public class FirebaseConfig {
             }
         } catch (Exception e) {
             log.warn("Failed to initialize Firebase: {}. Push notifications will be disabled.", e.getMessage());
-            // Return null if Firebase credentials are not available
-            // This allows the service to run without push notification support
             return null;
         }
     }

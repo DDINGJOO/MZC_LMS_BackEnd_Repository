@@ -1,0 +1,56 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: lms-circuit-breaker
+  namespace: lms-services
+spec:
+  host: "*.lms-services.svc.cluster.local"
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 1000
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+---
+# Identity Service - no retries (auth is critical)
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: identity-service
+  namespace: lms-services
+spec:
+  host: identity-service
+  trafficPolicy:
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 50
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 10s
+      baseEjectionTime: 60s
+---
+# Search Service - allow retries
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: search-service
+  namespace: lms-services
+spec:
+  host: search-service
+  trafficPolicy:
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 200
+    loadBalancer:
+      simple: ROUND_ROBIN
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s

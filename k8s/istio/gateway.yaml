@@ -1,0 +1,169 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: lms-gateway
+  namespace: lms-services
+spec:
+  selector:
+    istio: ingress
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "lms.local"
+        - "api.lms.local"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: lms-routes
+  namespace: lms-services
+spec:
+  hosts:
+    - "api.lms.local"
+  gateways:
+    - lms-gateway
+  http:
+    # Identity Service
+    - match:
+        - uri:
+            prefix: /api/v1/auth
+        - uri:
+            prefix: /api/v1/users
+      route:
+        - destination:
+            host: identity-service
+            port:
+              number: 8080
+
+    # User Profile Service
+    - match:
+        - uri:
+            prefix: /api/v1/profiles
+      route:
+        - destination:
+            host: user-profile-service
+            port:
+              number: 8081
+
+    # Organization Service
+    - match:
+        - uri:
+            prefix: /api/v1/organizations
+      route:
+        - destination:
+            host: organization-service
+            port:
+              number: 8082
+
+    # Catalog Service
+    - match:
+        - uri:
+            prefix: /api/v1/catalog
+        - uri:
+            prefix: /api/v1/categories
+      route:
+        - destination:
+            host: catalog-service
+            port:
+              number: 8083
+
+    # Course Management Service
+    - match:
+        - uri:
+            prefix: /api/v1/courses
+        - uri:
+            prefix: /api/v1/lessons
+      route:
+        - destination:
+            host: course-management-service
+            port:
+              number: 8084
+
+    # Enrollment Service
+    - match:
+        - uri:
+            prefix: /api/v1/enrollments
+      route:
+        - destination:
+            host: enrollment-service
+            port:
+              number: 8085
+
+    # Learning Progress Service
+    - match:
+        - uri:
+            prefix: /api/v1/progress
+      route:
+        - destination:
+            host: learning-progress-service
+            port:
+              number: 8086
+
+    # Assessment Service
+    - match:
+        - uri:
+            prefix: /api/v1/assessments
+        - uri:
+            prefix: /api/v1/submissions
+      route:
+        - destination:
+            host: assessment-service
+            port:
+              number: 8087
+
+    # Messaging Service (WebSocket)
+    - match:
+        - uri:
+            prefix: /api/v1/chat
+        - uri:
+            prefix: /ws
+      route:
+        - destination:
+            host: messaging-service
+            port:
+              number: 8088
+
+    # Notification Service
+    - match:
+        - uri:
+            prefix: /api/v1/notifications
+      route:
+        - destination:
+            host: notification-service
+            port:
+              number: 8089
+
+    # Media Service
+    - match:
+        - uri:
+            prefix: /api/v1/media
+      route:
+        - destination:
+            host: media-service
+            port:
+              number: 8090
+
+    # Search Service
+    - match:
+        - uri:
+            prefix: /api/v1/search
+      route:
+        - destination:
+            host: search-service
+            port:
+              number: 8091
+
+    # Board Service
+    - match:
+        - uri:
+            prefix: /api/v1/boards
+        - uri:
+            prefix: /api/v1/posts
+      route:
+        - destination:
+            host: board-service
+            port:
+              number: 8092
