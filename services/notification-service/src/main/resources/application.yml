@@ -120,3 +120,31 @@ logging:
   level:
     root: WARN
     com.mzc.lms.notification: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: k8s
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  cloud:
+    kubernetes:
+      enabled: false
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+
+management:
+  health:
+    mail:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false

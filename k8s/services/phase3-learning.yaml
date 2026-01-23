@@ -1,0 +1,269 @@
+# ============================================
+# Phase 3: Learning Services (Enrollment, Progress, Assessment)
+# ============================================
+
+# ============================================
+# 1. Enrollment Service (8086)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enrollment-service
+  namespace: lms-services
+  labels:
+    app: enrollment-service
+    phase: learning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: enrollment-service
+  template:
+    metadata:
+      labels:
+        app: enrollment-service
+        phase: learning
+    spec:
+      containers:
+      - name: enrollment-service
+        image: lms/enrollment-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8086
+        env:
+        - name: MYSQL_HOST
+          value: "mysql.lms-infra.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "lms_enrollment"
+        - name: MYSQL_USERNAME
+          value: "root"
+        - name: MYSQL_PASSWORD
+          value: "rootpassword"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: JPA_DDL_AUTO
+          value: "update"
+        - name: JPA_SHOW_SQL
+          value: "false"
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: CONFIG_SERVER_ENABLED
+          value: "false"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8086
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8086
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enrollment-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8086
+    targetPort: 8086
+    name: http
+  selector:
+    app: enrollment-service
+
+# ============================================
+# 2. Learning Progress Service (8087)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: learning-progress-service
+  namespace: lms-services
+  labels:
+    app: learning-progress-service
+    phase: learning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: learning-progress-service
+  template:
+    metadata:
+      labels:
+        app: learning-progress-service
+        phase: learning
+    spec:
+      containers:
+      - name: learning-progress-service
+        image: lms/learning-progress-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8087
+        env:
+        - name: MYSQL_HOST
+          value: "mysql.lms-infra.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "lms_progress"
+        - name: MYSQL_USERNAME
+          value: "root"
+        - name: MYSQL_PASSWORD
+          value: "rootpassword"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: JPA_DDL_AUTO
+          value: "update"
+        - name: JPA_SHOW_SQL
+          value: "false"
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: CONFIG_SERVER_ENABLED
+          value: "false"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8087
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8087
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: learning-progress-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8087
+    targetPort: 8087
+    name: http
+  selector:
+    app: learning-progress-service
+
+# ============================================
+# 3. Assessment Service (8088)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: assessment-service
+  namespace: lms-services
+  labels:
+    app: assessment-service
+    phase: learning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: assessment-service
+  template:
+    metadata:
+      labels:
+        app: assessment-service
+        phase: learning
+    spec:
+      containers:
+      - name: assessment-service
+        image: lms/assessment-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8088
+        env:
+        - name: MYSQL_HOST
+          value: "mysql.lms-infra.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "lms_assessment"
+        - name: MYSQL_USERNAME
+          value: "root"
+        - name: MYSQL_PASSWORD
+          value: "rootpassword"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: JPA_DDL_AUTO
+          value: "update"
+        - name: JPA_SHOW_SQL
+          value: "false"
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: CONFIG_SERVER_ENABLED
+          value: "false"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8088
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8088
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: assessment-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8088
+    targetPort: 8088
+    name: http
+  selector:
+    app: assessment-service

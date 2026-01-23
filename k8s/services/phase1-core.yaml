@@ -1,0 +1,265 @@
+# ============================================
+# Phase 1: Core Services (Identity, User Profile, Organization)
+# ============================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lms-common-config
+  namespace: lms-services
+data:
+  MYSQL_HOST: "mysql.lms-infra.svc.cluster.local"
+  MYSQL_PORT: "3306"
+  REDIS_HOST: "redis.lms-infra.svc.cluster.local"
+  REDIS_PORT: "6379"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka.lms-infra.svc.cluster.local:9092"
+  SPRING_PROFILES_ACTIVE: "k8s"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: lms-common-secrets
+  namespace: lms-services
+type: Opaque
+stringData:
+  MYSQL_USERNAME: "root"
+  MYSQL_PASSWORD: "rootpassword"
+  JWT_SECRET: "lms-jwt-secret-key-for-development"
+
+# ============================================
+# 1. Identity Service (8081)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-service
+  namespace: lms-services
+  labels:
+    app: identity-service
+    phase: core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity-service
+  template:
+    metadata:
+      labels:
+        app: identity-service
+        phase: core
+    spec:
+      containers:
+      - name: identity-service
+        image: lms/identity-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8081
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.lms-infra.svc.cluster.local:3306/identity_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"
+        - name: SPRING_DATA_REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: JWT_SECRET
+          value: "lms-jwt-secret-key-for-development"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+    name: http
+  selector:
+    app: identity-service
+
+# ============================================
+# 2. User Profile Service (8082)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-profile-service
+  namespace: lms-services
+  labels:
+    app: user-profile-service
+    phase: core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-profile-service
+  template:
+    metadata:
+      labels:
+        app: user-profile-service
+        phase: core
+    spec:
+      containers:
+      - name: user-profile-service
+        image: lms/user-profile-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8082
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.lms-infra.svc.cluster.local:3306/user_profile_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: SPRING_DATA_REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-profile-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8082
+    targetPort: 8082
+    name: http
+  selector:
+    app: user-profile-service
+
+# ============================================
+# 3. Organization Service (8083)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: organization-service
+  namespace: lms-services
+  labels:
+    app: organization-service
+    phase: core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: organization-service
+  template:
+    metadata:
+      labels:
+        app: organization-service
+        phase: core
+    spec:
+      containers:
+      - name: organization-service
+        image: lms/organization-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8083
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.lms-infra.svc.cluster.local:3306/organization_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: SPRING_DATA_REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: organization-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8083
+    targetPort: 8083
+    name: http
+  selector:
+    app: organization-service

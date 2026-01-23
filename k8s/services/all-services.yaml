@@ -78,16 +78,16 @@ spec:
           value: "redis.lms-infra.svc.cluster.local"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8081
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -144,16 +144,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8082
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -210,16 +210,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8083
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -276,16 +276,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8084
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -342,16 +342,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8080
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -408,16 +408,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8085
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -474,16 +474,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8086
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -540,16 +540,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8087
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -606,16 +606,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8092
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -672,16 +672,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8090
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -734,16 +734,16 @@ spec:
           value: "mongodb://root:mongopassword@mongodb.lms-infra.svc.cluster.local:27017/messaging_db?authSource=admin"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8088
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -800,16 +800,16 @@ spec:
           value: "rootpassword"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8089
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1
@@ -862,16 +862,16 @@ spec:
           value: "http://elasticsearch.lms-infra.svc.cluster.local:9200"
         resources:
           requests:
-            memory: 256Mi
-            cpu: 100m
-          limits:
             memory: 512Mi
-            cpu: 500m
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8091
-          initialDelaySeconds: 60
+          initialDelaySeconds: 120
           periodSeconds: 10
 ---
 apiVersion: v1

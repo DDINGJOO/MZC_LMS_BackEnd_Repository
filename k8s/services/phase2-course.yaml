@@ -1,0 +1,160 @@
+# ============================================
+# Phase 2: Course Services (Catalog, Course Management)
+# ============================================
+
+# ============================================
+# 1. Catalog Service (8084)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+  namespace: lms-services
+  labels:
+    app: catalog-service
+    phase: course
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-service
+  template:
+    metadata:
+      labels:
+        app: catalog-service
+        phase: course
+    spec:
+      containers:
+      - name: catalog-service
+        image: lms/catalog-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.lms-infra.svc.cluster.local:3306/catalog_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: SPRING_DATA_REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8080
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8084
+    targetPort: 8080
+    name: http
+  selector:
+    app: catalog-service
+
+# ============================================
+# 2. Course Management Service (8085)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: course-management-service
+  namespace: lms-services
+  labels:
+    app: course-management-service
+    phase: course
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: course-management-service
+  template:
+    metadata:
+      labels:
+        app: course-management-service
+        phase: course
+    spec:
+      containers:
+      - name: course-management-service
+        image: lms/course-management-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.lms-infra.svc.cluster.local:3306/course_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: SPRING_DATA_REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/v1/actuator/health
+            port: 8080
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: course-management-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8085
+    targetPort: 8080
+    name: http
+  selector:
+    app: course-management-service

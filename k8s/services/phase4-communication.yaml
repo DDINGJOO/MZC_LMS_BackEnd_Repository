@@ -1,0 +1,259 @@
+# ============================================
+# Phase 4: Communication Services (Board, Messaging, Notification)
+# ============================================
+
+# ============================================
+# 1. Board Service (8089)
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: board-service
+  namespace: lms-services
+  labels:
+    app: board-service
+    phase: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: board-service
+  template:
+    metadata:
+      labels:
+        app: board-service
+        phase: communication
+    spec:
+      containers:
+      - name: board-service
+        image: lms/board-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8089
+        env:
+        - name: MYSQL_HOST
+          value: "mysql.lms-infra.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "lms_board"
+        - name: MYSQL_USERNAME
+          value: "root"
+        - name: MYSQL_PASSWORD
+          value: "rootpassword"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        - name: JPA_DDL_AUTO
+          value: "update"
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: CONFIG_SERVER_ENABLED
+          value: "false"
+        - name: FILE_STORAGE_BASE_PATH
+          value: "/app/uploads"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8089
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8089
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: board-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8089
+    targetPort: 8089
+    name: http
+  selector:
+    app: board-service
+
+# ============================================
+# 2. Messaging Service (8090)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging-service
+  namespace: lms-services
+  labels:
+    app: messaging-service
+    phase: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging-service
+  template:
+    metadata:
+      labels:
+        app: messaging-service
+        phase: communication
+    spec:
+      containers:
+      - name: messaging-service
+        image: lms/messaging-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+        - name: SERVER_PORT
+          value: "8080"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.lms-infra.svc.cluster.local:3306/lms_messaging?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"
+        - name: SPRING_DATA_MONGODB_URI
+          value: "mongodb://mongodb.lms-infra.svc.cluster.local:27017/lms_messages"
+        - name: SPRING_DATA_MONGODB_DATABASE
+          value: "lms_messages"
+        - name: SPRING_REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: SPRING_REDIS_PORT
+          value: "6379"
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8090
+    targetPort: 8080
+    name: http
+  selector:
+    app: messaging-service
+
+# ============================================
+# 3. Notification Service (8091)
+# ============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: lms-services
+  labels:
+    app: notification-service
+    phase: communication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        phase: communication
+    spec:
+      containers:
+      - name: notification-service
+        image: lms/notification-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8089
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+        - name: DB_HOST
+          value: "mysql.lms-infra.svc.cluster.local"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "notification_db"
+        - name: DB_USERNAME
+          value: "root"
+        - name: DB_PASSWORD
+          value: "rootpassword"
+        - name: REDIS_HOST
+          value: "redis.lms-infra.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: KAFKA_SERVERS
+          value: "kafka.lms-infra.svc.cluster.local:9092"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8089
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8089
+          initialDelaySeconds: 150
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: lms-services
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8091
+    targetPort: 8089
+    name: http
+  selector:
+    app: notification-service
